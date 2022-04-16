@@ -1,0 +1,35 @@
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+variables:
+- group: pulumi
+- name: test
+  value: 1
+stages:
+- stage: CiStage
+  jobs:
+  - deployment: CiJob1
+    environment: test
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: none
+          - checkout: self
+          - task: NuGetAuthenticate@0
+          - script: dotnet run -- RunStep1
+            displayName: Run Automatron
+          - script: dotnet run -- RunStep3
+            displayName: Step 3
+  - job: CiJob2
+    steps:
+    - script: dotnet run -- RunStep2
+      displayName: Run Automatron
+- stage: DefaultStage
+  jobs:
+  - job: DefaultJob
+    steps:
+    - script: dotnet run -- DefaultTask
+      displayName: Run Automatron

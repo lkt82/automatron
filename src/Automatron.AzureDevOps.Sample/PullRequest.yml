@@ -1,0 +1,8 @@
+trigger: none
+stages:
+- stage: PrStage
+  jobs:
+  - job: PrJob
+    steps:
+    - script: dotnet run -- PrTask
+      displayName: Run Automatron

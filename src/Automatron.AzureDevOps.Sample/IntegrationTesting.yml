@@ -1,0 +1,37 @@
+trigger: none
+schedules:
+- cron: 2 0 * * *
+  displayName: Midnight
+  always: false
+  branches:
+    include:
+    - master
+stages:
+- stage: Integration
+  jobs:
+  - deployment: SetupIntegration
+    timeoutInMinutes: 180
+    environment: test
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: none
+          - checkout: self
+          - task: NuGetAuthenticate@0
+          - script: dotnet run -- SetupIntegration
+            displayName: Run Automatron
+  - deployment: TeardownIntegration
+    dependsOn:
+    - SetupIntegration
+    timeoutInMinutes: 180
+    environment: test
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: none
+          - checkout: self
+          - task: NuGetAuthenticate@0
+          - script: dotnet run -- TeardownIntegration
+            displayName: Run Automatron
