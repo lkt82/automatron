@@ -19,6 +19,8 @@ stages:
           - download: none
           - checkout: self
           - task: NuGetAuthenticate@0
+          - task: Pulumi@1
+            displayName: Install Pulumi
           - script: dotnet run -- RunStep1
             displayName: Run Automatron
           - script: dotnet run -- RunStep3

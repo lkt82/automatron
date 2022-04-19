@@ -26,7 +26,8 @@ namespace Automatron.AzureDevOps.Generators.Annotations
         {
             return new AutomatronTask(new []{symbol.Name}, SkipDependencies, Parallel) { 
                 Name = Name, 
-                DisplayName = DisplayName
+                DisplayName = DisplayName,
+                Condition = Condition
             };
         }
     }

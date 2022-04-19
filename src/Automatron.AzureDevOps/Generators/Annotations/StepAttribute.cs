@@ -12,6 +12,8 @@ namespace Automatron.AzureDevOps.Generators.Annotations
 
         public string? DisplayName { get; set; }
 
+        public string? Condition { get; set; }
+
         public abstract Step Create(ISymbol symbol);
     }
 }

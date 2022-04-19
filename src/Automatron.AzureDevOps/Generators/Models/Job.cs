@@ -5,11 +5,12 @@ namespace Automatron.AzureDevOps.Generators.Models
 {
     public class Job: IJob
     {
-        public Job(string name, string? displayName, string[]? dependsOn)
+        public Job(string name, string? displayName, string[]? dependsOn, string? condition)
         {
             Name = name;
             DisplayName = displayName;
             DependsOn = dependsOn;
+            Condition = condition;
         }
 
         [YamlMember(Alias = "job")]
@@ -18,6 +19,8 @@ namespace Automatron.AzureDevOps.Generators.Models
         public string? DisplayName { get; set; }
 
         public string[]? DependsOn { get; set; }
+
+        public string? Condition { get; set; }
 
         public IList<Step> Steps { get; set; } = new List<Step>();
     }

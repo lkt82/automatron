@@ -12,6 +12,8 @@ namespace Automatron.AzureDevOps.Generators.Annotations
 
         public string[]? DependsOn { get; }
 
+        public string? Condition { get; set; }
+
         public JobAttribute(params string[] dependencies)
         {
             DependsOn = dependencies;

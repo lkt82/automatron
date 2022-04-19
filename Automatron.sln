@@ -9,11 +9,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Automatron.AzureDevOps", "src\Automatron.AzureDevOps\Automatron.AzureDevOps.csproj", "{2E626877-3AD2-404C-BB04-4C1EF1D31C01}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Automatron.AzureDevOps.Sample", "src\Automatron.AzureDevOps.Sample\Automatron.AzureDevOps.Sample.csproj", "{0BB05FE6-AFC2-4A9A-A724-6297685017D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Automatron.AzureDevOps.Sample", "src\Automatron.AzureDevOps.Sample\Automatron.AzureDevOps.Sample.csproj", "{0BB05FE6-AFC2-4A9A-A724-6297685017D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -154,6 +154,7 @@ namespace Automatron
         {
             return await new AppRunner<BullseyeCommand>()
                 .UseDebugDirective()
+                .UseDefaultsFromEnvVar()
                 .Configure(c =>
                 {
                     c.UseParameterResolver(_ => _targets);

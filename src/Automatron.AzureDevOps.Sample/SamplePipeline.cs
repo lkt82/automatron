@@ -18,7 +18,7 @@ namespace Automatron.AzureDevOps.Sample
     {
         public const string Cd = "ContinuousDeployment";
 
-        public const string CdPath = "Infrastructure/V2";
+        public const string CdPath = "Infrastructure";
 
         public const string CdYmlName = "ContinuousDeployment";
 
@@ -59,6 +59,7 @@ namespace Automatron.AzureDevOps.Sample
         [DownloadTask(DownloadSource.None)]
         [CheckoutTask(CheckoutSource.Self)]
         [NuGetAuthenticateTask]
+        [PulumiTask(DisplayName = "Install Pulumi")]
         [DependentFor(nameof(CiStage))]
         public void CiJob1()
         {

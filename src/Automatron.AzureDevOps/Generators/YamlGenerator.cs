@@ -322,7 +322,7 @@ namespace Automatron.AzureDevOps.Generators
         {
             var name = !IsNullOrEmpty(stageAttribute.Name) ? stageAttribute.Name! : member.Name;
 
-            var stage = new Stage(name, stageAttribute.DisplayName, stageAttribute.DependsOn);
+            var stage = new Stage(name, stageAttribute.DisplayName, stageAttribute.DependsOn,stageAttribute.Condition);
             return stage;
         }
 
@@ -337,7 +337,7 @@ namespace Automatron.AzureDevOps.Generators
         {
             var name = !IsNullOrEmpty(jobAttribute.Name) ? jobAttribute.Name! : member.Name;
 
-            var job = new Job(name, jobAttribute.DisplayName, jobAttribute.DependsOn);
+            var job = new Job(name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition);
             return job;
         }
 

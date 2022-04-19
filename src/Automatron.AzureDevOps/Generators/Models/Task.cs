@@ -13,6 +13,7 @@ namespace Automatron.AzureDevOps.Generators.Models
         [YamlMember(Alias = "task")]
         public string Type { get; set; }
 
+        [YamlMember]
         public T? Inputs { get; set; }
     }
 }

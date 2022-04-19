@@ -1,2 +1,2 @@
 # automatron
-task automation tool
+Mean lean automation machine
