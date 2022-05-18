@@ -31,6 +31,16 @@ namespace Automatron.AzureDevOps.Sample
         [Option(Description = "test")]
         public string? Param1 { get; set; }
 
+        [Option(Description = "id of an Azure Active Directory application")]
+        public string? AzureClientId { get; set; }
+
+        [Option(Description = "id of the application's Azure Active Directory tenant")]
+        public string? AzureTenantId { get; set; }
+
+        [EnvVar("AZURE_CLIENT_SECRET")]
+        [Option(Description = "one of the application's client secrets")]
+        public string? AzureClientSecret { get; set; }
+
         [Option(Description = "test", Split = ',')]
         public IEnumerable<string> Param2 { get; set; } = Enumerable.Empty<string>();
 
@@ -79,7 +89,7 @@ namespace Automatron.AzureDevOps.Sample
         {
         }
 
-        [AutomatronTask(nameof(CiJob1),DisplayName = "Step 3")]
+        [AutomatronTask(nameof(CiJob1),DisplayName = "Step 3",Secrets = new []{ "AZURE_CLIENT_SECRET" })]
         [DependsOn(nameof(RunStep1),nameof(Build))]
         [DependentFor(nameof(CiJob1))]
         public void RunStep3()
@@ -104,9 +114,7 @@ namespace Automatron.AzureDevOps.Sample
         {
             //throw new Exception("fejl");
 
-            //Debugger.Launch();
-
-            Console.WriteLine($"bulding {Param1}");
+            Console.WriteLine($"bulding {AzureClientSecret}");
 
             foreach (var parameter in Param2)
             {

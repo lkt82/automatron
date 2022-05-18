@@ -8,7 +8,6 @@
 
         private static string Arguments(string[] targets, bool skipDependencies, bool parallel)
         {
-
             var arguments = string.Join(" ", targets);
 
             if (skipDependencies)

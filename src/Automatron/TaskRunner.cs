@@ -12,42 +12,67 @@ using TypeInfo = CommandDotNet.TypeInfo;
 
 namespace Automatron
 {
-    public class TaskRunner<T> where T : class, new()
+    public class TaskRunner<TController> where TController : class, new()
     {
-        private readonly Targets _targets = new();
+        internal class TaskAttributeProvider : ICustomAttributeProvider
+        {
+            private readonly PropertyInfo _propertyInfo;
+
+            public TaskAttributeProvider(PropertyInfo propertyInfo)
+            {
+                _propertyInfo = propertyInfo;
+            }
+
+            public object[] GetCustomAttributes(bool inherit)
+            {
+                return _propertyInfo.GetCustomAttributes(inherit);
+            }
+
+            public object[] GetCustomAttributes(Type attributeType, bool inherit)
+            {
+                return _propertyInfo.GetCustomAttributes(attributeType,inherit);
+            }
+
+            public bool IsDefined(Type attributeType, bool inherit)
+            {
+                return _propertyInfo.IsDefined(attributeType, inherit);
+            }
+        }
+
+        private readonly Targets _bullseyeTargets = new();
         private readonly object _objectType = typeof(object);
 
-        private T? _tasks;
+        private TController? _controller;
 
-        private readonly List<Type> _types = CreateTypes();
+        private readonly List<Type> _types = GetTypes();
 
 
         private readonly IDictionary<PropertyInfo, Option> _optionLockUp = new Dictionary<PropertyInfo, Option>();
 
-        private static List<Type> CreateTypes()
+        private static List<Type> GetTypes()
         {
             var types = new List<Type>();
 
-            var targetType = typeof(T);
+            var controllerType = typeof(TController);
 
-            types.Add(targetType);
+            types.Add(controllerType);
 
-            types.AddRange(targetType.GetInterfaces());
+            types.AddRange(controllerType.GetInterfaces());
 
             return types;
         }
 
-        private IEnumerable<PropertyInfo> OptionProperties => _types
+        private IEnumerable<PropertyInfo> ControllerOptions => _types
             .SelectMany(c => c.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             .Where(c => !ReferenceEquals(c.DeclaringType, _objectType) && !c.IsSpecialName && c.CanWrite);
 
-        private IEnumerable<MethodInfo> TaskMethods => _types
+        private IEnumerable<MethodInfo> ControllerTargets => _types
             .SelectMany(c => c.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod))
             .Where(c => !ReferenceEquals(c.DeclaringType, _objectType) && !c.IsSpecialName);
 
-        private void AddTaskOptions(BuildEvents.CommandCreatedEventArgs args)
+        private void AddControllerOptions(BuildEvents.CommandCreatedEventArgs args)
         {
-            foreach (var property in OptionProperties)
+            foreach (var property in ControllerOptions)
             {
                 if (args.CommandBuilder.Command.ContainsArgumentNode(property.Name))
                 {
@@ -77,7 +102,7 @@ namespace Automatron
                 }
 
                 #pragma warning disable CS0618
-                var option = new Option(optionAttribute?.LongName??property.Name, optionAttribute?.ShortName, typeInfo, arity, optionAttribute?.BooleanMode??BooleanMode.Explicit, typeof(T).FullName)
+                var option = new Option(optionAttribute?.LongName??property.Name, optionAttribute?.ShortName, typeInfo, arity, optionAttribute?.BooleanMode??BooleanMode.Explicit, typeof(TController).FullName,customAttributes:new TaskAttributeProvider(property))
                 {
                     Description = optionAttribute?.Description,
                     Split = optionAttribute?.Split,
@@ -92,28 +117,28 @@ namespace Automatron
             }
         }
 
-        private Task<int> CreateTaskObject(CommandContext ctx, ExecutionDelegate next)
+        private Task<int> CreateController(CommandContext ctx, ExecutionDelegate next)
         {
-            _tasks = new T();
+            _controller = new TController();
 
-            foreach (var property in OptionProperties)
+            foreach (var property in ControllerOptions)
             {
                 var option = _optionLockUp[property];
 
-                if (option.Value == null)
+                if (option.Value == null && option.Default?.Value == null)
                 {
                     continue;
                 }
 
-                property.SetValue(_tasks, option.Value);
+                property.SetValue(_controller, option.Value?? option.Default?.Value);
             }
 
             return next(ctx);
         }
 
-        private Task<int> BuildTargets(CommandContext ctx, ExecutionDelegate next)
+        private Task<int> BuildBullseyeTargets(CommandContext ctx, ExecutionDelegate next)
         {
-            var targets = TaskMethods
+            var targets = ControllerTargets
                 .Select(c =>
                     new
                     {
@@ -139,11 +164,11 @@ namespace Automatron
 
                 if (taskType.IsAssignableFrom(target.Method.ReturnType))
                 {
-                    _targets.Add(target.Name, dependencies, () => (Task)target.Method.Invoke(_tasks, null)!);
+                    _bullseyeTargets.Add(target.Name, dependencies, () => (Task)target.Method.Invoke(_controller, null)!);
                 }
                 else
                 {
-                    _targets.Add(target.Name, dependencies, () => target.Method.Invoke(_tasks, null));
+                    _bullseyeTargets.Add(target.Name, dependencies, () => target.Method.Invoke(_controller, null));
                 }
             }
 
@@ -154,15 +179,15 @@ namespace Automatron
         {
             return await new AppRunner<BullseyeCommand>()
                 .UseDebugDirective()
-                .UseDefaultsFromEnvVar()
                 .Configure(c =>
                 {
-                    c.UseParameterResolver(_ => _targets);
-                    c.UseMiddleware(CreateTaskObject, MiddlewareStages.BindValues);
-                    c.UseMiddleware(BuildTargets, MiddlewareStages.Invoke);
-                    c.BuildEvents.OnCommandCreated += AddTaskOptions;
+                    c.UseParameterResolver(_ => _bullseyeTargets);
+                    c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
+                    c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
+                    c.BuildEvents.OnCommandCreated += AddControllerOptions;
                 })
                 .UseErrorHandler((_, _) => ExitCodes.Error.Result)
+                .UseDefaultsFromEnvVar()
                 .RunAsync(args);
         }
     }

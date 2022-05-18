@@ -24,6 +24,8 @@ stages:
           - script: dotnet run -- RunStep1
             displayName: Run Automatron
           - script: dotnet run -- RunStep3
+            env:
+              AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
             displayName: Step 3
   - job: CiJob2
     steps:

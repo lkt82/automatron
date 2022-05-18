@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Automatron.AzureDevOps.Sample": {
+      "commandName": "Project",
+      "commandLineArgs": "Build",
+      "environmentVariables": {
+        "AZURE_CLIENT_SECRET": "hest"
+      }
+    }
+  }
+}
