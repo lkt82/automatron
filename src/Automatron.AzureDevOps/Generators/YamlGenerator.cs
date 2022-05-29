@@ -14,7 +14,7 @@ using static System.String;
 namespace Automatron.AzureDevOps.Generators
 {
     [Generator]
-    public class YamlGenerator : ISourceGenerator
+    internal class YamlGenerator : ISourceGenerator
     {
         private readonly ISerializer _serializer;
 

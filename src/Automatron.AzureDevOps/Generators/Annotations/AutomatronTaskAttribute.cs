@@ -1,18 +1,8 @@
-﻿using System;
-using Automatron.AzureDevOps.Generators.Models;
+﻿using Automatron.AzureDevOps.Generators.Models;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators.Annotations
 {
-    public class AutomatronTaskEnv : Attribute
-    {
-        public AutomatronTaskEnv(string key,string value)
-        {
-
-        }
-
-    }
-
     public class AutomatronTaskAttribute : StepAttribute
     {
         private const string TaskName = "Run Automatron";

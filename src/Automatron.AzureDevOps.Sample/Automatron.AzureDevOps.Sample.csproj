@@ -11,7 +11,7 @@
 		<CompilerVisibleProperty Include="MSBuildProjectDirectory" />
 	</ItemGroup>
 
-  <ItemGroup>
+	<ItemGroup>
     <ProjectReference Include="..\Automatron.AzureDevOps\Automatron.AzureDevOps.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" SetTargetFramework="TargetFramework=netstandard2.0" />
     <ProjectReference Include="..\Automatron\Automatron.csproj" />
   </ItemGroup>
