@@ -5,12 +5,14 @@ namespace Automatron.AzureDevOps.Generators.Models
 {
     public class DeploymentJob : IJob
     {
-        public DeploymentJob(string name, string? displayName, string[]? dependsOn, string environment)
+        public DeploymentJob(Stage stage,string name, string? displayName, string[]? dependsOn, string? condition,string environment)
         {
             Name = name;
             DisplayName = displayName;
             DependsOn = dependsOn;
+            Condition = condition;
             Environment = environment;
+            Stage = stage;
         }
 
         [YamlMember(Alias = "deployment")]
@@ -20,6 +22,10 @@ namespace Automatron.AzureDevOps.Generators.Models
 
         public string[]? DependsOn { get; set; }
 
+        public string? Condition { get; set; }
+
+        public Pool? Pool { get; set; }
+
         public int? TimeoutInMinutes { get; set; }
 
         public string Environment { get; }
@@ -27,5 +33,8 @@ namespace Automatron.AzureDevOps.Generators.Models
         public IDeploymentStrategy Strategy { get; set; } = new RunOnceDeploymentStrategy();
 
         [YamlIgnore] public IList<Step> Steps => Strategy.Steps;
+
+        [YamlIgnore]
+        public Stage Stage { get; }
     }
 }

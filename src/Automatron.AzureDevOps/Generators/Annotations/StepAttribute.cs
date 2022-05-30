@@ -14,6 +14,6 @@ namespace Automatron.AzureDevOps.Generators.Annotations
 
         public string? Condition { get; set; }
 
-        public abstract Step Create(ISymbol symbol);
+        public abstract Step Create(ISymbol symbol, IJob job);
     }
 }

@@ -1,0 +1,21 @@
+trigger:
+  batch: true
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - src2
+pool:
+  vmImage: ubuntu-latest
+stages:
+- stage: Ci
+  jobs:
+  - job: Ci
+    steps:
+    - script: dotnet run -- Build
+      workingDirectory: ./src/Automatron.Pipeline
+      displayName: Run Automatron
+    - script: dotnet run -- Pack
+      workingDirectory: ./src/Automatron.Pipeline
+      displayName: Run Automatron

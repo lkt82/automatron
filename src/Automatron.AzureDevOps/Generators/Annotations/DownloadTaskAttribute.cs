@@ -12,9 +12,9 @@ namespace Automatron.AzureDevOps.Generators.Annotations
             Source = source;
         }
 
-        public override Step Create(ISymbol symbol)
+        public override Step Create(ISymbol symbol, IJob job)
         {
-            return new DownloadTask(Source)
+            return new DownloadTask(job,Source)
             {
                 Name = Name,
                 DisplayName = DisplayName,

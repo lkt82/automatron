@@ -13,7 +13,7 @@
             public string? Args { get; set; }
         }
 
-        public PulumiTask(PulumiTaskInputs? input=null) : base("Pulumi@1", input)
+        public PulumiTask(IJob job,PulumiTaskInputs? input=null) : base(job,"Pulumi@1", input)
         {
 
         }

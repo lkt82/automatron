@@ -12,9 +12,9 @@ namespace Automatron.AzureDevOps.Generators.Annotations
             Source = source;
         }
 
-        public override Step Create(ISymbol symbol)
+        public override Step Create(ISymbol symbol, IJob job)
         {
-            return new CheckoutTask(Source);
+            return new CheckoutTask(job,Source);
         }
     }
 }

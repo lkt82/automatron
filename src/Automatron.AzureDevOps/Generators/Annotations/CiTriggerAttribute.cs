@@ -26,5 +26,9 @@ namespace Automatron.AzureDevOps.Generators.Annotations
         public string[]? IncludeBranches { get; set; }
 
         public string[]? ExcludeBranches { get; set; }
+
+        public string[]? IncludePaths { get; set; }
+
+        public string[]? ExcludePaths { get; set; }
     }
 }

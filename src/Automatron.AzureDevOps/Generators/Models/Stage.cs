@@ -5,12 +5,13 @@ namespace Automatron.AzureDevOps.Generators.Models
 {
     public class Stage
     {
-        public Stage(string name, string? displayName, string[]? dependsOn, string? condition)
+        public Stage(Pipeline pipeline, string name, string? displayName, string[]? dependsOn, string? condition)
         {
             Name = name;
             DisplayName = displayName;
             DependsOn = dependsOn;
             Condition = condition;
+            Pipeline = pipeline;
         }
 
         [YamlMember(Alias = "stage")]
@@ -22,6 +23,11 @@ namespace Automatron.AzureDevOps.Generators.Models
 
         public string? Condition { get; set; }
 
+        public Pool? Pool { get; set; }
+
         public IList<IJob> Jobs { get; set; } = new List<IJob>();
+
+        [YamlIgnore]
+        public Pipeline Pipeline { get; }
     }
 }

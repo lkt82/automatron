@@ -4,7 +4,7 @@ namespace Automatron.AzureDevOps.Generators.Models
 {
     public abstract class Task<T> : Step
     {
-        protected Task(string type,T? inputs)
+        protected Task(IJob job,string type,T? inputs) : base(job)
         {
             Type = type;
             Inputs = inputs;

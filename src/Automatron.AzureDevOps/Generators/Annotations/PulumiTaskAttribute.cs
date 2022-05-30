@@ -13,11 +13,11 @@ public class PulumiTaskAttribute : StepAttribute
 
     public string? Args { get; set; }
 
-    public override Step Create(ISymbol symbol)
+    public override Step Create(ISymbol symbol, IJob job)
     {
         if (Command != null || Stack != null || Cwd != null || Args != null)
         {
-            return new PulumiTask(new PulumiTask.PulumiTaskInputs
+            return new PulumiTask(job,new PulumiTask.PulumiTaskInputs
             {
                 Command = Command,
                 Stack = Stack,
@@ -31,7 +31,7 @@ public class PulumiTaskAttribute : StepAttribute
             };
         }
 
-        return new PulumiTask
+        return new PulumiTask(job)
         {
             Name = Name,
             DisplayName = DisplayName,

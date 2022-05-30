@@ -4,7 +4,7 @@ namespace Automatron.AzureDevOps.Generators.Models
 {
     public class CheckoutTask: Step
     {
-        public CheckoutTask(string source)
+        public CheckoutTask(IJob job,string source) : base(job)
         {
             Source = source;
         }

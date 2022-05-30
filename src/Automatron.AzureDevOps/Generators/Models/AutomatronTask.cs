@@ -2,7 +2,7 @@
 {
     public class AutomatronTask : Script
     {
-        public AutomatronTask(string[] targets, bool skipDependencies=false, bool parallel=false) : base($"dotnet run -- {Arguments(targets, skipDependencies, parallel)}")
+        public AutomatronTask(IJob job,string[] targets, bool skipDependencies=false, bool parallel=false) : base(job,$"dotnet run -- {Arguments(targets, skipDependencies, parallel)}")
         {
         }
 

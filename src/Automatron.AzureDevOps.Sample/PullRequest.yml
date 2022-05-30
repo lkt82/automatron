@@ -5,4 +5,5 @@ stages:
   - job: PrJob
     steps:
     - script: dotnet run -- PrTask
+      workingDirectory: ./src/Automatron.AzureDevOps.Sample
       displayName: Run Automatron

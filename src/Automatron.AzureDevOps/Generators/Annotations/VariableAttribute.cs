@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace Automatron.AzureDevOps.Generators.Annotations
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Method, AllowMultiple = true)]
     public class VariableAttribute : Attribute
     {
         public string? Pipeline { get; }

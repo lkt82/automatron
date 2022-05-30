@@ -5,9 +5,9 @@ namespace Automatron.AzureDevOps.Generators.Annotations
 {
     public class NuGetAuthenticateTaskAttribute : StepAttribute
     {
-        public override Step Create(ISymbol symbol)
+        public override Step Create(ISymbol symbol, IJob job)
         {
-            return new NuGetAuthenticateTask
+            return new NuGetAuthenticateTask(job)
             {
                 Name = Name,
                 DisplayName = DisplayName

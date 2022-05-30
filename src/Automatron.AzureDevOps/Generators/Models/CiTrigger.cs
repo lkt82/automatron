@@ -5,5 +5,7 @@
         public bool? Batch { get; set; }
 
         public TriggerBranches? Branches { get; set; }
+
+        public TriggerPaths? Paths { get; set; }
     }
 }

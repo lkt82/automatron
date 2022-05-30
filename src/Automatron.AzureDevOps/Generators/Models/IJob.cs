@@ -6,6 +6,16 @@ namespace Automatron.AzureDevOps.Generators.Models
     {
         string Name { get; }
 
+        string? DisplayName { get; }
+
+        string[]? DependsOn { get; }
+
+        string? Condition { get; }
+
+        Pool? Pool { get; }
+
         IList<Step> Steps { get; }
+
+        Stage Stage { get; }
     }
 }

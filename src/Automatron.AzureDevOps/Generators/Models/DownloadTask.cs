@@ -4,7 +4,7 @@ namespace Automatron.AzureDevOps.Generators.Models
 {
     public class DownloadTask : Step
     {
-        public DownloadTask(string source)
+        public DownloadTask(IJob job,string source) : base(job)
         {
             Source = source;
         }

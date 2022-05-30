@@ -8,13 +8,16 @@ namespace Automatron.AzureDevOps.Generators.Models
     {
         private IDictionary<string, object>? _env;
 
-        public Script(string content)
+        public Script(IJob job,string content) : base(job)
         {
             Content = content;
         }
 
         [YamlMember(Alias = "script")]
         public string Content { get; set; }
+
+        [YamlMember]
+        public string? WorkingDirectory { get; set; }
 
         [YamlIgnore]
         public string[]? Secrets { get; set; }

@@ -16,7 +16,7 @@
             public string? Arguments { get; set; }
         }
 
-        public DotNetTask(DotNetTaskInputs input) :base("DotNetCoreCLI@2", input)
+        public DotNetTask(IJob job,DotNetTaskInputs input) :base(job,"DotNetCoreCLI@2", input)
         {
      
         }
