@@ -14,12 +14,12 @@ stages:
   - job: Ci
     steps:
     - script: |
-        dotnet build /nodeReuse:false /p:UseSharedCompilation=false /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet 
+        dotnet build /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary
         dotnet run --no-build -- Build
       workingDirectory: ./src/Automatron.Pipeline
       displayName: Build
     - script: |
-        dotnet build /nodeReuse:false /p:UseSharedCompilation=false /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet 
+        dotnet build /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary
         dotnet run --no-build --  Pack -s
       workingDirectory: ./src/Automatron.Pipeline
       displayName: Pack
