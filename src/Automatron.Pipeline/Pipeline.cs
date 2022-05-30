@@ -20,14 +20,14 @@ namespace Automatron.Pipeline
         [Job]
         public void Ci() { }
 
-        [AutomatronTask(nameof(Ci))]
+        [AutomatronTask(nameof(Ci),DisplayName =nameof(Build))]
         [DependentFor(nameof(Ci))]
         public void Build()
         {
 
         }
 
-        [AutomatronTask(nameof(Ci))]
+        [AutomatronTask(nameof(Ci), DisplayName = nameof(Pack), SkipDependencies = true)]
         [DependentFor(nameof(Ci))]
         [DependsOn(nameof(Build))]
         public void Pack()

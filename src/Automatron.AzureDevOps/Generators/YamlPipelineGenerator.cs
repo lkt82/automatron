@@ -26,6 +26,11 @@ namespace Automatron.AzureDevOps.Generators
 
         public void Execute(GeneratorExecutionContext context)
         {
+            if (Environment.GetEnvironmentVariable("TF_BUILD")?.ToUpperInvariant() == "TRUE")
+            {
+                return;
+            }
+
             Debug.WriteLine("Execute code generator");
 
             var mainMethod = context.Compilation.GetEntryPoint(context.CancellationToken);

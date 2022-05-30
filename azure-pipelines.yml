@@ -15,7 +15,7 @@ stages:
     steps:
     - script: dotnet run -- Build
       workingDirectory: ./src/Automatron.Pipeline
-      displayName: Run Automatron
-    - script: dotnet run -- Pack
+      displayName: Build
+    - script: dotnet run -- Pack -s
       workingDirectory: ./src/Automatron.Pipeline
-      displayName: Run Automatron
+      displayName: Pack
