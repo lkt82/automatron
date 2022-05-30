@@ -13,13 +13,9 @@ stages:
   jobs:
   - job: Ci
     steps:
-    - script: |
-        dotnet build /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary
-        dotnet run --no-build -- Build
+    - script: dotnet run -- Build
       workingDirectory: ./src/Automatron.Pipeline
       displayName: Build
-    - script: |
-        dotnet build /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary
-        dotnet run --no-build --  Pack -s
+    - script: dotnet run -- Pack -s
       workingDirectory: ./src/Automatron.Pipeline
       displayName: Pack
