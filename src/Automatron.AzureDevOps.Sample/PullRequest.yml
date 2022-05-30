@@ -4,9 +4,6 @@ stages:
   jobs:
   - job: PrJob
     steps:
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: run
-        workingDirectory: ./src/Automatron.AzureDevOps.Sample
-        arguments: PrTask
+    - script: dotnet run -- PrTask
+      workingDirectory: ./src/Automatron.AzureDevOps.Sample
       displayName: Run Automatron
