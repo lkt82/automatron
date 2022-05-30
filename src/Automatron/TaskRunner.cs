@@ -180,10 +180,10 @@ namespace Automatron
             return await new AppRunner<BullseyeCommand>()
                 .Configure(c =>
                 {
-                    c.UseParameterResolver(_ => _bullseyeTargets);
+                    /*c.UseParameterResolver(_ => _bullseyeTargets);
                     c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
                     c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
-                    c.BuildEvents.OnCommandCreated += AddControllerOptions;
+                    c.BuildEvents.OnCommandCreated += AddControllerOptions;*/
                 })
                 .UseErrorHandler((_, _) => ExitCodes.Error.Result)
                 .UseDefaultsFromEnvVar()

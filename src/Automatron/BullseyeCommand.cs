@@ -33,7 +33,7 @@ namespace Automatron
             IConsole console
         )
         {
-            var options = new Options
+           /* var options = new Options
             {
                 Clear = clear ?? false,
                 DryRun = dryRun ?? false,
@@ -56,7 +56,7 @@ namespace Automatron
             catch (InvalidUsageException exception)
             {
                 await console.Error.WriteLineAsync(exception.Message);
-            }
+            }*/
         }
     }
 }
