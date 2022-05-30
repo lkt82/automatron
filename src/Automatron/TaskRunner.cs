@@ -177,6 +177,9 @@ namespace Automatron
 
         public async Task<int> RunAsync(params string[] args)
         {
+            Console.WriteLine("hello");
+            return 0;
+
             return await new AppRunner<BullseyeCommand>()
                 .UseDebugDirective()
                 .Configure(c =>
