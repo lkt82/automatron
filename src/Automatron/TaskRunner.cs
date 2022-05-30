@@ -186,7 +186,7 @@ namespace Automatron
                     c.BuildEvents.OnCommandCreated += AddControllerOptions;
                 })
                 .UseErrorHandler((_, _) => ExitCodes.Error.Result)
-                .UseDefaultsFromEnvVar()
+                //.UseDefaultsFromEnvVar()
                 .RunAsync(args);
         }
     }
