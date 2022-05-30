@@ -175,7 +175,7 @@ namespace Automatron
             return next(ctx);
         }
 
-        public async Task<int> RunAsync(params string[] args)
+        public Task<int> RunAsync(params string[] args)
         {
             return new AppRunner<BullseyeCommand>()
                 .Configure(c =>
@@ -185,9 +185,9 @@ namespace Automatron
                     c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
                     c.BuildEvents.OnCommandCreated += AddControllerOptions;
                 })
-                .UseErrorHandler((_, _) => ExitCodes.Error.Result)
-                .UseDefaultsFromEnvVar()
-                .Run(args);
+                //.UseErrorHandler((_, _) => ExitCodes.Error.Result)
+               // .UseDefaultsFromEnvVar()
+                .RunAsync(args);
         }
     }
 }
