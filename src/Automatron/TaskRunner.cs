@@ -178,7 +178,6 @@ namespace Automatron
         public async Task<int> RunAsync(params string[] args)
         {
             return await new AppRunner<BullseyeCommand>()
-                //.UseDebugDirective()
                 .Configure(c =>
                 {
                     c.UseParameterResolver(_ => _bullseyeTargets);
