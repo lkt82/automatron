@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Bullseye;
 using CommandDotNet;
@@ -34,35 +33,30 @@ namespace Automatron
             IConsole console
         )
         {
-            await console.Out.WriteLineAsync("hello");
-            await console.Out.FlushAsync();
-   
-            Environment.Exit(0);
+            var options = new Options
+            {
+                Clear = clear ?? false,
+                DryRun = dryRun ?? false,
+                Host = Host.Automatic,
+                ListDependencies = listDependencies ?? false,
+                ListInputs = listInputs ?? false,
+                ListTargets = listTargets ?? false,
+                ListTree = listTree ?? false,
+                NoColor = false,
+                Parallel = parallel ?? false,
+                SkipDependencies = skipDependencies ?? false,
+                Verbose = false
+            };
 
-            //var options = new Options
-            //{
-            //    Clear = clear ?? false,
-            //    DryRun = dryRun ?? false,
-            //    Host = Host.Automatic,
-            //    ListDependencies = listDependencies ?? false,
-            //    ListInputs = listInputs ?? false,
-            //    ListTargets = listTargets ?? false,
-            //    ListTree = listTree ?? false,
-            //    NoColor = false,
-            //    Parallel = parallel ?? false,
-            //    SkipDependencies = skipDependencies ?? false,
-            //    Verbose = false
-            //};
+            try
+            {
 
-            //try
-            //{
-
-            //    await bullseyeService.RunWithoutExitingAsync(targets ?? Enumerable.Empty<string>(), options, outputWriter: console.Out, diagnosticsWriter: console.Error);
-            //}
-            //catch (InvalidUsageException exception)
-            //{
-            //    await console.Error.WriteLineAsync(exception.Message);
-            //}
+                await bullseyeService.RunWithoutExitingAsync(targets ?? Enumerable.Empty<string>(), options, outputWriter: console.Out, diagnosticsWriter: console.Error);
+            }
+            catch (InvalidUsageException exception)
+            {
+                await console.Error.WriteLineAsync(exception.Message);
+            }
         }
     }
 }
