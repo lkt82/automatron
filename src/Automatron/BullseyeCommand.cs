@@ -34,7 +34,9 @@ namespace Automatron
             IConsole console
         )
         {
-            Console.WriteLine("hello");
+            await console.Out.WriteLineAsync("hello");
+            await console.Out.FlushAsync();
+   
             Environment.Exit(0);
 
             //var options = new Options
