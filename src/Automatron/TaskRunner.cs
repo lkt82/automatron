@@ -177,7 +177,7 @@ namespace Automatron
 
         public async Task<int> RunAsync(params string[] args)
         {
-            return await new AppRunner<BullseyeCommand>()
+            var result = new AppRunner<BullseyeCommand>()
                 .Configure(c =>
                 {
                     c.UseParameterResolver(_ => _bullseyeTargets);
@@ -187,7 +187,21 @@ namespace Automatron
                 })
                 .UseErrorHandler((_, _) => ExitCodes.Error.Result)
                 .UseDefaultsFromEnvVar()
-                .RunAsync(args);
+                .Run(args);
+
+            return result;
+
+            //return await new AppRunner<BullseyeCommand>()
+            //    .Configure(c =>
+            //    {
+            //        c.UseParameterResolver(_ => _bullseyeTargets);
+            //        c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
+            //        c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
+            //        c.BuildEvents.OnCommandCreated += AddControllerOptions;
+            //    })
+            //    .UseErrorHandler((_, _) => ExitCodes.Error.Result)
+            //    .UseDefaultsFromEnvVar()
+            //    .RunAsync(args);
         }
     }
 }
