@@ -19,7 +19,7 @@ namespace Automatron
         [UsedImplicitly]
         public void Execute(
             [Operand]
-            string target/*,
+            string[] target/*,
             [Option('c',Description = "Clear the console before execution")]
             //bool? clear,
             //[Option('n',Description = "Do a dry run without executing actions")]
