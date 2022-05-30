@@ -35,6 +35,7 @@ namespace Automatron
         )
         {
             Console.WriteLine("hello");
+            Environment.Exit(0);
 
             //var options = new Options
             //{
