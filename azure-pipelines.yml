@@ -16,7 +16,7 @@ stages:
     - script: |
         set -eo pipefail
         dotnet build /nodeReuse:false /p:UseSharedCompilation=false 
-        dotnet ./src/Automatron.Pipeline/bin/Debug/net6.0/Automatron.Pipeline.dll Build
+        dotnet bin/Debug/net6.0/Automatron.Pipeline.dll Build
       workingDirectory: ./src/Automatron.Pipeline
       displayName: Build
     - script: dotnet run -- Pack -s
