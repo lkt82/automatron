@@ -14,7 +14,7 @@ namespace Automatron.Pipeline
     [Pool(VmImage = "ubuntu-latest")]
     public class Pipeline
     {
-        private static int Main(string[] args) => new TaskRunner<Pipeline>().Run(args);
+        private static async Task<int> Main(string[] args) => await new TaskRunner<Pipeline>().RunAsync(args);
 
         [Stage]
         [Job]

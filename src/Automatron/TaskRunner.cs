@@ -209,13 +209,13 @@ namespace Automatron
             return await new AppRunner<TestCommand>()
                 .Configure(c =>
                 {
-                    /*c.UseParameterResolver(_ => _bullseyeTargets);
+                    c.UseParameterResolver(_ => _bullseyeTargets);
                     c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
                     c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
-                    c.BuildEvents.OnCommandCreated += AddControllerOptions;*/
+                    c.BuildEvents.OnCommandCreated += AddControllerOptions;
                 })
-                //.UseErrorHandler((_, _) => ExitCodes.Error.Result)
-                //.UseDefaultsFromEnvVar()
+                .UseErrorHandler((_, _) => ExitCodes.Error.Result)
+                .UseDefaultsFromEnvVar()
                 .RunAsync(args);
         }
 
@@ -224,13 +224,13 @@ namespace Automatron
             return new AppRunner<TestCommand>()
                 .Configure(c =>
                 {
-                    /*c.UseParameterResolver(_ => _bullseyeTargets);
+                    c.UseParameterResolver(_ => _bullseyeTargets);
                     c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
                     c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
-                    c.BuildEvents.OnCommandCreated += AddControllerOptions;*/
+                    c.BuildEvents.OnCommandCreated += AddControllerOptions;
                 })
-                //.UseErrorHandler((_, _) => ExitCodes.Error.Result)
-                //.UseDefaultsFromEnvVar()
+                .UseErrorHandler((_, _) => ExitCodes.Error.Result)
+                .UseDefaultsFromEnvVar()
                 .Run(args);
         }
     }
