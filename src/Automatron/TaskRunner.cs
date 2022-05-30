@@ -18,8 +18,8 @@ namespace Automatron
         [DefaultCommand]
         [UsedImplicitly]
         public void Execute(
-            [Operand]
-            string[] target/*,
+            //[Operand]
+            string[]? target/*,
             [Option('c',Description = "Clear the console before execution")]
             //bool? clear,
             //[Option('n',Description = "Do a dry run without executing actions")]
@@ -37,7 +37,7 @@ namespace Automatron
             //[Option('s',Description = "Do not run targets' dependencies")]
             //bool? skipDependencies*/)
         {
-            Console.WriteLine(target);
+            Console.WriteLine(target.First());
         }
     }
 
