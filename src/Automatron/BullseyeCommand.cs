@@ -29,11 +29,11 @@ namespace Automatron
             bool? parallel,
             [Option('s',Description = "Do not run targets' dependencies")]
             bool? skipDependencies,
-           // Targets bullseyeService,
+            Targets bullseyeService,
             IConsole console
         )
         {
-           /* var options = new Options
+            var options = new Options
             {
                 Clear = clear ?? false,
                 DryRun = dryRun ?? false,
@@ -56,7 +56,7 @@ namespace Automatron
             catch (InvalidUsageException exception)
             {
                 await console.Error.WriteLineAsync(exception.Message);
-            }*/
+            }
         }
     }
 }
