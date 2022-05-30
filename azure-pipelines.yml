@@ -16,7 +16,7 @@ stages:
     - script: |
         set -eo pipefail
         dotnet build /nodeReuse:false /p:UseSharedCompilation=false 
-        dotnet run --no-build --no-restore --no-launch-profile --force -- "Build"
+        dotnet run --no-build --no-restore --no-launch-profile -- Build
       workingDirectory: ./src/Automatron.Pipeline
       displayName: Build
     - script: dotnet run -- Pack -s
