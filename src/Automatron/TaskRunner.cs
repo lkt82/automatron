@@ -18,8 +18,8 @@ namespace Automatron
         [DefaultCommand]
         [UsedImplicitly]
         public void Execute(
-            [Operand(Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
-            string[] targets/*,
+            [Operand]
+            string target/*,
             [Option('c',Description = "Clear the console before execution")]
             //bool? clear,
             //[Option('n',Description = "Do a dry run without executing actions")]
@@ -37,7 +37,7 @@ namespace Automatron
             //[Option('s',Description = "Do not run targets' dependencies")]
             //bool? skipDependencies*/)
         {
-            Console.WriteLine(targets[0]);
+            Console.WriteLine(target);
         }
     }
 
