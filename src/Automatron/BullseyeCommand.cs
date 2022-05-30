@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Bullseye;
 using CommandDotNet;
@@ -33,30 +34,32 @@ namespace Automatron
             IConsole console
         )
         {
-            var options = new Options
-            {
-                Clear = clear ?? false,
-                DryRun = dryRun ?? false,
-                Host = Host.Automatic,
-                ListDependencies = listDependencies ?? false,
-                ListInputs = listInputs ?? false,
-                ListTargets = listTargets ?? false,
-                ListTree = listTree ?? false,
-                NoColor = false,
-                Parallel = parallel ?? false,
-                SkipDependencies = skipDependencies ?? false,
-                Verbose = false
-            };
+            Console.WriteLine("hello");
 
-            try
-            {
+            //var options = new Options
+            //{
+            //    Clear = clear ?? false,
+            //    DryRun = dryRun ?? false,
+            //    Host = Host.Automatic,
+            //    ListDependencies = listDependencies ?? false,
+            //    ListInputs = listInputs ?? false,
+            //    ListTargets = listTargets ?? false,
+            //    ListTree = listTree ?? false,
+            //    NoColor = false,
+            //    Parallel = parallel ?? false,
+            //    SkipDependencies = skipDependencies ?? false,
+            //    Verbose = false
+            //};
 
-                await bullseyeService.RunWithoutExitingAsync(targets ?? Enumerable.Empty<string>(), options, outputWriter: console.Out, diagnosticsWriter: console.Error);
-            }
-            catch (InvalidUsageException exception)
-            {
-                await console.Error.WriteLineAsync(exception.Message);
-            }
+            //try
+            //{
+
+            //    await bullseyeService.RunWithoutExitingAsync(targets ?? Enumerable.Empty<string>(), options, outputWriter: console.Out, diagnosticsWriter: console.Error);
+            //}
+            //catch (InvalidUsageException exception)
+            //{
+            //    await console.Error.WriteLineAsync(exception.Message);
+            //}
         }
     }
 }
