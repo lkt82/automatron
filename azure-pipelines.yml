@@ -13,7 +13,10 @@ stages:
   jobs:
   - job: Ci
     steps:
-    - script: dotnet run -- Build
+    - script: |
+        set -eo pipefail
+        dotnet build /nodeReuse:false /p:UseSharedCompilation=false 
+        dotnet run --no-build -- "Build"
       workingDirectory: ./src/Automatron.Pipeline
       displayName: Build
     - script: dotnet run -- Pack -s
