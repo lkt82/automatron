@@ -10,7 +10,7 @@ namespace Automatron
     {
         [DefaultCommand]
         [UsedImplicitly]
-        public void Execute(
+        public async Task<int> Execute(
             [Operand(Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
             string[]? targets,
             [Option('c',Description = "Clear the console before execution")] 
@@ -58,7 +58,7 @@ namespace Automatron
             //    throw;
             //}
 
-            //return 0;
+            return 0;
         }
     }
 }
