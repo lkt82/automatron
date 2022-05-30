@@ -10,7 +10,7 @@ namespace Automatron
     {
         [DefaultCommand]
         [UsedImplicitly]
-        public async Task<int> Execute(
+        public async Task Execute(
             [Operand(Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
             string[]? targets,
             [Option('c',Description = "Clear the console before execution")] 
@@ -33,32 +33,30 @@ namespace Automatron
             IConsole console
         )
         {
-            //var options = new Options
-            //{
-            //    Clear = clear ?? false,
-            //    DryRun = dryRun ?? false,
-            //    Host = Host.Automatic,
-            //    ListDependencies = listDependencies ?? false,
-            //    ListInputs = listInputs ?? false,
-            //    ListTargets = listTargets ?? false,
-            //    ListTree = listTree ?? false,
-            //    NoColor = false,
-            //    Parallel = parallel ?? false,
-            //    SkipDependencies = skipDependencies ?? false,
-            //    Verbose = false
-            //};
+            var options = new Options
+            {
+                Clear = clear ?? false,
+                DryRun = dryRun ?? false,
+                Host = Host.Automatic,
+                ListDependencies = listDependencies ?? false,
+                ListInputs = listInputs ?? false,
+                ListTargets = listTargets ?? false,
+                ListTree = listTree ?? false,
+                NoColor = false,
+                Parallel = parallel ?? false,
+                SkipDependencies = skipDependencies ?? false,
+                Verbose = false
+            };
 
-            //try
-            //{
-            //    await bullseyeService.RunWithoutExitingAsync(targets ?? Enumerable.Empty<string>(), options, outputWriter: console.Out, diagnosticsWriter: console.Error);
-            //}
-            //catch (InvalidUsageException exception)
-            //{
-            //    await console.Error.WriteLineAsync(exception.Message);
-            //    throw;
-            //}
-
-            return 0;
+            try
+            {
+                await bullseyeService.RunWithoutExitingAsync(targets ?? Enumerable.Empty<string>(), options, outputWriter: console.Out, diagnosticsWriter: console.Error);
+            }
+            catch (InvalidUsageException exception)
+            {
+                await console.Error.WriteLineAsync(exception.Message);
+                throw;
+            }
         }
     }
 }
