@@ -8,10 +8,21 @@ using Bullseye;
 using CommandDotNet;
 using CommandDotNet.Builders;
 using CommandDotNet.Execution;
+using JetBrains.Annotations;
 using TypeInfo = CommandDotNet.TypeInfo;
 
 namespace Automatron
 {
+    public class TestCommand
+    {
+        [DefaultCommand]
+        [UsedImplicitly]
+        public void Execute()
+        {
+
+        }
+    }
+
     public class TaskRunner<TController> where TController : class, new()
     {
         internal class TaskAttributeProvider : ICustomAttributeProvider
@@ -175,18 +186,18 @@ namespace Automatron
             return next(ctx);
         }
 
-        public Task<int> RunAsync(params string[] args)
+        public async Task<int> RunAsync(params string[] args)
         {
-            return new AppRunner<BullseyeCommand>()
+            return await new AppRunner<TestCommand>()
                 .Configure(c =>
                 {
-                    c.UseParameterResolver(_ => _bullseyeTargets);
-                    c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
-                    c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
-                    c.BuildEvents.OnCommandCreated += AddControllerOptions;
+                    //c.UseParameterResolver(_ => _bullseyeTargets);
+                    //c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
+                    //c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
+                    //c.BuildEvents.OnCommandCreated += AddControllerOptions;
                 })
-                //.UseErrorHandler((_, _) => ExitCodes.Error.Result)
-               // .UseDefaultsFromEnvVar()
+                .UseErrorHandler((_, _) => ExitCodes.Error.Result)
+                .UseDefaultsFromEnvVar()
                 .RunAsync(args);
         }
     }
