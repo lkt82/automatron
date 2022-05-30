@@ -177,6 +177,8 @@ namespace Automatron
 
         public async Task<int> RunAsync(params string[] args)
         {
+            return 0;
+
             return await new AppRunner<BullseyeCommand>()
                 .Configure(c =>
                 {
@@ -187,7 +189,7 @@ namespace Automatron
                 })
                 .UseErrorHandler((_, _) => ExitCodes.Error.Result)
                 .UseDefaultsFromEnvVar()
-                .RunAsync(args);
+                .RunAsync(args).ConfigureAwait(true);
         }
     }
 }
