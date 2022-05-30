@@ -9,7 +9,7 @@ namespace Automatron.Pipeline
     [CiTrigger(
         Batch = true,
         IncludeBranches = new[] { "main" },
-        IncludePaths = new[] { "src2" }
+        IncludePaths = new[] { "src" }
     )]
     [Pool(VmImage = "ubuntu-latest")]
     public class Pipeline

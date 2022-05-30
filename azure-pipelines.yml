@@ -5,7 +5,7 @@ trigger:
     - main
   paths:
     include:
-    - src2
+    - src
 pool:
   vmImage: ubuntu-latest
 stages:

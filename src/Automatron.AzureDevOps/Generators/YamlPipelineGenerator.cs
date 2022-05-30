@@ -31,6 +31,8 @@ namespace Automatron.AzureDevOps.Generators
                 return;
             }
 
+            return;
+
             Debug.WriteLine("Execute code generator");
 
             var mainMethod = context.Compilation.GetEntryPoint(context.CancellationToken);
