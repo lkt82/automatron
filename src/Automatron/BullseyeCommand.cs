@@ -10,7 +10,7 @@ namespace Automatron
     {
         [DefaultCommand]
         [UsedImplicitly]
-        public async Task Execute(
+        public async Task<int> Execute(
             [Operand(Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
             string[]? targets,
             [Option('c',Description = "Clear the console before execution")] 
@@ -50,13 +50,15 @@ namespace Automatron
 
             try
             {
-
                 await bullseyeService.RunWithoutExitingAsync(targets ?? Enumerable.Empty<string>(), options, outputWriter: console.Out, diagnosticsWriter: console.Error);
             }
             catch (InvalidUsageException exception)
             {
                 await console.Error.WriteLineAsync(exception.Message);
+                throw;
             }
+
+            return 0;
         }
     }
 }
