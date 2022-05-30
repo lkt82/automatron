@@ -37,7 +37,7 @@ namespace Automatron
             //[Option('s',Description = "Do not run targets' dependencies")]
             //bool? skipDependencies*/)
         {
-
+            Console.WriteLine(targets[0]);
         }
     }
 
