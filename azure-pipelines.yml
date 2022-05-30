@@ -13,9 +13,8 @@ stages:
   jobs:
   - job: Ci
     steps:
-    - pwsh: dotnet run -- Build
+    - script: dotnet run -- Build
       workingDirectory: ./src/Automatron.Pipeline
-      errorActionPreference: stop
       displayName: Build
     - script: dotnet run -- Pack -s
       workingDirectory: ./src/Automatron.Pipeline
