@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -8,7 +9,6 @@ using Bullseye;
 using CommandDotNet;
 using CommandDotNet.Builders;
 using CommandDotNet.Execution;
-using JetBrains.Annotations;
 using TypeInfo = CommandDotNet.TypeInfo;
 
 namespace Automatron
@@ -16,8 +16,7 @@ namespace Automatron
     public class TestCommand
     {
         [DefaultCommand]
-        [UsedImplicitly]
-        public void Execute(
+        public void Hest(
             [Operand(Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
             string[] targets
             /*[Option('c',Description = "Clear the console before execution")]
@@ -206,19 +205,24 @@ namespace Automatron
 
         public async Task<int> RunAsync(params string[] args)
         {
-            return await new AppRunner<BullseyeCommand>()
-                .Configure(c =>
-                {
-                    c.UseParameterResolver(_ => _bullseyeTargets);
-                    c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
-                    c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
-                    c.BuildEvents.OnCommandCreated += AddControllerOptions;
-                })
-                .UseErrorHandler((_, _) => ExitCodes.Error.Result)
-                .UseDefaultsFromEnvVar()
-                .UseCancellationHandlers()
-                .RunAsync(args);
+            return await new AppRunner<TestCommand>().RunAsync(args);
         }
+
+        //public async Task<int> RunAsync(params string[] args)
+        //{
+        //    return await new AppRunner<BullseyeCommand>()
+        //        .Configure(c =>
+        //        {
+        //            c.UseParameterResolver(_ => _bullseyeTargets);
+        //            c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
+        //            c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
+        //            c.BuildEvents.OnCommandCreated += AddControllerOptions;
+        //        })
+        //        .UseErrorHandler((_, _) => ExitCodes.Error.Result)
+        //        .UseDefaultsFromEnvVar()
+        //        .UseCancellationHandlers()
+        //        .RunAsync(args);
+        //}
 
         public int Run(params string[] args)
         {
