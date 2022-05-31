@@ -18,7 +18,7 @@ namespace Automatron
     {
         [DefaultCommand]
         public void Hest(
-            [Operand(Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
+            //[Operand(Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
             //[Option('t',Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.",Split = ' ')]
             IEnumerable<string> targets
             /*[Option('c',Description = "Clear the console before execution")]
@@ -212,7 +212,7 @@ namespace Automatron
 
         public async Task<int> RunAsync(params string[] args)
         {
-            return await new AppRunner<BullseyeCommand>()
+            return await new AppRunner<TestCommand>()
                 .Configure(c =>
                 {
                     c.UseParameterResolver(_ => _bullseyeTargets);
