@@ -21,23 +21,23 @@ stages:
           - task: NuGetAuthenticate@0
           - task: Pulumi@1
             displayName: Install Pulumi
-          - script: dotnet run -- RunStep1
+          - script: dotnet run -- -r RunStep1
             workingDirectory: ./src/Automatron.AzureDevOps.Sample
             displayName: Run Automatron
-          - script: dotnet run -- RunStep3
+          - script: dotnet run -- -r RunStep3
             workingDirectory: ./src/Automatron.AzureDevOps.Sample
             env:
               AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
             displayName: Step 3
   - job: CiJob2
     steps:
-    - script: dotnet run -- RunStep2
+    - script: dotnet run -- -r RunStep2
       workingDirectory: ./src/Automatron.AzureDevOps.Sample
       displayName: Run Automatron
 - stage: DefaultStage
   jobs:
   - job: DefaultJob
     steps:
-    - script: dotnet run -- DefaultTask
+    - script: dotnet run -- -r DefaultTask
       workingDirectory: ./src/Automatron.AzureDevOps.Sample
       displayName: Run Automatron

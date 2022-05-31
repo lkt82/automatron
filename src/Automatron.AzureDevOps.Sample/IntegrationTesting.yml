@@ -19,7 +19,7 @@ stages:
           - download: none
           - checkout: self
           - task: NuGetAuthenticate@0
-          - script: dotnet run -- SetupIntegration
+          - script: dotnet run -- -r SetupIntegration
             workingDirectory: ./src/Automatron.AzureDevOps.Sample
             displayName: Run Automatron
   - deployment: TeardownIntegration
@@ -34,6 +34,6 @@ stages:
           - download: none
           - checkout: self
           - task: NuGetAuthenticate@0
-          - script: dotnet run -- TeardownIntegration
+          - script: dotnet run -- -r TeardownIntegration
             workingDirectory: ./src/Automatron.AzureDevOps.Sample
             displayName: Run Automatron
