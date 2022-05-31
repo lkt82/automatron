@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -14,79 +12,6 @@ using TypeInfo = CommandDotNet.TypeInfo;
 
 namespace Automatron
 {
-    internal class TestCommand
-    {
-        [DefaultCommand]
-        public void Execute(
-            [Operand("targets",Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
-            IEnumerable<string> targets,
-            [Option('c',Description = "Clear the console before execution")]
-            bool? clear,
-            [Option('n',Description = "Do a dry run without executing actions")]
-            bool? dryRun,
-            [Option('d',Description = "List all (or specified) targets and dependencies, then exit")]
-            bool? listDependencies,
-            [Option('i',Description = "List all (or specified) targets and inputs, then exit")]
-            bool? listInputs,
-            [Option('l',Description = "List all (or specified) targets, then exit")]
-            bool? listTargets,
-            [Option('t',Description = "List all (or specified) targets and dependency trees, then exit")]
-            bool? listTree,
-            [Option('p',Description = "Run targets in parallel")]
-            bool? parallel,
-            [Option('s',Description = "Do not run targets' dependencies")]
-            bool? skipDependencies,
-            [Option('a')]
-            IEnumerable<string> targets2,
-            /*Targets bullseyeService,*/
-            IConsole console)
-        {
-            //var options = new Options
-            //{
-            //    Clear = clear ?? false,
-            //    DryRun = dryRun ?? false,
-            //    Host = Host.Automatic,
-            //    ListDependencies = listDependencies ?? false,
-            //    ListInputs = listInputs ?? false,
-            //    ListTargets = listTargets ?? false,
-            //    ListTree = listTree ?? false,
-            //    NoColor = true,
-            //    Parallel = parallel ?? false,
-            //    SkipDependencies = skipDependencies ?? false,
-            //    Verbose = false
-            //};
-
-            try
-            {
-                foreach (var target in targets)
-                {
-                    Console.WriteLine(target);
-                }
-            }
-            catch
-            {
-                Console.WriteLine("Error");
-            }
-
-
-            //foreach (var target in targets)
-            //{
-            //    console.WriteLine(target);
-            //}
-
-             //bullseyeService.RunWithoutExitingAsync(new []{ "Build" }).Wait();
-
-            //try
-            //{
-            //    await bullseyeService.RunWithoutExitingAsync(targets, options, outputWriter: console.Out, diagnosticsWriter: console.Error);
-            //}
-            //catch (InvalidUsageException exception)
-            //{
-            //    await console.Error.WriteLineAsync(exception.Message);
-            //}
-        }
-    }
-
     public class TaskRunner<TController> where TController : class, new()
     {
         internal class TaskAttributeProvider : ICustomAttributeProvider
@@ -249,12 +174,6 @@ namespace Automatron
 
             return next(ctx);
         }
-
-        //public async Task<int> RunAsync(params string[] args)
-        //{
-        //    var result = new AppRunner<TestCommand>().Run(args);
-        //    return await Task.FromResult(result);
-        //}
 
         public async Task<int> RunAsync(params string[] args)
         {
