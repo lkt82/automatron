@@ -1,5 +1,6 @@
 ﻿using Automatron.Annotations;
 using Automatron.AzureDevOps.Generators.Annotations;
+using static SimpleExec.Command;
 
 namespace Automatron.Pipeline
 {
@@ -24,7 +25,16 @@ namespace Automatron.Pipeline
         [DependentFor(nameof(Ci))]
         public void Build()
         {
+            Run("dotnet", "dotnet build -c Release",workingDirectory: "../Automatron");
+            Run("dotnet", "dotnet build -c Release", workingDirectory: "../Automatron.AzureDevOps");
+        }
 
+        [AutomatronTask(nameof(Ci), DisplayName = nameof(Build))]
+        [DependentFor(nameof(Ci))]
+        public void Test()
+        {
+            //Run("dotnet", "dotnet test -c Release", workingDirectory: "../Automatron");
+           // Run("dotnet", "dotnet test -c Release", workingDirectory: "../Automatron.AzureDevOps");
         }
 
         [AutomatronTask(nameof(Ci), DisplayName = nameof(Pack), SkipDependencies = true)]
@@ -32,7 +42,8 @@ namespace Automatron.Pipeline
         [DependsOn(nameof(Build))]
         public void Pack()
         {
-
+            Run("dotnet", "dotnet pack --no-build -c Release", workingDirectory: "../Automatron");
+            Run("dotnet", "dotnet pack --no-build -c Release", workingDirectory: "../Automatron.AzureDevOps");
         }
 
     }
