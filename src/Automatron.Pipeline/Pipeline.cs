@@ -29,7 +29,7 @@ namespace Automatron.Pipeline
             Run("dotnet", "dotnet build -c Release", workingDirectory: "../Automatron.AzureDevOps");
         }
 
-        [AutomatronTask(nameof(Ci), DisplayName = nameof(Build))]
+        [AutomatronTask(nameof(Ci), DisplayName = nameof(Test), SkipDependencies = true)]
         [DependsOn(nameof(Build))]
         [DependentFor(nameof(Ci))]
         public void Test()
