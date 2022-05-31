@@ -251,14 +251,8 @@ namespace Automatron
 
         public async Task<int> RunAsync(params string[] args)
         {
-            foreach (var target in args)
-            {
-                Console.WriteLine(target);
-            }
-
-            return await Task.FromResult(0);
-
-            //return await new AppRunner<TestCommand>().RunAsync(args);
+            var result = new AppRunner<TestCommand>().Run(args);
+            return await Task.FromResult(result);
         }
 
         //public async Task<int> RunAsync(params string[] args)
