@@ -15,8 +15,7 @@ namespace Automatron.Pipeline
     [Pool(Name = "Default")]
     public class Pipeline
     {
-       // private static async Task<int> Main(string[] args) => await new TaskRunner<Pipeline>().RunAsync(args);
-        private static int Main(string[] args) => new TaskRunner<Pipeline>().Run(args);
+        private static async Task<int> Main(string[] args) => await new TaskRunner<Pipeline>().RunAsync(args);
 
         [Stage]
         [Job]

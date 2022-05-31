@@ -217,7 +217,6 @@ namespace Automatron
                 .UseErrorHandler((_, _) => ExitCodes.Error.Result)
                 .UseDefaultsFromEnvVar()
                 .UseCancellationHandlers()
-                .UseCommandLogger()
                 .RunAsync(args);
         }
 
