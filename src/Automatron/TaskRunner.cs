@@ -17,7 +17,7 @@ namespace Automatron
     internal class TestCommand
     {
         [DefaultCommand]
-        public void Hest(
+        public Task Execute(
             [Operand("targets",Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
             IEnumerable<string> targets,
             [Option('c',Description = "Clear the console before execution")]
@@ -53,6 +53,8 @@ namespace Automatron
                 SkipDependencies = skipDependencies ?? false,
                 Verbose = false
             };
+
+            return Task.CompletedTask;
 
         }
     }
