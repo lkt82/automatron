@@ -36,6 +36,8 @@ namespace Automatron
             bool? parallel,
             [Option('s',Description = "Do not run targets' dependencies")]
             bool? skipDependencies,
+            [Option('a')]
+            IEnumerable<string> targets2,
             /*Targets bullseyeService,*/
             IConsole console)
         {
@@ -56,11 +58,10 @@ namespace Automatron
 
             try
             {
-                foreach (var target in targets)
+                foreach (var target in targets2)
                 {
                     Console.WriteLine(target);
                 }
-                Environment.FailFast("test");
             }
             catch
             {
