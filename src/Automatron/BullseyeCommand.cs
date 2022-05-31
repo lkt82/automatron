@@ -11,7 +11,7 @@ namespace Automatron
         [DefaultCommand]
         [UsedImplicitly]
         public async Task Execute(
-            [Operand(Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
+            [Operand("targets",Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
             IEnumerable<string> targets,
             [Option('c',Description = "Clear the console before execution")]
             bool? clear,
