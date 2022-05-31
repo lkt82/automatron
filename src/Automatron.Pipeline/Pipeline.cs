@@ -11,7 +11,8 @@ namespace Automatron.Pipeline
         IncludeBranches = new[] { "main" },
         IncludePaths = new[] { "src" }
     )]
-    [Pool(VmImage = "ubuntu-latest")]
+    //[Pool(VmImage = "ubuntu-latest")]
+    [Pool(Name = "Default")]
     public class Pipeline
     {
         private static async Task<int> Main(string[] args) => await new TaskRunner<Pipeline>().RunAsync(args);

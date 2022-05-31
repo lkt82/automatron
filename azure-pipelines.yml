@@ -7,7 +7,7 @@ trigger:
     include:
     - src
 pool:
-  vmImage: ubuntu-latest
+  name: Default
 stages:
 - stage: Ci
   jobs:
