@@ -55,7 +55,6 @@ namespace Automatron
             catch (InvalidUsageException exception)
             {
                 await console.Error.WriteLineAsync(exception.Message);
-                throw;
             }
         }
     }
