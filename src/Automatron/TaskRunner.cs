@@ -59,14 +59,14 @@ namespace Automatron
                 console.WriteLine("targets is null");
             }
 
-            //console.WriteLine(targets.Count());
+            console.WriteLine(targets.Count());
 
             //foreach (var target in targets)
             //{
             //    console.WriteLine(target);
             //}
 
-             bullseyeService.RunWithoutExitingAsync(new []{ "Build" }).Wait();
+             //bullseyeService.RunWithoutExitingAsync(new []{ "Build" }).Wait();
 
             //try
             //{
