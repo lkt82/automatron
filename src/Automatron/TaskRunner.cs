@@ -43,7 +43,7 @@ namespace Automatron
             {
                 Clear = clear ?? false,
                 DryRun = dryRun ?? false,
-                Host = Host.Console,
+                Host = Host.Automatic,
                 ListDependencies = listDependencies ?? false,
                 ListInputs = listInputs ?? false,
                 ListTargets = listTargets ?? false,
@@ -54,7 +54,7 @@ namespace Automatron
                 Verbose = false
             };
 
-            bullseyeService.RunWithoutExitingAsync(new []{ "Build" }).Wait();
+            bullseyeService.RunWithoutExitingAsync(targets, options).Wait();
 
             //try
             //{
