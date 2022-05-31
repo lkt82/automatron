@@ -60,7 +60,7 @@ namespace Automatron
                 {
                     Console.WriteLine(target);
                 }
-                Environment.Exit(0);
+                Environment.Exit(1);
             }
             catch
             {
