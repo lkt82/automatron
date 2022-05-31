@@ -12,7 +12,7 @@ namespace Automatron
         [UsedImplicitly]
         public async Task Execute(
             [Operand("targets",Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
-            IEnumerable<string> targets,
+            IEnumerable<string>? targets,
             [Option('c',Description = "Clear the console before execution")]
             bool? clear,
             [Option('n',Description = "Do a dry run without executing actions")]
@@ -29,6 +29,8 @@ namespace Automatron
             bool? parallel,
             [Option('s',Description = "Do not run targets' dependencies")]
             bool? skipDependencies,
+            [Option('a',longName:"targets")]
+            IEnumerable<string> targetOptions,
             Targets bullseyeService,
             IConsole console
         )
@@ -50,7 +52,7 @@ namespace Automatron
 
             try
             {
-                await bullseyeService.RunAndExitAsync(targets, options, outputWriter: console.Out, diagnosticsWriter: console.Error);
+                await bullseyeService.RunAndExitAsync(targets??targetOptions, options, outputWriter: console.Out, diagnosticsWriter: console.Error);
             }
             catch (InvalidUsageException exception)
             {

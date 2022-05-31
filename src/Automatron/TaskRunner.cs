@@ -58,7 +58,7 @@ namespace Automatron
 
             try
             {
-                foreach (var target in targets2)
+                foreach (var target in targets)
                 {
                     Console.WriteLine(target);
                 }
@@ -250,27 +250,27 @@ namespace Automatron
             return next(ctx);
         }
 
-        public async Task<int> RunAsync(params string[] args)
-        {
-            var result = new AppRunner<TestCommand>().Run(args);
-            return await Task.FromResult(result);
-        }
-
         //public async Task<int> RunAsync(params string[] args)
         //{
-        //    return await new AppRunner<BullseyeCommand>()
-        //        .Configure(c =>
-        //        {
-        //            c.UseParameterResolver(_ => _bullseyeTargets);
-        //            c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
-        //            c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
-        //            c.BuildEvents.OnCommandCreated += AddControllerOptions;
-        //        })
-        //        .UseErrorHandler((_, _) => ExitCodes.Error.Result)
-        //        .UseDefaultsFromEnvVar()
-        //        .UseCancellationHandlers()
-        //        .RunAsync(args);
+        //    var result = new AppRunner<TestCommand>().Run(args);
+        //    return await Task.FromResult(result);
         //}
+
+        public async Task<int> RunAsync(params string[] args)
+        {
+            return await new AppRunner<BullseyeCommand>()
+                .Configure(c =>
+                {
+                    c.UseParameterResolver(_ => _bullseyeTargets);
+                    c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
+                    c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
+                    c.BuildEvents.OnCommandCreated += AddControllerOptions;
+                })
+                .UseErrorHandler((_, _) => ExitCodes.Error.Result)
+                .UseDefaultsFromEnvVar()
+                .UseCancellationHandlers()
+                .RunAsync(args);
+        }
 
         public int Run(params string[] args)
         {
