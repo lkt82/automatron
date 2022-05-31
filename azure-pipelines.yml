@@ -15,7 +15,7 @@ stages:
     steps:
     - task: Bash@3
       inputs:
-        filePath: './run.sh'
+        filePath: './src/Automatron.Pipeline/run.sh'
         workingDirectory: ./src/Automatron.Pipeline
         arguments: build
       displayName: Build
