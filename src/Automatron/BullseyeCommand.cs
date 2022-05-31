@@ -29,7 +29,7 @@ namespace Automatron
             bool? parallel,
             [Option('s',Description = "Do not run targets' dependencies")]
             bool? skipDependencies,
-            [Option('a',longName:"targets")]
+            [Option(longName:"targets")]
             IEnumerable<string> targetOptions,
             Targets bullseyeService,
             IConsole console
