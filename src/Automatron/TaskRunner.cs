@@ -264,9 +264,9 @@ namespace Automatron
                     c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
                     c.BuildEvents.OnCommandCreated += AddControllerOptions;
                 })
-                .UseErrorHandler((_, _) => ExitCodes.Error.Result)
-                .UseDefaultsFromEnvVar()
-                .UseCancellationHandlers()
+               // .UseErrorHandler((_, _) => ExitCodes.Error.Result)
+                //.UseDefaultsFromEnvVar()
+                //.UseCancellationHandlers()
                 .RunAsync(args);
         }
 
