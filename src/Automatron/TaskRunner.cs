@@ -249,26 +249,33 @@ namespace Automatron
             return next(ctx);
         }
 
-        //public async Task<int> RunAsync(params string[] args)
-        //{
-        //    return await new AppRunner<TestCommand>().RunAsync(args);
-        //}
-
         public async Task<int> RunAsync(params string[] args)
         {
-            return await new AppRunner<TestCommand>()
-                .Configure(c =>
-                {
-                    c.UseParameterResolver(_ => _bullseyeTargets);
-                    c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
-                    c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
-                    c.BuildEvents.OnCommandCreated += AddControllerOptions;
-                })
-               // .UseErrorHandler((_, _) => ExitCodes.Error.Result)
-                //.UseDefaultsFromEnvVar()
-                //.UseCancellationHandlers()
-                .RunAsync(args);
+            foreach (var target in args)
+            {
+                Console.WriteLine(target);
+            }
+
+            return await Task.FromResult(0);
+
+            //return await new AppRunner<TestCommand>().RunAsync(args);
         }
+
+        //public async Task<int> RunAsync(params string[] args)
+        //{
+        //    return await new AppRunner<BullseyeCommand>()
+        //        .Configure(c =>
+        //        {
+        //            c.UseParameterResolver(_ => _bullseyeTargets);
+        //            c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
+        //            c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
+        //            c.BuildEvents.OnCommandCreated += AddControllerOptions;
+        //        })
+        //        .UseErrorHandler((_, _) => ExitCodes.Error.Result)
+        //        .UseDefaultsFromEnvVar()
+        //        .UseCancellationHandlers()
+        //        .RunAsync(args);
+        //}
 
         public int Run(params string[] args)
         {
