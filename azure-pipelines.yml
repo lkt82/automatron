@@ -15,8 +15,8 @@ stages:
     steps:
     - task: Bash@3
       inputs:
-        filePath: 'run.sh'
-        workingDirectory: src/Automatron.Pipeline
+        filePath: './run.sh'
+        workingDirectory: ./src/Automatron.Pipeline
         arguments: build
       displayName: Build
     #- script: dotnet run -- Build
