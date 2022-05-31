@@ -13,9 +13,9 @@ stages:
   jobs:
   - job: Ci
     steps:
-    - script: dotnet run -- -t Build
+    - script: dotnet run -- Build
       workingDirectory: ./src/Automatron.Pipeline
       displayName: Build
-    - script: dotnet run -- -t Pack -s
+    - script: dotnet run -- Pack -s
       workingDirectory: ./src/Automatron.Pipeline
       displayName: Pack
