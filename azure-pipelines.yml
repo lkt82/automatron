@@ -16,14 +16,6 @@ stages:
     - script: dotnet run -- Build
       workingDirectory: ./src/Automatron.Pipeline
       displayName: Build
-      env:
-        DOTNET_CLI_TELEMETRY_OPTOUT: 1
-        DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-        DOTNET_MULTILEVEL_LOOKUP: 0
     - script: dotnet run -- Pack -s
       workingDirectory: ./src/Automatron.Pipeline
       displayName: Pack
-      env:
-        DOTNET_CLI_TELEMETRY_OPTOUT: 1
-        DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-        DOTNET_MULTILEVEL_LOOKUP: 0

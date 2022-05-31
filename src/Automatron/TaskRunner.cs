@@ -216,6 +216,7 @@ namespace Automatron
                 })
                 .UseErrorHandler((_, _) => ExitCodes.Error.Result)
                 .UseDefaultsFromEnvVar()
+                .UseCancellationHandlers()
                 .RunAsync(args);
         }
 
@@ -231,6 +232,7 @@ namespace Automatron
                 })
                 .UseErrorHandler((_, _) => ExitCodes.Error.Result)
                 .UseDefaultsFromEnvVar()
+                .UseCancellationHandlers()
                 .Run(args);
         }
     }
