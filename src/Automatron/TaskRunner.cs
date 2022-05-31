@@ -54,7 +54,7 @@ namespace Automatron
                 Verbose = false
             };
 
-            bullseyeService.RunWithoutExitingAsync(targets, options).Wait();
+            bullseyeService.RunWithoutExitingAsync(targets).Wait();
 
             //try
             //{
