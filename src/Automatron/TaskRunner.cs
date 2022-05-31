@@ -39,29 +39,34 @@ namespace Automatron
             Targets bullseyeService,
             IConsole console)
         {
-            var options = new Options
-            {
-                Clear = clear ?? false,
-                DryRun = dryRun ?? false,
-                Host = Host.Automatic,
-                ListDependencies = listDependencies ?? false,
-                ListInputs = listInputs ?? false,
-                ListTargets = listTargets ?? false,
-                ListTree = listTree ?? false,
-                NoColor = true,
-                Parallel = parallel ?? false,
-                SkipDependencies = skipDependencies ?? false,
-                Verbose = false
-            };
+            //var options = new Options
+            //{
+            //    Clear = clear ?? false,
+            //    DryRun = dryRun ?? false,
+            //    Host = Host.Automatic,
+            //    ListDependencies = listDependencies ?? false,
+            //    ListInputs = listInputs ?? false,
+            //    ListTargets = listTargets ?? false,
+            //    ListTree = listTree ?? false,
+            //    NoColor = true,
+            //    Parallel = parallel ?? false,
+            //    SkipDependencies = skipDependencies ?? false,
+            //    Verbose = false
+            //};
 
-            console.WriteLine(targets.Count());
-
-            foreach (var target in targets)
+            if (targets == null)
             {
-                console.WriteLine(target);
+                console.WriteLine("targets is null");
             }
 
-            bullseyeService.RunWithoutExitingAsync(new []{ "Build" }).Wait();
+            //console.WriteLine(targets.Count());
+
+            //foreach (var target in targets)
+            //{
+            //    console.WriteLine(target);
+            //}
+
+             bullseyeService.RunWithoutExitingAsync(new []{ "Build" }).Wait();
 
             //try
             //{
