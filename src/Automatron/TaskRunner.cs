@@ -39,7 +39,21 @@ namespace Automatron
             Targets bullseyeService,
             IConsole console)
         {
-            Console.WriteLine(targets.First());
+            var options = new Options
+            {
+                Clear = clear ?? false,
+                DryRun = dryRun ?? false,
+                Host = Host.Console,
+                ListDependencies = listDependencies ?? false,
+                ListInputs = listInputs ?? false,
+                ListTargets = listTargets ?? false,
+                ListTree = listTree ?? false,
+                NoColor = false,
+                Parallel = parallel ?? false,
+                SkipDependencies = skipDependencies ?? false,
+                Verbose = false
+            };
+
         }
     }
 
