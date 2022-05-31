@@ -36,7 +36,7 @@ namespace Automatron
             bool? parallel,
             [Option('s',Description = "Do not run targets' dependencies")]
             bool? skipDependencies,
-            Targets bullseyeService,
+            /*Targets bullseyeService,*/
             IConsole console)
         {
             //var options = new Options
