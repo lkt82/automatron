@@ -54,7 +54,14 @@ namespace Automatron
                 Verbose = false
             };
 
-            bullseyeService.RunWithoutExitingAsync(targets).Wait();
+            console.WriteLine(targets.Count());
+
+            foreach (var target in targets)
+            {
+                console.WriteLine(target);
+            }
+
+            bullseyeService.RunWithoutExitingAsync(new []{ "Build" }).Wait();
 
             //try
             //{
