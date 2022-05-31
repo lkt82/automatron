@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bullseye;
 using CommandDotNet;
@@ -12,7 +12,7 @@ namespace Automatron
         [UsedImplicitly]
         public async Task Execute(
             [Operand(Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
-            string[]? targets,
+            IEnumerable<string> targets,
             [Option('c',Description = "Clear the console before execution")]
             bool? clear,
             [Option('n',Description = "Do a dry run without executing actions")]
@@ -50,7 +50,7 @@ namespace Automatron
 
             try
             {
-                await bullseyeService.RunAndExitAsync(targets ?? Enumerable.Empty<string>(), options, outputWriter: console.Out, diagnosticsWriter: console.Error);
+                await bullseyeService.RunAndExitAsync(targets, options, outputWriter: console.Out, diagnosticsWriter: console.Error);
             }
             catch (InvalidUsageException exception)
             {

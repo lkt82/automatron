@@ -18,7 +18,7 @@ namespace Automatron
     {
         [DefaultCommand]
         public void Hest(
-            //[Operand("targets",Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
+            [Operand(Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
             //[Option('t',Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.",Split = ' ')]
             IEnumerable<string> targets
             /*[Option('c',Description = "Clear the console before execution")]
@@ -205,26 +205,26 @@ namespace Automatron
             return next(ctx);
         }
 
-        public async Task<int> RunAsync(params string[] args)
-        {
-            return await new AppRunner<TestCommand>().RunAsync(args);
-        }
-
         //public async Task<int> RunAsync(params string[] args)
         //{
-        //    return await new AppRunner<BullseyeCommand>()
-        //        .Configure(c =>
-        //        {
-        //            c.UseParameterResolver(_ => _bullseyeTargets);
-        //            c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
-        //            c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
-        //            c.BuildEvents.OnCommandCreated += AddControllerOptions;
-        //        })
-        //        .UseErrorHandler((_, _) => ExitCodes.Error.Result)
-        //        .UseDefaultsFromEnvVar()
-        //        .UseCancellationHandlers()
-        //        .RunAsync(args);
+        //    return await new AppRunner<TestCommand>().RunAsync(args);
         //}
+
+        public async Task<int> RunAsync(params string[] args)
+        {
+            return await new AppRunner<BullseyeCommand>()
+                .Configure(c =>
+                {
+                    c.UseParameterResolver(_ => _bullseyeTargets);
+                    c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
+                    c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
+                    c.BuildEvents.OnCommandCreated += AddControllerOptions;
+                })
+                .UseErrorHandler((_, _) => ExitCodes.Error.Result)
+                .UseDefaultsFromEnvVar()
+                .UseCancellationHandlers()
+                .RunAsync(args);
+        }
 
         public int Run(params string[] args)
         {
