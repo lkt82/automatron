@@ -14,7 +14,7 @@ using TypeInfo = CommandDotNet.TypeInfo;
 
 namespace Automatron
 {
-    public class TestCommand
+    internal class TestCommand
     {
         [DefaultCommand]
         public void Hest(
@@ -35,7 +35,9 @@ namespace Automatron
             [Option('p',Description = "Run targets in parallel")]
             bool? parallel,
             [Option('s',Description = "Do not run targets' dependencies")]
-            bool? skipDependencies)
+            bool? skipDependencies,
+            Targets bullseyeService,
+            IConsole console)
         {
             Console.WriteLine(targets.First());
         }
@@ -211,7 +213,7 @@ namespace Automatron
 
         public async Task<int> RunAsync(params string[] args)
         {
-            return await new AppRunner<BullseyeCommand>()
+            return await new AppRunner<TestCommand>()
                 .Configure(c =>
                 {
                     c.UseParameterResolver(_ => _bullseyeTargets);
