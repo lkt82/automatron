@@ -56,7 +56,10 @@ namespace Automatron
 
             try
             {
-                var test = targets.ToArray();
+                foreach (var target in targets)
+                {
+                    Console.WriteLine(target);
+                }
             }
             catch
             {
