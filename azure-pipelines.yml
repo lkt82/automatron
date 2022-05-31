@@ -7,15 +7,15 @@ trigger:
     include:
     - src
 pool:
-  name: Default
+  vmImage: ubuntu-latest
 stages:
 - stage: Ci
   jobs:
   - job: Ci
     steps:
-    - script: dotnet run -- -r Build
+    - script: dotnet run -- Build
       workingDirectory: ./src/Automatron.Pipeline
       displayName: Build
-    - script: dotnet run -- -r Pack -s
+    - script: dotnet run -- Pack -s
       workingDirectory: ./src/Automatron.Pipeline
       displayName: Pack
