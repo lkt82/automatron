@@ -13,8 +13,9 @@ stages:
   jobs:
   - job: Ci
     steps:
-    - bash: run.sh Build
+    - bash: ./run.sh
       workingDirectory: src/Automatron.Pipeline
+      arguments: Build
       displayName: Build
     #- script: dotnet run -- Build
     #  workingDirectory: ./src/Automatron.Pipeline
