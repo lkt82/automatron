@@ -54,12 +54,15 @@ namespace Automatron
             //    Verbose = false
             //};
 
-            if (targets == null)
+            try
             {
-                console.WriteLine("targets is null");
+                var test = targets.ToArray();
+            }
+            catch
+            {
+                Console.WriteLine("Error");
             }
 
-            console.WriteLine(targets.Count());
 
             //foreach (var target in targets)
             //{
