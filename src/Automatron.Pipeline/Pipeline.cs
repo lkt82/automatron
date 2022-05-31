@@ -30,6 +30,7 @@ namespace Automatron.Pipeline
         }
 
         [AutomatronTask(nameof(Ci), DisplayName = nameof(Build))]
+        [DependsOn(nameof(Build))]
         [DependentFor(nameof(Ci))]
         public void Test()
         {
@@ -39,7 +40,7 @@ namespace Automatron.Pipeline
 
         [AutomatronTask(nameof(Ci), DisplayName = nameof(Pack), SkipDependencies = true)]
         [DependentFor(nameof(Ci))]
-        [DependsOn(nameof(Build))]
+        [DependsOn(nameof(Test))]
         public void Pack()
         {
             Run("dotnet", "dotnet pack --no-build -c Release", workingDirectory: "../Automatron");
