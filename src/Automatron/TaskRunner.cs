@@ -18,8 +18,7 @@ namespace Automatron
     {
         [DefaultCommand]
         public void Hest(
-            //[Operand(Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
-            //[Option('t',Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.",Split = ' ')]
+            [Operand("targets",Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
             IEnumerable<string> targets
             /*[Option('c',Description = "Clear the console before execution")]
             //bool? clear,
