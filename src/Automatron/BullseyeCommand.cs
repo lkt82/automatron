@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Bullseye;
 using CommandDotNet;
@@ -30,7 +31,7 @@ namespace Automatron
             [Option('s',Description = "Do not run targets' dependencies")]
             bool? skipDependencies,
             [Option(longName:"targets2")]
-            IEnumerable<string> targetOptions,
+            IEnumerable<string>? targetOptions,
             Targets bullseyeService,
             IConsole console
         )
@@ -52,7 +53,7 @@ namespace Automatron
 
             try
             {
-                await bullseyeService.RunAndExitAsync(targets??targetOptions, options, outputWriter: console.Out, diagnosticsWriter: console.Error);
+                await bullseyeService.RunAndExitAsync(targetOptions ?? targets?? Enumerable.Empty<string>(), options, outputWriter: console.Out, diagnosticsWriter: console.Error);
             }
             catch (InvalidUsageException exception)
             {
