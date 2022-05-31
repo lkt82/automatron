@@ -17,7 +17,7 @@ namespace Automatron
     internal class TestCommand
     {
         [DefaultCommand]
-        public async Task Execute(
+        public Task Execute(
             [Operand("targets",Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
             IEnumerable<string> targets,
             [Option('c',Description = "Clear the console before execution")]
@@ -48,20 +48,22 @@ namespace Automatron
                 ListInputs = listInputs ?? false,
                 ListTargets = listTargets ?? false,
                 ListTree = listTree ?? false,
-                NoColor = false,
+                NoColor = true,
                 Parallel = parallel ?? false,
                 SkipDependencies = skipDependencies ?? false,
                 Verbose = false
             };
 
-            try
-            {
-                await bullseyeService.RunWithoutExitingAsync(targets, options, outputWriter: console.Out, diagnosticsWriter: console.Error);
-            }
-            catch (InvalidUsageException exception)
-            {
-                await console.Error.WriteLineAsync(exception.Message);
-            }
+            return bullseyeService.RunAndExitAsync(targets, options);
+
+            //try
+            //{
+            //    await bullseyeService.RunWithoutExitingAsync(targets, options, outputWriter: console.Out, diagnosticsWriter: console.Error);
+            //}
+            //catch (InvalidUsageException exception)
+            //{
+            //    await console.Error.WriteLineAsync(exception.Message);
+            //}
         }
     }
 
