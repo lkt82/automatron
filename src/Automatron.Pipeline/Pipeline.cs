@@ -30,7 +30,7 @@ namespace Automatron.Pipeline
         [Job]
         public void Ci() { }
 
-        [AutomatronTask(nameof(Ci), DisplayName = nameof(Build))]
+        [AutomatronTask(nameof(Ci), DisplayName = nameof(Version))]
         [DependentFor(nameof(Ci))]
         public async Task Version()
         {
