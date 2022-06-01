@@ -5,9 +5,7 @@ using CommandDotNet;
 
 namespace Automatron.AzureDevOps
 {
-
-
-    public static class AzureDevOpsTasks
+    public static class LoggingCommands
     {
         public static async Task UpdateBuildNumber(this IConsole console,string buildNumber)
         {
