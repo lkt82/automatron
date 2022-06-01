@@ -8,11 +8,13 @@ using Bullseye;
 using CommandDotNet;
 using CommandDotNet.Builders;
 using CommandDotNet.Execution;
+using CommandDotNet.IoC.MicrosoftDependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using TypeInfo = CommandDotNet.TypeInfo;
 
 namespace Automatron
 {
-    public class TaskRunner<TController> where TController : class, new()
+    public class TaskRunner<TController> where TController : class
     {
         internal class TaskAttributeProvider : ICustomAttributeProvider
         {
@@ -119,7 +121,7 @@ namespace Automatron
 
         private Task<int> CreateController(CommandContext ctx, ExecutionDelegate next)
         {
-            _controller = new TController();
+            _controller = ctx.DependencyResolver!.Resolve<TController>();
 
             foreach (var property in ControllerOptions)
             {
@@ -175,12 +177,22 @@ namespace Automatron
             return next(ctx);
         }
 
-        public async Task<int> RunAsync(params string[] args)
+        private AppRunner CreateAppRunner()
         {
-            return await new AppRunner<BullseyeCommand>()
+            var appRunner = new AppRunner<BullseyeCommand>();
+
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddSingleton<TController>();
+            serviceCollection.AddSingleton(_bullseyeTargets);
+            foreach (var type in appRunner.GetCommandClassTypes())
+            {
+                serviceCollection.AddSingleton(type.type);
+            }
+
+            return appRunner
                 .Configure(c =>
                 {
-                    c.UseParameterResolver(_ => _bullseyeTargets);
+                    serviceCollection.AddSingleton(c.Console);
                     c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
                     c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
                     c.BuildEvents.OnCommandCreated += AddControllerOptions;
@@ -188,23 +200,17 @@ namespace Automatron
                 .UseErrorHandler((_, _) => ExitCodes.Error.Result)
                 .UseDefaultsFromEnvVar()
                 .UseCancellationHandlers()
-                .RunAsync(args);
+                .UseMicrosoftDependencyInjection(serviceCollection.BuildServiceProvider());
+        }
+
+        public async Task<int> RunAsync(params string[] args)
+        {
+            return await CreateAppRunner().RunAsync(args);
         }
 
         public int Run(params string[] args)
         {
-            return new AppRunner<BullseyeCommand>()
-                .Configure(c =>
-                {
-                    c.UseParameterResolver(_ => _bullseyeTargets);
-                    c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
-                    c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
-                    c.BuildEvents.OnCommandCreated += AddControllerOptions;
-                })
-                .UseErrorHandler((_, _) => ExitCodes.Error.Result)
-                .UseDefaultsFromEnvVar()
-                .UseCancellationHandlers()
-                .Run(args);
+            return CreateAppRunner().Run(args);
         }
     }
 }

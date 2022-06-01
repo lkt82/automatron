@@ -10,6 +10,7 @@
   <ItemGroup>
         <PackageReference Include="Bullseye" Version="4.0.0" />
         <PackageReference Include="CommandDotNet" Version="6.0.5" />
+        <PackageReference Include="CommandDotNet.IoC.MicrosoftDependencyInjection" Version="4.0.1" />
         <PackageReference Include="JetBrains.Annotations" Version="2022.1.0">
           <PrivateAssets>all</PrivateAssets>
         </PackageReference>

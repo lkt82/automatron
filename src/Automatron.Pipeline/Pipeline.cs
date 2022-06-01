@@ -1,5 +1,7 @@
 ﻿using Automatron.Annotations;
+using Automatron.AzureDevOps;
 using Automatron.AzureDevOps.Generators.Annotations;
+using CommandDotNet;
 using static SimpleExec.Command;
 
 namespace Automatron.Pipeline
@@ -15,36 +17,51 @@ namespace Automatron.Pipeline
     [Pool(VmImage = "ubuntu-latest")]
     public class Pipeline
     {
+        private readonly IConsole _console;
+
+        public Pipeline(IConsole console)
+        {
+            _console = console;
+        }
+
         private static async Task<int> Main(string[] args) => await new TaskRunner<Pipeline>().RunAsync(args);
 
         [Stage]
         [Job]
         public void Ci() { }
 
-        [AutomatronTask(nameof(Ci),DisplayName =nameof(Build))]
+        [AutomatronTask(nameof(Ci), DisplayName = nameof(Build))]
         [DependentFor(nameof(Ci))]
-        public void Build()
+        public async Task Version()
         {
-            Run("dotnet", "dotnet build -c Release",workingDirectory: "../Automatron");
-            Run("dotnet", "dotnet build -c Release", workingDirectory: "../Automatron.AzureDevOps");
+            await _console.UpdateBuildNumberWithAssemblyInformationalVersion();
+        }
+
+        [AutomatronTask(nameof(Ci),DisplayName =nameof(Build), SkipDependencies = true)]
+        [DependsOn(nameof(Version))]
+        [DependentFor(nameof(Ci))]
+        public async Task Build()
+        {
+            await RunAsync("dotnet", "dotnet build -c Release",workingDirectory: "../Automatron");
+            await RunAsync("dotnet", "dotnet build -c Release", workingDirectory: "../Automatron.AzureDevOps");
+            await RunAsync("dotnet", "dotnet build -c Release", workingDirectory: "../Automatron.Tests");
         }
 
         [AutomatronTask(nameof(Ci), DisplayName = nameof(Test), SkipDependencies = true)]
         [DependsOn(nameof(Build))]
         [DependentFor(nameof(Ci))]
-        public void Test()
+        public async Task Test()
         {
-            //Run("dotnet", "dotnet test -c Release", workingDirectory: "../Automatron");
-           // Run("dotnet", "dotnet test -c Release", workingDirectory: "../Automatron.AzureDevOps");
+            await RunAsync("dotnet", "dotnet test --no-build -c Release", workingDirectory: "../Automatron.Tests");
         }
 
         [AutomatronTask(nameof(Ci), DisplayName = nameof(Pack), SkipDependencies = true)]
         [DependentFor(nameof(Ci))]
         [DependsOn(nameof(Test))]
-        public void Pack()
+        public async Task Pack()
         {
-            Run("dotnet", "dotnet pack --no-build -c Release", workingDirectory: "../Automatron");
-            Run("dotnet", "dotnet pack --no-build -c Release", workingDirectory: "../Automatron.AzureDevOps");
+            await RunAsync("dotnet", "dotnet pack --no-build -c Release", workingDirectory: "../Automatron");
+            await RunAsync("dotnet", "dotnet pack --no-build -c Release", workingDirectory: "../Automatron.AzureDevOps");
         }
 
     }

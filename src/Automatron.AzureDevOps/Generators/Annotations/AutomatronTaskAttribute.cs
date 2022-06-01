@@ -6,17 +6,17 @@ namespace Automatron.AzureDevOps.Generators.Annotations
 {
     public class AutomatronTaskAttribute : StepAttribute
     {
-        private const string TaskName = "Run Automatron";
+        private const string _displayName = "Run Automatron";
 
         public AutomatronTaskAttribute()
         {
-            DisplayName = TaskName;
+            DisplayName = _displayName;
         }
 
         public AutomatronTaskAttribute(string job)
         {
             Job = job;
-            DisplayName = TaskName;
+            DisplayName = _displayName;
         }
 
         public bool SkipDependencies { get; set; }

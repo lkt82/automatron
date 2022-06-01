@@ -9,6 +9,15 @@ namespace Automatron
 {
     internal class BullseyeCommand
     {
+        private readonly Targets _bullseyeService;
+        private readonly IConsole _console;
+
+        public BullseyeCommand(Targets bullseyeService, IConsole console)
+        {
+            _bullseyeService = bullseyeService;
+            _console = console;
+        }
+
         [DefaultCommand]
         [UsedImplicitly]
         public async Task Execute(
@@ -31,9 +40,7 @@ namespace Automatron
             [Option('s',Description = "Do not run targets' dependencies")]
             bool? skipDependencies,
             [Option('r',Description = "Run a list of targets")]
-            IEnumerable<string>? run,
-            Targets bullseyeService,
-            IConsole console
+            IEnumerable<string>? run
         )
         {
             var options = new Options
@@ -53,11 +60,11 @@ namespace Automatron
 
             try
             {
-                await bullseyeService.RunAndExitAsync(run ?? targets?? Enumerable.Empty<string>(), options, outputWriter: console.Out, diagnosticsWriter: console.Error);
+                await _bullseyeService.RunAndExitAsync(run ?? targets?? Enumerable.Empty<string>(), options, outputWriter: _console.Out, diagnosticsWriter: _console.Error);
             }
             catch (InvalidUsageException exception)
             {
-                await console.Error.WriteLineAsync(exception.Message);
+                await _console.Error.WriteLineAsync(exception.Message);
             }
         }
     }

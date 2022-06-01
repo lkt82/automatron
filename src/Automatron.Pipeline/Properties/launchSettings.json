@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Automatron.Pipeline": {
+      "commandName": "Project",
+      "commandLineArgs": "Build",
+      "workingDirectory": "."
+    }
+  }
+}
