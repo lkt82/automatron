@@ -104,7 +104,7 @@ namespace Automatron
                 }
 
                 #pragma warning disable CS0618
-                var option = new Option(optionAttribute?.LongName??property.Name, optionAttribute?.ShortName, typeInfo, arity, optionAttribute?.BooleanMode??BooleanMode.Explicit, typeof(TController).FullName,customAttributes:new TaskAttributeProvider(property))
+                var option = new Option(optionAttribute?.LongName??char.ToLowerInvariant(property.Name[0]) + property.Name[1..], optionAttribute?.ShortName, typeInfo, arity, optionAttribute?.BooleanMode??BooleanMode.Explicit, typeof(TController).FullName,customAttributes:new TaskAttributeProvider(property))
                 {
                     Description = optionAttribute?.Description,
                     Split = optionAttribute?.Split,
@@ -177,22 +177,29 @@ namespace Automatron
             return next(ctx);
         }
 
-        private AppRunner CreateAppRunner()
+        private ServiceCollection Services { get; } = new();
+
+        public TaskRunner<TController> ConfigureServices(Action<ServiceCollection> action)
+        {
+            action(Services);
+            return this;
+        }
+
+        private AppRunner Build()
         {
             var appRunner = new AppRunner<BullseyeCommand>();
 
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddSingleton<TController>();
-            serviceCollection.AddSingleton(_bullseyeTargets);
+            Services.AddSingleton<TController>();
+            Services.AddSingleton(_bullseyeTargets);
             foreach (var type in appRunner.GetCommandClassTypes())
             {
-                serviceCollection.AddSingleton(type.type);
+                Services.AddSingleton(type.type);
             }
-
+    
             return appRunner
                 .Configure(c =>
                 {
-                    serviceCollection.AddSingleton(c.Console);
+                    Services.AddSingleton(c.Console);
                     c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
                     c.UseMiddleware(BuildBullseyeTargets, MiddlewareStages.PostBindValuesPreInvoke);
                     c.BuildEvents.OnCommandCreated += AddControllerOptions;
@@ -200,18 +207,19 @@ namespace Automatron
                 .UseErrorHandler((_, _) => ExitCodes.Error.Result)
                 .UseDefaultsFromEnvVar()
                 .UseCancellationHandlers()
-                .UseMicrosoftDependencyInjection(serviceCollection.BuildServiceProvider());
+                .UseMicrosoftDependencyInjection(Services.BuildServiceProvider());
         }
 
         public async Task<int> RunAsync(params string[] args)
         {
-            return await CreateAppRunner().RunAsync(args);
+            return await Build().RunAsync(args);
         }
 
         public int Run(params string[] args)
         {
-            return CreateAppRunner().Run(args);
+            return Build().Run(args);
         }
+
     }
 }
 

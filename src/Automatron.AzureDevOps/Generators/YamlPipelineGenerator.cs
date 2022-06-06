@@ -256,7 +256,7 @@ namespace Automatron.AzureDevOps.Generators
 
         private static Pipeline CreatePipeline(PipelineAttribute pipelineAttribute, string projectDirectory)
         {
-            var pipeline = new Pipeline(pipelineAttribute.Name, pipelineAttribute.YmlName, pipelineAttribute.YmlPath, pipelineAttribute.CheckoutPath, projectDirectory);
+            var pipeline = new Pipeline(pipelineAttribute.Name, pipelineAttribute.YmlName, pipelineAttribute.YmlPath, pipelineAttribute.RootPath, projectDirectory);
             return pipeline;
         }
 

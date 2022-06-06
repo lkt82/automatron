@@ -4,6 +4,10 @@
         <TargetFramework>net6.0</TargetFramework>
 	    <Nullable>enable</Nullable>
 	    <MinVerSkip Condition="'$(Configuration)' == 'Debug'">true</MinVerSkip>
+	    <Description>Mean lean automation machine</Description>
+	    <Copyright>© 2022 Lars Kjær Thomsen</Copyright>
+	    <RepositoryUrl>https://github.com/lkt82/automatron</RepositoryUrl>
+	    <Authors>Lars Kjær Thomsen</Authors>
     </PropertyGroup>
 
 

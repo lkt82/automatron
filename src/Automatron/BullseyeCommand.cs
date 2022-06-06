@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace Automatron
 {
-    internal class BullseyeCommand
+    internal sealed class BullseyeCommand
     {
         private readonly Targets _bullseyeService;
         private readonly IConsole _console;

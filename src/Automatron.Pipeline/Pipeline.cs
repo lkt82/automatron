@@ -6,8 +6,8 @@ using static SimpleExec.Command;
 
 namespace Automatron.Pipeline
 {
-    [Pipeline("../../",
-        YmlPath = "../../"
+    [Pipeline(RootDir,
+        YmlPath = RootDir
     )]
     [CiTrigger(
         Batch = true,
@@ -15,22 +15,32 @@ namespace Automatron.Pipeline
         IncludePaths = new[] { "src" }
     )]
     [Pool(VmImage = "ubuntu-latest")]
+    [VariableGroup("nuget")]
     public class Pipeline
     {
-        private readonly IConsole _console;
+        private readonly AzureDevOpsTasks _azureDevOpsTasks;
 
-        private string _configuration = "Release";
+        private const string RootDir = "../../";
 
-        [EnvVar("NUGET_API_KEY")]
-        [Option("nugetApiKey",Description = "The nuget api key")]
+        private const string Configuration = "Release";
+
+        private const string ArtifactsDir = $"{RootDir}.artifacts";
+
+        private const string NugetApiKeyName = "NUGET_API_KEY";
+
+        [EnvVar(NugetApiKeyName)]
+        [Option(Description = "The nuget api key")]
         public string? NugetApiKey { get; set; }
 
-        public Pipeline(IConsole console)
+        public Pipeline(AzureDevOpsTasks azureDevOpsTasks)
         {
-            _console = console;
+            _azureDevOpsTasks = azureDevOpsTasks;
         }
 
-        private static async Task<int> Main(string[] args) => await new TaskRunner<Pipeline>().RunAsync(args);
+        private static async Task<int> Main(string[] args)
+        {
+            return await new TaskRunner<Pipeline>().UseAzureDevOps().RunAsync(args);
+        }
 
         [Stage]
         [Job]
@@ -40,7 +50,7 @@ namespace Automatron.Pipeline
         [DependentFor(nameof(Ci))]
         public async Task Version()
         {
-            await _console.UpdateBuildNumberWithAssemblyInformationalVersion();
+            await _azureDevOpsTasks.UpdateBuildNumberWithAssemblyInformationalVersion();
         }
 
         [AutomatronTask(nameof(Ci),DisplayName =nameof(Build), SkipDependencies = true)]
@@ -48,9 +58,29 @@ namespace Automatron.Pipeline
         [DependentFor(nameof(Ci))]
         public async Task Build()
         {
-            await RunAsync("dotnet", $"dotnet build -c {_configuration}",workingDirectory: "../Automatron",noEcho:true);
-            await RunAsync("dotnet", $"dotnet build -c {_configuration}", workingDirectory: "../Automatron.AzureDevOps", noEcho: true);
-            await RunAsync("dotnet", $"dotnet build -c {_configuration}", workingDirectory: "../Automatron.Tests", noEcho: true);
+            await RunAsync("dotnet", $"dotnet build -c {Configuration}",workingDirectory: "../Automatron",noEcho:true);
+            await RunAsync("dotnet", $"dotnet build -c {Configuration}", workingDirectory: "../Automatron.AzureDevOps", noEcho: true);
+            await RunAsync("dotnet", $"dotnet build -c {Configuration}", workingDirectory: "../Automatron.Tests", noEcho: true);
+        }
+
+        private static void CleanDirectory(string dir)
+        {
+            var path = Path.GetFullPath(dir);
+
+            if (Directory.Exists(path))
+            {
+                Directory.Delete(path, true);
+            }
+        }
+
+        private static void EnsureDirectory(string dir)
+        {
+            var path = Path.GetFullPath(dir);
+
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
         }
 
         [AutomatronTask(nameof(Ci), DisplayName = nameof(Test), SkipDependencies = true)]
@@ -58,7 +88,7 @@ namespace Automatron.Pipeline
         [DependentFor(nameof(Ci))]
         public async Task Test()
         {
-            await RunAsync("dotnet", $"dotnet test --no-build -c {_configuration}", workingDirectory: "../Automatron.Tests", noEcho: true);
+            await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration}", workingDirectory: "../Automatron.Tests", noEcho: true);
         }
 
         [AutomatronTask(nameof(Ci), DisplayName = nameof(Pack), SkipDependencies = true)]
@@ -66,18 +96,21 @@ namespace Automatron.Pipeline
         [DependsOn(nameof(Test))]
         public async Task Pack()
         {
-            await RunAsync("dotnet", $"dotnet pack --no-build -c {_configuration}", workingDirectory: "../Automatron", noEcho: true);
-            await RunAsync("dotnet", $"dotnet pack --no-build -c {_configuration}", workingDirectory: "../Automatron.AzureDevOps", noEcho: true);
+            EnsureDirectory(ArtifactsDir);
+            CleanDirectory(ArtifactsDir);
+
+            await RunAsync("dotnet", $"dotnet pack --no-build -c {Configuration} -o {ArtifactsDir}", workingDirectory: "../Automatron", noEcho: true);
+            await RunAsync("dotnet", $"dotnet pack --no-build -c {Configuration} -o {ArtifactsDir}", workingDirectory: "../Automatron.AzureDevOps", noEcho: true);
         }
 
-        [AutomatronTask(nameof(Ci), DisplayName = nameof(Pack),Secrets = new []{ "NUGET_API_KEY" }, SkipDependencies = true)]
+        [AutomatronTask(nameof(Ci), DisplayName = nameof(Publish),Secrets = new []{ NugetApiKeyName }, SkipDependencies = true)]
         [DependentFor(nameof(Ci))]
         [DependsOn(nameof(Pack))]
         public async Task Publish()
         {
-            foreach (var nuget in Directory.EnumerateFiles($"../Automatron/bin/{_configuration}", "*.nupkg"))
+            foreach (var nuget in Directory.EnumerateFiles(ArtifactsDir, "*.nupkg"))
             {
-                await RunAsync("dotnet", $"nuget push {Path.GetFullPath(nuget)} -k {NugetApiKey} -s https://api.nuget.org/v3/index.json --skip-duplicate", workingDirectory: "../Automatron", noEcho: false);
+                await RunAsync("dotnet", $"nuget push {Path.GetFullPath(nuget)} -k {NugetApiKey} -s https://api.nuget.org/v3/index.json --skip-duplicate", workingDirectory: "../Automatron", noEcho: true);
             }
         }
 

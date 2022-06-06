@@ -6,6 +6,8 @@ trigger:
   paths:
     include:
     - src
+variables:
+- group: nuget
 pool:
   vmImage: ubuntu-latest
 stages:
@@ -29,4 +31,4 @@ stages:
       workingDirectory: ./src/Automatron.Pipeline
       env:
         NUGET_API_KEY: $(NUGET_API_KEY)
-      displayName: Pack
+      displayName: Publish
