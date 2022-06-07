@@ -4,6 +4,11 @@
 	    <TargetFrameworks>net6.0;netstandard2.0</TargetFrameworks>
 	    <Nullable>enable</Nullable>
 	    <MinVerSkip Condition="'$(Configuration)' == 'Debug'">true</MinVerSkip>
+	    <Description>AzureDevOps Support for Automatron. Uses a Source Gennerator to build the AzureDevOps yaml</Description>
+		<PackageTags>Build;Pipeline;AzureDevOps</PackageTags>
+	    <Copyright>© 2022 Lars Kjær Thomsen</Copyright>
+	    <RepositoryUrl>https://github.com/lkt82/automatron</RepositoryUrl>
+	    <Authors>Lars Kjær Thomsen</Authors>
     </PropertyGroup>
 
     <ItemGroup>

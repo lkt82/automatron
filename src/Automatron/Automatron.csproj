@@ -4,7 +4,9 @@
         <TargetFramework>net6.0</TargetFramework>
 	    <Nullable>enable</Nullable>
 	    <MinVerSkip Condition="'$(Configuration)' == 'Debug'">true</MinVerSkip>
-	    <Description>Mean lean automation machine</Description>
+
+	    <Description>Pipeline Automation system that enables you to write your tasks in C-Sharp. So that you can write you builds and deployments in the same language as your application</Description>
+		<PackageTags>Build;Pipeline</PackageTags>
 	    <Copyright>© 2022 Lars Kjær Thomsen</Copyright>
 	    <RepositoryUrl>https://github.com/lkt82/automatron</RepositoryUrl>
 	    <Authors>Lars Kjær Thomsen</Authors>
