@@ -9,6 +9,7 @@
 	    <Copyright>© 2022 Lars Kjær Thomsen</Copyright>
 	    <RepositoryUrl>https://github.com/lkt82/automatron</RepositoryUrl>
 	    <Authors>Lars Kjær Thomsen</Authors>
+	    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
 
     <ItemGroup>
