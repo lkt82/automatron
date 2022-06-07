@@ -34,7 +34,7 @@ namespace Automatron.AzureDevOps.Sample
         }
 
         [Stage(It)]
-        [DependsOn(nameof(SetupIntegration),nameof(TeardownIntegration))]
+        [DependentOn(nameof(SetupIntegration),nameof(TeardownIntegration))]
         public void Integration()
         {
         }

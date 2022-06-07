@@ -145,7 +145,7 @@ namespace Automatron
                     new
                     {
                         c.Name,
-                        DependentOn = c.GetCustomAttribute<DependsOnAttribute>()?.Targets ?? Enumerable.Empty<string>(),
+                        DependentOn = c.GetCustomAttribute<DependentOnAttribute>()?.Targets ?? Enumerable.Empty<string>(),
                         DependentFor = c.GetCustomAttribute<DependentForAttribute>()?.Targets ?? Enumerable.Empty<string>(),
                         Method = c
                     }

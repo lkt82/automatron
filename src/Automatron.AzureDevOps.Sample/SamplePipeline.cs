@@ -76,21 +76,21 @@ namespace Automatron.AzureDevOps.Sample
         }
 
         [Job(nameof(CiStage))]
-        [DependsOn(nameof(RunStep2))]
+        [DependentOn(nameof(RunStep2))]
         [DependentFor(nameof(CiStage))]
         public void CiJob2()
         {
         }
 
         [AutomatronTask(nameof(CiJob1))]
-        [DependsOn(nameof(Clean))]
+        [DependentOn(nameof(Clean))]
         [DependentFor(nameof(CiJob1))]
         public void RunStep1()
         {
         }
 
         [AutomatronTask(nameof(CiJob1),DisplayName = "Step 3",Secrets = new []{ "AZURE_CLIENT_SECRET" })]
-        [DependsOn(nameof(RunStep1),nameof(Build))]
+        [DependentOn(nameof(RunStep1),nameof(Build))]
         [DependentFor(nameof(CiJob1))]
         public void RunStep3()
         {
@@ -109,7 +109,7 @@ namespace Automatron.AzureDevOps.Sample
         //[Stage]
         //[Job]
         //[BullseyeTask]
-        [DependsOn(nameof(Clean))]
+        [DependentOn(nameof(Clean))]
         public void Build()
         {
             //throw new Exception("fejl");

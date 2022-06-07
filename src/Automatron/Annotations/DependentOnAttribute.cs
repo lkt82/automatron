@@ -2,9 +2,9 @@
 
 namespace Automatron.Annotations
 {
-    public class DependsOnAttribute : Attribute
+    public class DependentOnAttribute : Attribute
     {
-        public DependsOnAttribute(params string[] targets)
+        public DependentOnAttribute(params string[] targets)
         {
             Targets = targets;
         }

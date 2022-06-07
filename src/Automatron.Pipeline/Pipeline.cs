@@ -54,8 +54,8 @@ namespace Automatron.Pipeline
         }
 
         [AutomatronTask(nameof(Ci),DisplayName =nameof(Build), SkipDependencies = true)]
-        [DependsOn(nameof(Version))]
         [DependentFor(nameof(Ci))]
+        [DependentOn(nameof(Version))]
         public async Task Build()
         {
             await RunAsync("dotnet", $"dotnet build -c {Configuration}",workingDirectory: "../Automatron",noEcho:true);
@@ -84,8 +84,8 @@ namespace Automatron.Pipeline
         }
 
         [AutomatronTask(nameof(Ci), DisplayName = nameof(Test), SkipDependencies = true)]
-        [DependsOn(nameof(Build))]
         [DependentFor(nameof(Ci))]
+        [DependentOn(nameof(Build))]
         public async Task Test()
         {
             await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration}", workingDirectory: "../Automatron.Tests", noEcho: true);
@@ -93,7 +93,7 @@ namespace Automatron.Pipeline
 
         [AutomatronTask(nameof(Ci), DisplayName = nameof(Pack), SkipDependencies = true)]
         [DependentFor(nameof(Ci))]
-        [DependsOn(nameof(Test))]
+        [DependentOn(nameof(Test))]
         public async Task Pack()
         {
             EnsureDirectory(ArtifactsDir);
@@ -105,7 +105,7 @@ namespace Automatron.Pipeline
 
         [AutomatronTask(nameof(Ci), DisplayName = nameof(Publish),Secrets = new []{ NugetApiKeyName }, SkipDependencies = true)]
         [DependentFor(nameof(Ci))]
-        [DependsOn(nameof(Pack))]
+        [DependentOn(nameof(Pack))]
         public async Task Publish()
         {
             foreach (var nuget in Directory.EnumerateFiles(ArtifactsDir, "*.nupkg"))
