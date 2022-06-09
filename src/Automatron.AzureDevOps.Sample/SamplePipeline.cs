@@ -1,15 +1,15 @@
-﻿using Automatron.Annotations;
+﻿using Automatron;
+using Automatron.Annotations;
 using Automatron.AzureDevOps.Generators.Annotations;
+using Automatron.AzureDevOps.Sample;
 using CommandDotNet;
+
+//await new TaskRunner<SamplePipeline>().RunAsync(args);
 
 namespace Automatron.AzureDevOps.Sample
 {
     [Pipeline("../../", Cd)]
-    [CiTrigger(Cd,
-        Batch = true,
-        IncludeBranches = new []{ "master" }
-        )]
-
+    [CiTrigger(Cd, Batch = true, IncludeBranches = new []{ "master" })]
     [Pipeline("../../", Pr)]
     [CiTrigger(Pr,Disabled = true)]
     [VariableGroup(Cd,"pulumi")]
@@ -25,8 +25,6 @@ namespace Automatron.AzureDevOps.Sample
         public const string CdYmlPath = ".azure";
 
         public const string Pr = "PullRequest";
-
-        private static async Task<int> Main(string[] args) => await new TaskRunner<SamplePipeline>().RunAsync(args);
 
         [Option(Description = "test")]
         public string? Param1 { get; set; }

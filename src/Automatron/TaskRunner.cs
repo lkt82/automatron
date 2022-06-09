@@ -43,34 +43,77 @@ namespace Automatron
 
         private readonly Targets _bullseyeTargets = new();
         private readonly object _objectType = typeof(object);
+        private static readonly Type ControllerType = typeof(TController);
 
-        private TController? _controller;
-
-        private readonly List<Type> _types = GetTypes();
-
+        private readonly IEnumerable<Type> _controllerTypes = GetControllerTypes().ToArray();
 
         private readonly IDictionary<PropertyInfo, Option> _optionLockUp = new Dictionary<PropertyInfo, Option>();
 
-        private static List<Type> GetTypes()
+
+        private static IEnumerable<Type> GetControllerTypes()
         {
-            var types = new List<Type>();
+            return GetControllerTypes(ControllerType).Concat(ControllerType.Assembly.GetTypes().Where(c => c.GetCustomAttribute<TaskControllerAttribute>() != null));
+        }
 
-            var controllerType = typeof(TController);
+        private static IEnumerable<Type> GetControllerTypes(Type type)
+        {
+            var types = new HashSet<Type>();
 
-            types.Add(controllerType);
+            types.UnionWith(type.GetNestedTypes().Where(c => !c.IsAbstract));
+            types.UnionWith(type.GetInterfaces().SelectMany(c=> c.GetNestedTypes()).Where(c => !c.IsAbstract));
 
-            types.AddRange(controllerType.GetInterfaces());
+            types.UnionWith(types.SelectMany(GetControllerTypes));
+
+            types.Add(type);
 
             return types;
         }
 
-        private IEnumerable<PropertyInfo> ControllerOptions => _types
-            .SelectMany(c => c.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-            .Where(c => !ReferenceEquals(c.DeclaringType, _objectType) && !c.IsSpecialName && c.CanWrite);
+        private IEnumerable<(Type, IEnumerable<MethodInfo>)> GetTargets(IEnumerable<Type> types)
+        {
+            foreach (var controllerType in types)
+            {
+                yield return (controllerType, controllerType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod).Where(c => !ReferenceEquals(c.DeclaringType, _objectType) && !c.IsSpecialName));
 
-        private IEnumerable<MethodInfo> ControllerTargets => _types
-            .SelectMany(c => c.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod))
-            .Where(c => !ReferenceEquals(c.DeclaringType, _objectType) && !c.IsSpecialName);
+                var interfaces = controllerType.GetInterfaces().ToArray();
+
+                if (!interfaces.Any())
+                {
+                    continue;
+                }
+
+                foreach (var targets in GetTargets(interfaces))
+                {
+                    yield return (controllerType, targets.Item2);
+                }
+            }
+        }
+
+        private IEnumerable<(Type, IEnumerable<PropertyInfo>)> GetOptions(IEnumerable<Type> types)
+        {
+            foreach (var controllerType in types)
+            {
+                yield return (controllerType, controllerType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(c => !ReferenceEquals(c.DeclaringType, _objectType) && !c.IsSpecialName && c.CanWrite));
+
+                var interfaces = controllerType.GetInterfaces().ToArray();
+
+                if (!interfaces.Any())
+                {
+                    continue;
+                }
+
+                foreach (var options in GetOptions(interfaces))
+                {
+                    yield return (controllerType, options.Item2);
+                }
+            }
+        }
+
+
+
+        private IEnumerable<PropertyInfo> ControllerOptions => GetOptions(_controllerTypes).SelectMany(c=> c.Item2);
+
+        private IEnumerable<(Type, IEnumerable<MethodInfo>)> ControllerTargets => GetTargets(_controllerTypes);
 
         private void AddControllerOptions(BuildEvents.CommandCreatedEventArgs args)
         {
@@ -121,7 +164,7 @@ namespace Automatron
 
         private Task<int> CreateController(CommandContext ctx, ExecutionDelegate next)
         {
-            _controller = ctx.DependencyResolver!.Resolve<TController>();
+            var controller = ctx.DependencyResolver!.Resolve<TController>();
 
             foreach (var property in ControllerOptions)
             {
@@ -132,7 +175,7 @@ namespace Automatron
                     continue;
                 }
 
-                property.SetValue(_controller, option.Value?? option.Default?.Value);
+                property.SetValue(controller, option.Value?? option.Default?.Value);
             }
 
             return next(ctx);
@@ -140,16 +183,45 @@ namespace Automatron
 
         private Task<int> BuildBullseyeTargets(CommandContext ctx, ExecutionDelegate next)
         {
-            var targets = ControllerTargets
-                .Select(c =>
-                    new
+            var targets = ControllerTargets.SelectMany(target =>
+            {
+                return target.Item2.Select(methodInfo =>
+                {
+                    var dependentOnAttribute = methodInfo.GetCustomAttribute<DependentOnAttribute>();
+                    var dependentForAttribute = methodInfo.GetCustomAttribute<DependentForAttribute>();
+
+                    var dependentOn = Enumerable.Empty<string>();
+
+                    var serviceType = target.Item1;
+
+                    if (dependentOnAttribute != null)
                     {
-                        c.Name,
-                        DependentOn = c.GetCustomAttribute<DependentOnAttribute>()?.Targets ?? Enumerable.Empty<string>(),
-                        DependentFor = c.GetCustomAttribute<DependentForAttribute>()?.Targets ?? Enumerable.Empty<string>(),
-                        Method = c
+                        if (methodInfo.ReflectedType == ControllerType)
+                        {
+                            dependentOn = dependentOnAttribute?.Targets;
+                        }
+                        else if (dependentOnAttribute.Controller is { IsClass: true })
+                        {
+                            dependentOn = dependentOnAttribute.Targets.Select(t => dependentOnAttribute.Controller.Name + t);
+                        }
+                        else
+                        {
+                            dependentOn = dependentOnAttribute.Targets.Select(t => target.Item1.Name + t);
+                        }
                     }
-                ).ToArray();
+
+                    return new
+                    {
+                        Name = target.Item1 != ControllerType
+                            ? target.Item1.Name + methodInfo.Name
+                            : methodInfo.Name,
+                        DependentOn = dependentOn ?? Enumerable.Empty<string>(),
+                        DependentFor = dependentForAttribute?.Targets ?? Enumerable.Empty<string>(),
+                        Method = methodInfo,
+                        Service = serviceType!
+                    };
+                });
+            }).ToArray();
 
             var taskType = typeof(Task);
 
@@ -164,13 +236,14 @@ namespace Automatron
 
                 dependencies.UnionWith(dependentFor);
 
+
                 if (taskType.IsAssignableFrom(target.Method.ReturnType))
                 {
-                    _bullseyeTargets.Add(target.Name, dependencies, () => (Task)target.Method.Invoke(_controller, null)!);
+                    _bullseyeTargets.Add(target.Name, dependencies, () => (Task)target.Method.Invoke(ctx.DependencyResolver!.Resolve(target.Service), null)!);
                 }
                 else
                 {
-                    _bullseyeTargets.Add(target.Name, dependencies, () => target.Method.Invoke(_controller, null));
+                    _bullseyeTargets.Add(target.Name, dependencies, () => target.Method.Invoke(ctx.DependencyResolver!.Resolve(target.Service), null));
                 }
             }
 
@@ -189,13 +262,14 @@ namespace Automatron
         {
             var appRunner = new AppRunner<BullseyeCommand>();
 
-            Services.AddSingleton<TController>();
             Services.AddSingleton(_bullseyeTargets);
-            foreach (var type in appRunner.GetCommandClassTypes())
+            Services.AddSingleton(typeof(BullseyeCommand));
+
+            foreach (var type in _controllerTypes)
             {
-                Services.AddSingleton(type.type);
+                Services.AddSingleton(type);
             }
-    
+            
             return appRunner
                 .Configure(c =>
                 {

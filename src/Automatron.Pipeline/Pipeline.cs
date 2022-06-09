@@ -6,14 +6,8 @@ using static SimpleExec.Command;
 
 namespace Automatron.Pipeline
 {
-    [Pipeline(RootDir,
-        YmlPath = RootDir
-    )]
-    [CiTrigger(
-        Batch = true,
-        IncludeBranches = new[] { "main" },
-        IncludePaths = new[] { "src" }
-    )]
+    [Pipeline(RootDir, YmlPath = RootDir)]
+    [CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
     [Pool(VmImage = "ubuntu-latest")]
     [VariableGroup("nuget")]
     public class Pipeline
@@ -42,6 +36,26 @@ namespace Automatron.Pipeline
             return await new TaskRunner<Pipeline>().UseAzureDevOps().RunAsync(args);
         }
 
+        private static void CleanDirectory(string dir)
+        {
+            var path = Path.GetFullPath(dir);
+
+            if (Directory.Exists(path))
+            {
+                Directory.Delete(path, true);
+            }
+        }
+
+        private static void EnsureDirectory(string dir)
+        {
+            var path = Path.GetFullPath(dir);
+
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+        }
+
         [Stage]
         [Job]
         public void Ci() { }
@@ -61,26 +75,6 @@ namespace Automatron.Pipeline
             await RunAsync("dotnet", $"dotnet build -c {Configuration}",workingDirectory: "../Automatron",noEcho:true);
             await RunAsync("dotnet", $"dotnet build -c {Configuration}", workingDirectory: "../Automatron.AzureDevOps", noEcho: true);
             await RunAsync("dotnet", $"dotnet build -c {Configuration}", workingDirectory: "../Automatron.Tests", noEcho: true);
-        }
-
-        private static void CleanDirectory(string dir)
-        {
-            var path = Path.GetFullPath(dir);
-
-            if (Directory.Exists(path))
-            {
-                Directory.Delete(path, true);
-            }
-        }
-
-        private static void EnsureDirectory(string dir)
-        {
-            var path = Path.GetFullPath(dir);
-
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
         }
 
         [AutomatronTask(nameof(Ci), DisplayName = nameof(Test), SkipDependencies = true)]

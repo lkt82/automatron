@@ -1,8 +1,10 @@
-﻿using Automatron.AzureDevOps.Generators.Models;
+﻿using System;
+using Automatron.AzureDevOps.Generators.Models;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators.Annotations
 {
+    [AttributeUsage(AttributeTargets.Method)]
     public class DownloadTaskAttribute: StepAttribute
     {
         public string Source { get; }

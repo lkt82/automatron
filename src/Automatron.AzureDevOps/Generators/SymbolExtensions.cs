@@ -52,7 +52,9 @@ public static class SymbolExtensions
         if (typedConstant.Type != null &&
             typedConstant.Kind != TypedConstantKind.Primitive &&
             typedConstant.Kind != TypedConstantKind.Array &&
-            typedConstant.Kind != TypedConstantKind.Enum)
+            typedConstant.Kind != TypedConstantKind.Enum &&
+            typedConstant.Kind != TypedConstantKind.Type
+            )
             throw new NotSupportedException();
 
         var typeString = typedConstant.Type!.ToString();
@@ -73,6 +75,7 @@ public static class SymbolExtensions
             "int" => typedConstant.Value!,
             "DateTime" => typedConstant.Value!,
             "System.Enum" => Enum.ToObject(Type.GetType(typedConstant.Type!.ToString()!)!, typedConstant.Value!),
+            "System.Type" => typedConstant.Value!.ToString(),
             _ => throw new NotSupportedException()
         };
     }

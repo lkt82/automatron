@@ -13,8 +13,9 @@ namespace Automatron.AzureDevOps.Sample
     public interface ICompositeIntegrationTesting
     {
         public const string It = "IntegrationTesting";
+        public const string Environment = "InfrastructureIntegration";
 
-        [DeploymentJob(nameof(Integration), "test", TimeoutInMinutes = 180)]
+        [DeploymentJob(nameof(Integration), Environment, TimeoutInMinutes = 180)]
         [DownloadTask(DownloadSource.None)]
         [CheckoutTask(CheckoutSource.Self)]
         [NuGetAuthenticateTask]
@@ -24,7 +25,7 @@ namespace Automatron.AzureDevOps.Sample
         }
 
 
-        [DeploymentJob(nameof(Integration), "test",nameof(SetupIntegration), TimeoutInMinutes = 180)]
+        [DeploymentJob(nameof(Integration), Environment, TimeoutInMinutes = 180,DependsOn = new []{nameof(SetupIntegration)})]
         [DownloadTask(DownloadSource.None)]
         [CheckoutTask(CheckoutSource.Self)]
         [NuGetAuthenticateTask]

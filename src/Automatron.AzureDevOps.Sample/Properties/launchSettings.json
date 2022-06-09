@@ -2,7 +2,7 @@
   "profiles": {
     "Automatron.AzureDevOps.Sample": {
       "commandName": "Project",
-      "commandLineArgs": "Build",
+      "commandLineArgs": "DeployToTesting",
       "environmentVariables": {
         "AZURE_CLIENT_SECRET": "hest"
       }

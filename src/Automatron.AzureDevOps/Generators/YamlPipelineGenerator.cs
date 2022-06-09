@@ -47,6 +47,7 @@ namespace Automatron.AzureDevOps.Generators
 
             types.AddRange(mainMethod.ContainingType.AllInterfaces);
 
+
             var typePipelineAttributes = types.SelectMany(c => c.GetCustomAttributes<PipelineAttribute>()).ToImmutableArray();
             var typeCiTriggerAttributes = types.SelectMany(c => c.GetCustomAttributes<CiTriggerAttribute>()).ToImmutableArray();
             var typeScheduledTriggerAttributes = types.SelectMany(c => c.GetCustomAttributes<ScheduledTriggerAttribute>()).ToImmutableArray();
@@ -60,7 +61,7 @@ namespace Automatron.AzureDevOps.Generators
                 throw new InvalidOperationException();
             }
 
-            var members = types.SelectMany(c=> c.GetMembers()).Where(c=> c.Kind == SymbolKind.Method && c.DeclaredAccessibility == Accessibility.Public).ToArray();
+            var members = types.SelectMany(c=> c.GetMembers()).Where(c=> c.Kind == SymbolKind.Method && c.DeclaredAccessibility == Accessibility.Public).Cast<IMethodSymbol>().Where(c=> c.MethodKind == MethodKind.Ordinary).ToArray();
 
             foreach (var pipelineAttribute in typePipelineAttributes)
             {
@@ -386,10 +387,10 @@ namespace Automatron.AzureDevOps.Generators
         public void Initialize(GeneratorInitializationContext context)
         {
 #if DEBUG
-            /*if (!Debugger.IsAttached)
+            if (!Debugger.IsAttached)
             {
                 Debugger.Launch();
-            }*/
+            }
 #endif
             Debug.WriteLine("Initialize code generator");
         }

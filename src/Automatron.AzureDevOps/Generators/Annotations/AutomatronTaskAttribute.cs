@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Automatron.AzureDevOps.Generators.Models;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators.Annotations
 {
+    [AttributeUsage(AttributeTargets.Method)]
     public class AutomatronTaskAttribute : StepAttribute
     {
         private const string _displayName = "Run Automatron";

@@ -13,6 +13,7 @@
 
 	<ItemGroup>
     <ProjectReference Include="..\Automatron.AzureDevOps\Automatron.AzureDevOps.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" SetTargetFramework="TargetFramework=netstandard2.0" />
+    <ProjectReference Include="..\Automatron.AzureDevOps\Automatron.AzureDevOps.csproj" SetTargetFramework="TargetFramework=net6.0" />
     <ProjectReference Include="..\Automatron\Automatron.csproj" />
   </ItemGroup>
 

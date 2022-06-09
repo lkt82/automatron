@@ -2,13 +2,22 @@
 
 namespace Automatron.Annotations
 {
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class DependentOnAttribute : Attribute
     {
+        public Type? Controller { get; }
+
+        public string[] Targets { get; }
+
         public DependentOnAttribute(params string[] targets)
         {
             Targets = targets;
         }
 
-        public string[] Targets { get; }
+        public DependentOnAttribute(Type controller,params string[] targets)
+        {
+            Controller = controller;
+            Targets = targets;
+        }
     }
 }
