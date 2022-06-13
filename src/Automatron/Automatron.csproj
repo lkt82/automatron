@@ -5,7 +5,7 @@
 	    <Nullable>enable</Nullable>
 	    <MinVerSkip Condition="'$(Configuration)' == 'Debug'">true</MinVerSkip>
 
-	    <Description>Pipeline Automation system that enables you to write your tasks in C-Sharp. So that you can write you builds and deployments in the same language as your application</Description>
+	    <Description>The Automatron .NET library is a task automation system. That enables you to write you build and deployment workflows in the same language as your .Net applications</Description>
 		<PackageTags>Build;Pipeline</PackageTags>
 	    <Copyright>© 2022 Lars Kjær Thomsen</Copyright>
 	    <RepositoryUrl>https://github.com/lkt82/automatron</RepositoryUrl>

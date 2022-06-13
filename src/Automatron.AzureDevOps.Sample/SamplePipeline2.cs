@@ -49,10 +49,10 @@ public interface IContinuousDeployment
         [DeploymentJob(nameof(Name))]
         [Pool(VmImage = "ubuntu-latest")]
         [DependentOn(nameof(Deploy))]
-        public void Deployment()
+        public async Task Deployment()
         {
             _console.WriteLine(Environment);
-            _console.WriteLine(AzureClientSecret);
+            await _console.Out.WriteLineAsync(AzureClientSecret);
         }
 
         [EnvVar("AZURE_CLIENT_SECRET")]
