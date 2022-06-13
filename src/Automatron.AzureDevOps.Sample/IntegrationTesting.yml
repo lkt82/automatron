@@ -11,7 +11,7 @@ stages:
   jobs:
   - deployment: SetupIntegration
     timeoutInMinutes: 180
-    environment: test
+    environment: InfrastructureIntegration
     strategy:
       runOnce:
         deploy:
@@ -21,12 +21,12 @@ stages:
           - task: NuGetAuthenticate@0
           - script: dotnet run -- -r SetupIntegration
             workingDirectory: ./src/Automatron.AzureDevOps.Sample
-            displayName: Run Automatron
+            name: SetupIntegration
   - deployment: TeardownIntegration
     dependsOn:
     - SetupIntegration
     timeoutInMinutes: 180
-    environment: test
+    environment: InfrastructureIntegration
     strategy:
       runOnce:
         deploy:
@@ -36,4 +36,4 @@ stages:
           - task: NuGetAuthenticate@0
           - script: dotnet run -- -r TeardownIntegration
             workingDirectory: ./src/Automatron.AzureDevOps.Sample
-            displayName: Run Automatron
+            name: TeardownIntegration

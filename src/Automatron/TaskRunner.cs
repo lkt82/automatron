@@ -164,10 +164,10 @@ namespace Automatron
 
         private Task<int> CreateController(CommandContext ctx, ExecutionDelegate next)
         {
-            var controller = ctx.DependencyResolver!.Resolve<TController>();
-
             foreach (var property in ControllerOptions)
             {
+                var controller = ctx.DependencyResolver!.Resolve(property.DeclaringType!);
+
                 var option = _optionLockUp[property];
 
                 if (option.Value == null && option.Default?.Value == null)
@@ -198,7 +198,7 @@ namespace Automatron
                     {
                         if (methodInfo.ReflectedType == ControllerType)
                         {
-                            dependentOn = dependentOnAttribute?.Targets;
+                            dependentOn = dependentOnAttribute.Targets;
                         }
                         else if (dependentOnAttribute.Controller is { IsClass: true })
                         {
@@ -215,10 +215,10 @@ namespace Automatron
                         Name = target.Item1 != ControllerType
                             ? target.Item1.Name + methodInfo.Name
                             : methodInfo.Name,
-                        DependentOn = dependentOn ?? Enumerable.Empty<string>(),
+                        DependentOn = dependentOn,
                         DependentFor = dependentForAttribute?.Targets ?? Enumerable.Empty<string>(),
                         Method = methodInfo,
-                        Service = serviceType!
+                        Service = serviceType
                     };
                 });
             }).ToArray();

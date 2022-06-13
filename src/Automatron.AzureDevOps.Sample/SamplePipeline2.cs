@@ -1,69 +1,82 @@
 ﻿using Automatron.Annotations;
 using Automatron.AzureDevOps.Generators.Annotations;
+using CommandDotNet;
 
-namespace Automatron.AzureDevOps.Sample
+namespace Automatron.AzureDevOps.Sample;
+
+[Pipeline("../../", Cd)]
+[CiTrigger(Cd, Batch = true, IncludeBranches = new[] { "main" })]
+public interface IContinuousDeployment
 {
-    [Pipeline("../../", Cd)]
-    [CiTrigger(Cd, Batch = true, IncludeBranches = new[] { "main" })]
-    public interface IContinuousDeployment
+    public const string Cd = "ContinuousDeployment2";
+
+
+    public abstract class DeploymentTasks
     {
-        public const string Cd = "ContinuousDeployment2";
+        protected string Environment { get; }
+        private readonly AzureDevOpsTasks _azureDevOpsTasks;
 
-        public abstract class DeploymentTasks
+        protected DeploymentTasks(AzureDevOpsTasks azureDevOpsTasks,string environment)
         {
-            private readonly AzureDevOpsTasks _azureDevOpsTasks;
-            private readonly string _environment;
+            _azureDevOpsTasks = azureDevOpsTasks;
 
-            protected DeploymentTasks(AzureDevOpsTasks azureDevOpsTasks,string environment)
-            {
-                _azureDevOpsTasks = azureDevOpsTasks;
-                _environment = environment;
-            }
-
-            [AutomatronTask]
-            public void Build()
-            {
-            }
-
-
-            [AutomatronTask(SkipDependencies = true)]
-            [DependentOn(nameof(Build))]
-            public void Deploy()
-            {
-            }
+            Environment = environment;
         }
 
-        public class DeploymentTesting : DeploymentTasks
+        [AutomatronTask]
+        public void Build()
         {
-            public const string Environment = "Testing";
-
-            public DeploymentTesting(AzureDevOpsTasks azureDevOpsTasks) : base(azureDevOpsTasks, Environment)
-            {
-            }
-
-            [DeploymentJob(nameof(DeploymentTesting), Environment)]
-            [AutomatronTask(DisplayName = nameof(Deployment), SkipDependencies = true)]
-            [DependentOn(nameof(Deploy))]
-            public void Deployment()
-            {
-            }
         }
 
-        [StageTemplate(Cd,typeof(DeploymentTesting))]
-        [DependentOn(typeof(DeploymentTesting), nameof(DeploymentTesting.Deploy))]
-        public void DeployToTesting()
+
+        [AutomatronTask(SkipDependencies = true)]
+        [DependentOn(nameof(Build))]
+        public void Deploy()
         {
         }
     }
 
-    public class SamplePipeline2 : IContinuousDeployment
+    public class DeploymentTesting : DeploymentTasks
     {
-        public const string Cd = "ContinuousDeployment2";
+        private readonly IConsole _console;
+        public const string Name = "Testing";
 
-        private static async Task<int> Main(string[] args)
+        public DeploymentTesting(AzureDevOpsTasks azureDevOpsTasks,IConsole console) : base(azureDevOpsTasks, Name)
         {
-            return await new TaskRunner<SamplePipeline2>().UseAzureDevOps().RunAsync(args);
+            _console = console;
         }
 
+        [DeploymentJob(nameof(Name))]
+        [Pool(VmImage = "ubuntu-latest")]
+        [DependentOn(nameof(Deploy))]
+        public void Deployment()
+        {
+            _console.WriteLine(Environment);
+            _console.WriteLine(AzureClientSecret);
+        }
+
+        [EnvVar("AZURE_CLIENT_SECRET")]
+        [Option(Description = "one of the application's client secrets")]
+        public string? AzureClientSecret { get; set; }
+    }
+
+    [Stage(Cd,typeof(DeploymentTesting))]
+    [DependentOn(typeof(DeploymentTesting), nameof(DeploymentTesting.Deployment))]
+    public void DeployToTesting()
+    {
+
+    }
+}
+
+public class SamplePipeline2 : IContinuousDeployment
+{
+    public const string Cd = "ContinuousDeployment2";
+
+    //[Option(Description = "id of an Azure Active Directory application")]
+    //public string? AzureClientId { get; set; }
+
+    private static async Task<int> Main(string[] args)
+    {
+        return await new TaskRunner<SamplePipeline2>().UseAzureDevOps().RunAsync(args);
     }
 }

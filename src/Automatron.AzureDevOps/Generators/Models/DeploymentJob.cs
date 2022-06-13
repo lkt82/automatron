@@ -32,9 +32,12 @@ namespace Automatron.AzureDevOps.Generators.Models
 
         public IDeploymentStrategy Strategy { get; set; } = new RunOnceDeploymentStrategy();
 
-        [YamlIgnore] public IList<Step> Steps => Strategy.Steps;
+        [YamlIgnore] public List<Step> Steps => Strategy.Steps;
 
         [YamlIgnore]
         public Stage Stage { get; }
+
+        [YamlIgnore]
+        public string? Template { get; set; }
     }
 }

@@ -60,14 +60,14 @@ namespace Automatron.Pipeline
         [Job]
         public void Ci() { }
 
-        [AutomatronTask(nameof(Ci), DisplayName = nameof(Version))]
+        [AutomatronTask(nameof(Ci))]
         [DependentFor(nameof(Ci))]
         public async Task Version()
         {
             await _azureDevOpsTasks.UpdateBuildNumberWithAssemblyInformationalVersion();
         }
 
-        [AutomatronTask(nameof(Ci),DisplayName =nameof(Build), SkipDependencies = true)]
+        [AutomatronTask(nameof(Ci), SkipDependencies = true)]
         [DependentFor(nameof(Ci))]
         [DependentOn(nameof(Version))]
         public async Task Build()
@@ -77,7 +77,7 @@ namespace Automatron.Pipeline
             await RunAsync("dotnet", $"dotnet build -c {Configuration}", workingDirectory: "../Automatron.Tests", noEcho: true);
         }
 
-        [AutomatronTask(nameof(Ci), DisplayName = nameof(Test), SkipDependencies = true)]
+        [AutomatronTask(nameof(Ci), SkipDependencies = true)]
         [DependentFor(nameof(Ci))]
         [DependentOn(nameof(Build))]
         public async Task Test()
@@ -85,7 +85,7 @@ namespace Automatron.Pipeline
             await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration}", workingDirectory: "../Automatron.Tests", noEcho: true);
         }
 
-        [AutomatronTask(nameof(Ci), DisplayName = nameof(Pack), SkipDependencies = true)]
+        [AutomatronTask(nameof(Ci), SkipDependencies = true)]
         [DependentFor(nameof(Ci))]
         [DependentOn(nameof(Test))]
         public async Task Pack()
@@ -97,7 +97,7 @@ namespace Automatron.Pipeline
             await RunAsync("dotnet", $"dotnet pack --no-build -c {Configuration} -o {ArtifactsDir}", workingDirectory: "../Automatron.AzureDevOps", noEcho: true);
         }
 
-        [AutomatronTask(nameof(Ci), DisplayName = nameof(Publish),Secrets = new []{ NugetApiKeyName }, SkipDependencies = true)]
+        [AutomatronTask(nameof(Ci),Secrets = new []{ NugetApiKeyName }, SkipDependencies = true)]
         [DependentFor(nameof(Ci))]
         [DependentOn(nameof(Pack))]
         public async Task Publish()

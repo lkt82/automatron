@@ -1,10 +1,6 @@
-﻿using Automatron;
-using Automatron.Annotations;
+﻿using Automatron.Annotations;
 using Automatron.AzureDevOps.Generators.Annotations;
-using Automatron.AzureDevOps.Sample;
 using CommandDotNet;
-
-//await new TaskRunner<SamplePipeline>().RunAsync(args);
 
 namespace Automatron.AzureDevOps.Sample
 {

@@ -25,9 +25,12 @@ namespace Automatron.AzureDevOps.Generators.Models
 
         public Pool? Pool { get; set; }
 
-        public IList<Step> Steps { get; set; } = new List<Step>();
+        public List<Step> Steps { get; set; } = new();
 
         [YamlIgnore]
         public Stage Stage { get; }
+
+        [YamlIgnore]
+        public string? Template { get; set; }
     }
 }

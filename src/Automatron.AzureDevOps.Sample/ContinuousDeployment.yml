@@ -8,6 +8,13 @@ variables:
 - name: test
   value: 1
 stages:
+- stage: DefaultStage
+  jobs:
+  - job: DefaultJob
+    steps:
+    - script: dotnet run -- -r DefaultTask
+      workingDirectory: ./src/Automatron.AzureDevOps.Sample
+      name: DefaultTask
 - stage: CiStage
   jobs:
   - deployment: CiJob1
@@ -23,21 +30,15 @@ stages:
             displayName: Install Pulumi
           - script: dotnet run -- -r RunStep1
             workingDirectory: ./src/Automatron.AzureDevOps.Sample
-            displayName: Run Automatron
+            name: RunStep1
           - script: dotnet run -- -r RunStep3
             workingDirectory: ./src/Automatron.AzureDevOps.Sample
             env:
               AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+            name: RunStep3
             displayName: Step 3
   - job: CiJob2
     steps:
     - script: dotnet run -- -r RunStep2
       workingDirectory: ./src/Automatron.AzureDevOps.Sample
-      displayName: Run Automatron
-- stage: DefaultStage
-  jobs:
-  - job: DefaultJob
-    steps:
-    - script: dotnet run -- -r DefaultTask
-      workingDirectory: ./src/Automatron.AzureDevOps.Sample
-      displayName: Run Automatron
+      name: RunStep2

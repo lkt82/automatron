@@ -25,9 +25,12 @@ namespace Automatron.AzureDevOps.Generators.Models
 
         public Pool? Pool { get; set; }
 
-        public IList<IJob> Jobs { get; set; } = new List<IJob>();
+        public List<IJob> Jobs { get; set; } = new();
 
         [YamlIgnore]
         public Pipeline Pipeline { get; }
+
+        [YamlIgnore]
+        public string? Template { get; set; }
     }
 }

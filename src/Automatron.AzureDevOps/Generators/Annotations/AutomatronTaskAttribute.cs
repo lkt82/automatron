@@ -8,17 +8,13 @@ namespace Automatron.AzureDevOps.Generators.Annotations
     [AttributeUsage(AttributeTargets.Method)]
     public class AutomatronTaskAttribute : StepAttribute
     {
-        private const string _displayName = "Run Automatron";
-
         public AutomatronTaskAttribute()
         {
-            DisplayName = _displayName;
         }
 
         public AutomatronTaskAttribute(string job)
         {
             Job = job;
-            DisplayName = _displayName;
         }
 
         public bool SkipDependencies { get; set; }
@@ -31,8 +27,12 @@ namespace Automatron.AzureDevOps.Generators.Annotations
 
         public override Step Create(ISymbol symbol, IJob job)
         {
-            return new AutomatronTask(job,new[]{symbol.Name}, SkipDependencies, Parallel) { 
-                Name = Name, 
+            var target = string.Concat(job.Template,symbol.Name);
+
+            var name = string.IsNullOrEmpty(Name) ? symbol.Name : Name;
+
+            return new AutomatronTask(job,new[]{ target }, SkipDependencies, Parallel) { 
+                Name = name, 
                 DisplayName = DisplayName,
                 Condition = Condition,
                 WorkingDirectory = WorkingDirectory?? GetWorkingDirectory(job),

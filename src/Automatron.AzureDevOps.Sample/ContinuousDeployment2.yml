@@ -3,3 +3,20 @@ trigger:
   branches:
     include:
     - main
+stages:
+- stage: DeployToTesting
+  jobs:
+  - deployment: Deployment
+    pool:
+      vmImage: ubuntu-latest
+    environment: Name
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: dotnet run -- -r DeploymentTestingBuild
+            workingDirectory: ./src/Automatron.AzureDevOps.Sample
+            name: Build
+          - script: dotnet run -- -r DeploymentTestingDeploy -s
+            workingDirectory: ./src/Automatron.AzureDevOps.Sample
+            name: Deploy

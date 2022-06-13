@@ -17,18 +17,18 @@ stages:
     steps:
     - script: dotnet run -- -r Version
       workingDirectory: ./src/Automatron.Pipeline
-      displayName: Version
+      name: Version
     - script: dotnet run -- -r Build -s
       workingDirectory: ./src/Automatron.Pipeline
-      displayName: Build
+      name: Build
     - script: dotnet run -- -r Test -s
       workingDirectory: ./src/Automatron.Pipeline
-      displayName: Test
+      name: Test
     - script: dotnet run -- -r Pack -s
       workingDirectory: ./src/Automatron.Pipeline
-      displayName: Pack
+      name: Pack
     - script: dotnet run -- -r Publish -s
       workingDirectory: ./src/Automatron.Pipeline
       env:
         NUGET_API_KEY: $(NUGET_API_KEY)
-      displayName: Publish
+      name: Publish

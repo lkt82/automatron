@@ -8,6 +8,6 @@ namespace Automatron.AzureDevOps.Generators.Models
         public RunOnceDeployment RunOnce { get; set; } = new();
 
         [YamlIgnore]
-        public IList<Step> Steps => RunOnce.Deploy.Steps;
+        public List<Step> Steps => RunOnce.Deploy.Steps;
     }
 }

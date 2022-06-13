@@ -1,34 +1,8 @@
 ﻿using System;
+using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators.Annotations
 {
-    [AttributeUsage(AttributeTargets.Method)]
-    public class StageTemplateAttribute : Attribute
-    {
-        public string TemplateType { get; }
-
-        public string? Pipeline { get; }
-
-        public string? Name { get; set; }
-
-        public string? DisplayName { get; set; }
-
-        public string[]? DependsOn { get; set; }
-
-        public string? Condition { get; set; }
-
-        public StageTemplateAttribute(Type templateType)
-        {
-            TemplateType = templateType.FullName ?? throw new InvalidOperationException();
-        }
-
-        public StageTemplateAttribute(string pipeline,Type templateType): this(templateType)
-        {
-            Pipeline = pipeline;
-        }
-
-    }
-
     [AttributeUsage(AttributeTargets.Method)]
     public class StageAttribute: Attribute
     {
@@ -49,6 +23,29 @@ namespace Automatron.AzureDevOps.Generators.Annotations
         public StageAttribute(string pipeline)
         {
             Pipeline = pipeline;
+        }
+
+        public Type? Template { get; }
+
+        public StageAttribute(Type template)
+        {
+            Template = template;
+        }
+        public StageAttribute(string pipeline, Type template) : this(pipeline)
+        {
+            Template = template;
+        }
+
+        internal INamedTypeSymbol? TemplateSymbol { get; }
+
+        internal StageAttribute(INamedTypeSymbol templateSymbol)
+        {
+            TemplateSymbol = templateSymbol;
+        }
+
+        internal StageAttribute(string pipeline, INamedTypeSymbol templateSymbol) : this(pipeline)
+        {
+            TemplateSymbol = templateSymbol;
         }
     }
 }

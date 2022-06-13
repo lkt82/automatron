@@ -6,4 +6,4 @@ stages:
     steps:
     - script: dotnet run -- -r PrTask
       workingDirectory: ./src/Automatron.AzureDevOps.Sample
-      displayName: Run Automatron
+      name: PrTask

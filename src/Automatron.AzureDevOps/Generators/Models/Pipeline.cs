@@ -33,12 +33,12 @@ namespace Automatron.AzureDevOps.Generators.Models
         [YamlMember(Alias = "trigger")]
         public ICiTrigger? CiTrigger { get; set; }
 
-        public IList<ScheduledTrigger> Schedules { get; set; } = new List<ScheduledTrigger>();
+        public List<ScheduledTrigger> Schedules { get; set; } = new List<ScheduledTrigger>();
 
-        public IList<IVariable> Variables { get; set; } = new List<IVariable>();
+        public List<IVariable> Variables { get; set; } = new List<IVariable>();
 
         public Pool? Pool { get; set; }
 
-        public IList<Stage> Stages { get; set; } = new List<Stage>();
+        public List<Stage> Stages { get; set; } = new List<Stage>();
     }
 }
