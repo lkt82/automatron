@@ -3,7 +3,7 @@
 [![NuGet version (Automatron)](https://img.shields.io/nuget/v/Automatron.svg?style=flat-square)](https://www.nuget.org/packages/Automatron/)
 [![Build status](https://dev.azure.com/lkt82/Public/_apis/build/status/Automatron%20CI?branchName=main)](https://dev.azure.com/lkt82/Public/_build/latest?definitionId=1)
 
-The Automatron [.NET library](https://www.nuget.org/packages/Automatron) is a task automation system. That enables you to write you build and deployment workflows in the same language as your .Net applications
+The Automatron [.NET library](https://www.nuget.org/packages/Automatron) is a task automation system that enables you to write you build and deployment workflows in the same language as your .Net applications
 
 Platform support: [.NET 6.0 and later](https://docs.microsoft.com/en-us/dotnet/core/whats-new/dotnet-6).
 
