@@ -28,7 +28,7 @@ internal class YamlPipelineGenerator : ISourceGenerator
     
         Debug.WriteLine($"Execute {nameof(YamlPipelineGenerator)}");
 
-        if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.MSBuildProjectDirectory",
+        if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.PipelineProjectDirectory",
                 out var projectDirectory))
         {
             throw new InvalidOperationException();
