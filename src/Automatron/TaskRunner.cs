@@ -69,7 +69,7 @@ namespace Automatron
             return types;
         }
 
-        private IEnumerable<(Type, IEnumerable<MethodInfo>)> GetTargets(IEnumerable<Type> types)
+        private IEnumerable<(Type, IEnumerable<MethodInfo>)> GetTasks(IEnumerable<Type> types)
         {
             foreach (var controllerType in types)
             {
@@ -82,14 +82,14 @@ namespace Automatron
                     continue;
                 }
 
-                foreach (var targets in GetTargets(interfaces))
+                foreach (var targets in GetTasks(interfaces))
                 {
                     yield return (controllerType, targets.Item2);
                 }
             }
         }
 
-        private IEnumerable<(Type, IEnumerable<PropertyInfo>)> GetOptions(IEnumerable<Type> types)
+        private IEnumerable<(Type, IEnumerable<PropertyInfo>)> GetParameters(IEnumerable<Type> types)
         {
             foreach (var controllerType in types)
             {
@@ -102,18 +102,16 @@ namespace Automatron
                     continue;
                 }
 
-                foreach (var options in GetOptions(interfaces))
+                foreach (var options in GetParameters(interfaces))
                 {
                     yield return (controllerType, options.Item2);
                 }
             }
         }
 
+        private IEnumerable<PropertyInfo> ControllerOptions => GetParameters(_controllerTypes).SelectMany(c=> c.Item2);
 
-
-        private IEnumerable<PropertyInfo> ControllerOptions => GetOptions(_controllerTypes).SelectMany(c=> c.Item2);
-
-        private IEnumerable<(Type, IEnumerable<MethodInfo>)> ControllerTargets => GetTargets(_controllerTypes);
+        private IEnumerable<(Type, IEnumerable<MethodInfo>)> ControllerTargets => GetTasks(_controllerTypes);
 
         private void AddControllerOptions(BuildEvents.CommandCreatedEventArgs args)
         {
@@ -145,9 +143,9 @@ namespace Automatron
                     typeInfo = new TypeInfo(property.PropertyType, property.PropertyType);
                     arity = ArgumentArity.ExactlyOne;
                 }
-
+       
                 #pragma warning disable CS0618
-                var option = new Option(optionAttribute?.LongName??char.ToLowerInvariant(property.Name[0]) + property.Name[1..], optionAttribute?.ShortName, typeInfo, arity, optionAttribute?.BooleanMode??BooleanMode.Explicit, typeof(TController).FullName,customAttributes:new TaskAttributeProvider(property))
+                var option = new Option(optionAttribute?.LongName?? property.Name.ToLower(), optionAttribute?.ShortName, typeInfo, arity, optionAttribute?.BooleanMode??BooleanMode.Explicit, typeof(TController).FullName,customAttributes:new TaskAttributeProvider(property))
                 {
                     Description = optionAttribute?.Description,
                     Split = optionAttribute?.Split,

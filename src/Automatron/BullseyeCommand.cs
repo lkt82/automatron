@@ -41,11 +41,11 @@ namespace Automatron
         {
             var options = new Options
             {
-                Clear = false,//clear ?? false,
+                Clear = false,
                 DryRun = dryRun ?? false,
                 Host = Host.Automatic,
                 ListDependencies = listDependencies ?? false,
-                ListInputs = false,//listInputs ?? false,
+                ListInputs = false,
                 ListTargets = listTargets ?? false,
                 ListTree = listTree ?? false,
                 NoColor = false,

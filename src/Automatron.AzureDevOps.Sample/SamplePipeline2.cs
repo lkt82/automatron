@@ -10,7 +10,6 @@ public interface IContinuousDeployment
 {
     public const string Cd = "ContinuousDeployment2";
 
-
     public abstract class DeploymentTasks
     {
         protected string Environment { get; }
@@ -56,7 +55,7 @@ public interface IContinuousDeployment
         }
 
         [EnvVar("AZURE_CLIENT_SECRET")]
-        [Option(Description = "one of the application's client secrets")]
+        [Option(Description = "The Azure AD application's client secret")]
         public string? AzureClientSecret { get; set; }
     }
 
@@ -74,6 +73,11 @@ public class SamplePipeline2 : IContinuousDeployment
 
     //[Option(Description = "id of an Azure Active Directory application")]
     //public string? AzureClientId { get; set; }
+
+    public void Default()
+    {
+
+    }
 
     private static async Task<int> Main(string[] args)
     {
