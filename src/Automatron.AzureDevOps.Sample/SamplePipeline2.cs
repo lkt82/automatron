@@ -33,6 +33,9 @@ public interface IContinuousDeployment
         public void Deploy()
         {
         }
+
+        [Parameter("The Azure AD application's client secret")]
+        public Secret? AzureClientSecret { get; set; }
     }
 
     public class DeploymentTesting : DeploymentTasks
@@ -53,16 +56,12 @@ public interface IContinuousDeployment
             _console.WriteLine(Environment);
             await _console.Out.WriteLineAsync(AzureClientSecret?.GetValue());
         }
-
-        [Parameter("The Azure AD application's client secret")]
-        public Secret? AzureClientSecret { get; set; }
     }
 
     [Stage(Cd,typeof(DeploymentTesting))]
     [DependentOn(typeof(DeploymentTesting), nameof(DeploymentTesting.Deployment))]
     public void DeployToTesting()
     {
-
     }
 }
 
@@ -72,7 +71,6 @@ public class SamplePipeline2 : IContinuousDeployment
 
     public void Default()
     {
-
     }
 
     private static async Task<int> Main(string[] args)

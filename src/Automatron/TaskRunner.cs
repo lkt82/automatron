@@ -109,58 +109,65 @@ public sealed class TaskRunner<TController> where TController : class
         }
     }
 
-    private IEnumerable<PropertyInfo> ControllerParameters => GetParameters(_controllerTypes).SelectMany(c=> c.Item2).ToArray();
+    private IEnumerable<(Type, IEnumerable<PropertyInfo>)> ControllerParameters => GetParameters(_controllerTypes).ToArray();
 
     private IEnumerable<(Type, IEnumerable<MethodInfo>)> ControllerTasks => GetTasks(_controllerTypes).ToArray();
 
     private void AddControllerParameters(BuildEvents.CommandCreatedEventArgs args)
     {
-        foreach (var parameter in ControllerParameters)
+        foreach (var (_, properties) in ControllerParameters)
         {
-            if (args.CommandBuilder.Command.ContainsArgumentNode(parameter.Name))
+            foreach (var parameter in properties)
             {
-                continue;
+                if (args.CommandBuilder.Command.ContainsArgumentNode(parameter.Name))
+                {
+                    continue;
+                }
+
+                TypeInfo typeInfo;
+                IArgumentArity arity;
+
+                if (parameter.PropertyType.IsArray)
+                {
+                    typeInfo = new TypeInfo(parameter.PropertyType, parameter.PropertyType.GetElementType()!);
+                    arity = ArgumentArity.OneOrMore;
+                }
+                else if (parameter.PropertyType.IsGenericType &&
+                         (parameter.PropertyType.GetGenericTypeDefinition() == typeof(List<>) ||
+                          parameter.PropertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+                {
+                    typeInfo = new TypeInfo(parameter.PropertyType,
+                        parameter.PropertyType.GetGenericArguments().First());
+                    arity = ArgumentArity.OneOrMore;
+                }
+                else
+                {
+                    typeInfo = new TypeInfo(parameter.PropertyType, parameter.PropertyType);
+                    arity = ArgumentArity.ExactlyOne;
+                }
+
+                var name = parameter.Name.ToLower();
+
+                var parameterAttribute = parameter.GetCustomAttribute<ParameterAttribute>();
+
+                var option = new Option(name, null, typeInfo, arity, BooleanMode.Explicit, parameter.Name,
+                    customAttributes: new TaskAttributeProvider(parameter))
+                {
+                    Description = parameterAttribute?.Description,
+                    Split = arity.AllowsOneOrMore() ? ',' : null,
+                    IsMiddlewareOption = true,
+                    Default = GetParameterDefault(args.CommandContext.Environment, parameter.Name, typeInfo),
+                    Hidden = false
+                };
+
+                _optionLockUp[parameter] = option;
+
+                args.CommandBuilder.AddArgument(option);
             }
-
-            TypeInfo typeInfo;
-            IArgumentArity arity;
-
-            if (parameter.PropertyType.IsArray)
-            {
-                typeInfo = new TypeInfo(parameter.PropertyType, parameter.PropertyType.GetElementType()!);
-                arity = ArgumentArity.OneOrMore;
-            }
-            else if (parameter.PropertyType.IsGenericType && (parameter.PropertyType.GetGenericTypeDefinition() == typeof(List<>) || parameter.PropertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
-            {
-                typeInfo = new TypeInfo(parameter.PropertyType, parameter.PropertyType.GetGenericArguments().First());
-                arity = ArgumentArity.OneOrMore;
-            }
-            else
-            {
-                typeInfo = new TypeInfo(parameter.PropertyType, parameter.PropertyType);
-                arity = ArgumentArity.ExactlyOne;
-            }
-
-            var name = parameter.Name.ToLower();
-
-            var parameterAttribute = parameter.GetCustomAttribute<ParameterAttribute>();
-
-            var option = new Option(name, null, typeInfo, arity, BooleanMode.Explicit, parameter.Name, customAttributes: new TaskAttributeProvider(parameter))
-            {
-                Description = parameterAttribute?.Description,
-                Split = ' ',
-                IsMiddlewareOption = true,
-                Default = GetParameterDefault(args.CommandContext.Environment,parameter.Name, typeInfo),
-                Hidden = false
-            };
-
-            _optionLockUp[parameter] = option;
-
-            args.CommandBuilder.AddArgument(option);
         }
     }
 
-    private static ArgumentDefault? GetParameterDefault(IEnvironment environment, string name, TypeInfo typeInfo)
+    private static ArgumentDefault? GetParameterDefault(IEnvironment environment, string name, ITypeInfo typeInfo)
     {
         var envVarName = GetEnvVarName(name);
         var defaultValue = environment.GetEnvironmentVariable(envVarName);
@@ -194,18 +201,21 @@ public sealed class TaskRunner<TController> where TController : class
 
     private Task<int> CreateController(CommandContext ctx, ExecutionDelegate next)
     {
-        foreach (var property in ControllerParameters)
+        foreach (var (type, properties) in ControllerParameters)
         {
-            var controller = ctx.DependencyResolver!.Resolve(property.DeclaringType!);
-
-            var option = _optionLockUp[property];
-
-            if (option.Value == null && option.Default?.Value == null)
+            foreach (var property in properties)
             {
-                continue;
-            }
+                var controller = ctx.DependencyResolver!.Resolve(type);
 
-            property.SetValue(controller, option.Value?? option.Default?.Value);
+                var option = _optionLockUp[property];
+
+                if (option.Value == null && option.Default?.Value == null)
+                {
+                    continue;
+                }
+
+                property.SetValue(controller, option.Value ?? option.Default?.Value);
+            }
         }
 
         return next(ctx);

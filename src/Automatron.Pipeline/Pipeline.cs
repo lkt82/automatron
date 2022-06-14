@@ -1,7 +1,6 @@
 ﻿using Automatron.Annotations;
 using Automatron.AzureDevOps;
 using Automatron.AzureDevOps.Generators.Annotations;
-using CommandDotNet;
 using static SimpleExec.Command;
 
 namespace Automatron.Pipeline;
@@ -23,7 +22,7 @@ public class Pipeline
     private const string NugetApiKeyName = "NUGET_API_KEY";
 
     [Parameter("The nuget api key")]
-    public Password? NugetApiKey { get; set; }
+    public Secret? NugetApiKey { get; set; }
 
     public Pipeline(AzureDevOpsTasks azureDevOpsTasks)
     {
@@ -103,7 +102,7 @@ public class Pipeline
     {
         foreach (var nuget in Directory.EnumerateFiles(ArtifactsDir, "*.nupkg"))
         {
-            await RunAsync("dotnet", $"nuget push {Path.GetFullPath(nuget)} -k {NugetApiKey?.GetPassword()} -s https://api.nuget.org/v3/index.json --skip-duplicate", workingDirectory: "../Automatron", noEcho: true);
+            await RunAsync("dotnet", $"nuget push {Path.GetFullPath(nuget)} -k {NugetApiKey?.GetValue()} -s https://api.nuget.org/v3/index.json --skip-duplicate", workingDirectory: "../Automatron", noEcho: true);
         }
     }
 }

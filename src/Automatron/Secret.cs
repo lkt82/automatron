@@ -2,7 +2,7 @@
 
 namespace Automatron;
 
-public record Secret
+public sealed record Secret
 {
     public static readonly string ValueReplacement = "*****";
 
