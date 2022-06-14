@@ -11,6 +11,7 @@
 	    <Authors>Lars Kjær Thomsen</Authors>
 	    <PackageLicenseExpression>MIT</PackageLicenseExpression>
 	    <PackageReadmeFile>README.md</PackageReadmeFile>
+	    <MinClientVersion>5.10</MinClientVersion>
     </PropertyGroup>
 
 	<ItemGroup>

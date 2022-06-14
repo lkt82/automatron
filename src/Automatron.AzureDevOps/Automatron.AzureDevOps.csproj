@@ -10,6 +10,7 @@
 	    <RepositoryUrl>https://github.com/lkt82/automatron</RepositoryUrl>
 	    <Authors>Lars Kjær Thomsen</Authors>
 	    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	    <MinClientVersion>5.10</MinClientVersion>
     </PropertyGroup>
 
 	<ItemGroup>
