@@ -3,7 +3,7 @@
 namespace Automatron.Annotations
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public class DependentOnAttribute : Attribute
+    public sealed class DependentOnAttribute : Attribute
     {
         public Type? Controller { get; }
 

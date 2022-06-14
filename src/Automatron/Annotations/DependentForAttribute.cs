@@ -3,7 +3,7 @@
 namespace Automatron.Annotations
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class DependentForAttribute : Attribute
+    public sealed class DependentForAttribute : Attribute
     {
         public DependentForAttribute(params string[] targets)
         {

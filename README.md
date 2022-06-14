@@ -82,7 +82,7 @@ public class Pipeline
 }
 ```
 
-Targets can be run via cmd arguments  ```dotnet run -- Build```
+Tasks can be run via cmd arguments  ```dotnet run -- Build```
 
 ## Dependencies
 

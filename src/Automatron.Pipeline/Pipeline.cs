@@ -22,9 +22,8 @@ public class Pipeline
 
     private const string NugetApiKeyName = "NUGET_API_KEY";
 
-    [EnvVar(NugetApiKeyName)]
-    [Option(Description = "The nuget api key")]
-    public string? NugetApiKey { get; set; }
+    [Parameter("The nuget api key")]
+    public Password? NugetApiKey { get; set; }
 
     public Pipeline(AzureDevOpsTasks azureDevOpsTasks)
     {
@@ -104,7 +103,7 @@ public class Pipeline
     {
         foreach (var nuget in Directory.EnumerateFiles(ArtifactsDir, "*.nupkg"))
         {
-            await RunAsync("dotnet", $"nuget push {Path.GetFullPath(nuget)} -k {NugetApiKey} -s https://api.nuget.org/v3/index.json --skip-duplicate", workingDirectory: "../Automatron", noEcho: true);
+            await RunAsync("dotnet", $"nuget push {Path.GetFullPath(nuget)} -k {NugetApiKey?.GetPassword()} -s https://api.nuget.org/v3/index.json --skip-duplicate", workingDirectory: "../Automatron", noEcho: true);
         }
     }
 }

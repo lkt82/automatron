@@ -3,6 +3,6 @@
 namespace Automatron.Annotations;
 
 [AttributeUsage(AttributeTargets.Class)]
-public class TaskControllerAttribute : Attribute
+public sealed class TaskControllerAttribute : Attribute
 {
 }
