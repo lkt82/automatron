@@ -108,10 +108,6 @@ public class Pipeline
         foreach (var nuget in Directory.EnumerateFiles(ArtifactsDir, "*.nupkg"))
         {
             await _azureDevOpsTasks.UploadArtifact("/", "Nuget", Path.GetFullPath(nuget));
-        }
-
-        foreach (var nuget in Directory.EnumerateFiles(ArtifactsDir, "*.nupkg"))
-        {
             await RunAsync("dotnet", $"nuget push {Path.GetFullPath(nuget)} -k {NugetApiKey?.GetValue()} -s https://api.nuget.org/v3/index.json --skip-duplicate", workingDirectory: "../Automatron", noEcho: true);
         }
     }
