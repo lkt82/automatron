@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using YamlDotNet.Serialization;
 
 namespace Automatron.AzureDevOps.Generators.Models
@@ -26,9 +27,34 @@ namespace Automatron.AzureDevOps.Generators.Models
         {
             get
             {
-                return Secrets?.ToDictionary(c=> c,c=> (object)$"$({c})") ?? _env;
+                return Secrets?.ToDictionary(GetEnvVarName, c=> (object)$"$({c})") ?? _env;
             }
             set => _env = value;
+        }
+
+        private static string GetEnvVarName(string name)
+        {
+            var envVarName = new StringBuilder();
+
+            for (var index = 0; index < name.Length; index++)
+            {
+                var n = name[index];
+                if (index > 0 && char.IsLower(name[index - 1]) && char.IsUpper(n))
+                {
+                    envVarName.Append('_');
+                    envVarName.Append(n);
+                }
+                else if (char.IsLower(n))
+                {
+                    envVarName.Append(char.ToUpper(n));
+                }
+                else
+                {
+                    envVarName.Append(n);
+                }
+            }
+
+            return envVarName.ToString();
         }
     }
 }

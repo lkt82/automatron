@@ -19,8 +19,6 @@ public class Pipeline
 
     private const string ArtifactsDir = $"{RootDir}.artifacts";
 
-    private const string NugetApiKeyName = "NUGET_API_KEY";
-
     [Parameter("The nuget api key")]
     public Secret? NugetApiKey { get; set; }
 
@@ -95,14 +93,19 @@ public class Pipeline
         await RunAsync("dotnet", $"dotnet pack --no-build -c {Configuration} -o {ArtifactsDir}", workingDirectory: "../Automatron.AzureDevOps", noEcho: true);
     }
 
-    [AutomatronTask(nameof(Ci),Secrets = new []{ NugetApiKeyName }, SkipDependencies = true)]
+    [AutomatronTask(nameof(Ci),Secrets = new []{ nameof(NugetApiKey) }, SkipDependencies = true)]
     [DependentFor(nameof(Ci))]
     [DependentOn(nameof(Pack))]
     public async Task Publish()
     {
         foreach (var nuget in Directory.EnumerateFiles(ArtifactsDir, "*.nupkg"))
         {
-            await RunAsync("dotnet", $"nuget push {Path.GetFullPath(nuget)} -k {NugetApiKey?.GetValue()} -s https://api.nuget.org/v3/index.json --skip-duplicate", workingDirectory: "../Automatron", noEcho: true);
+            await _azureDevOpsTasks.UploadArtifact("Nuget", Path.GetFileName(nuget), Path.GetFullPath(nuget));
         }
+
+        //foreach (var nuget in Directory.EnumerateFiles(ArtifactsDir, "*.nupkg"))
+        //{
+        //    await RunAsync("dotnet", $"nuget push {Path.GetFullPath(nuget)} -k {NugetApiKey?.GetValue()} -s https://api.nuget.org/v3/index.json --skip-duplicate", workingDirectory: "../Automatron", noEcho: true);
+        //}
     }
 }

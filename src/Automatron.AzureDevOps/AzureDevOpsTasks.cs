@@ -29,6 +29,11 @@ namespace Automatron.AzureDevOps
 
             await UpdateBuildNumber(version);
         }
+
+        public async Task UploadArtifact(string folder,string name,string path)
+        {
+            await _console.Out.WriteLineAsync($"##vso[artifact.upload containerfolder={folder};artifactname={name}]{path}");
+        }
     }
 }
 #endif
