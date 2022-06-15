@@ -86,7 +86,10 @@ Tasks can be run via cmd arguments  ```dotnet run -- Build```
 
 ## Dependencies
 
-Dependencies are expression via the attributes DependentOn and DependentFor
+Dependencies are expression via the attributes
+
+- DependentOn 
+- DependentFor
 
 ```c#
 public class Pipeline
@@ -122,3 +125,50 @@ public class Pipeline
 ```
 
 ## AzureDevOps
+
+Automatron can be used for gennerating the yaml pipeline for AzureDevOps.
+
+Pipelines are expression via the attributes
+
+```c#
+[Pipeline(RootDir)]
+[CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
+[Pool(VmImage = "ubuntu-latest")]
+public class Pipeline
+{
+    /*You git repository root. Used for computed paths in the yaml pipeline */
+    private const string RootDir = "../../";
+
+    private readonly IConsole _console;
+
+    public Pipeline(IConsole console)
+    {
+        _console = console;
+    }
+
+    private static async Task<int> Main(string[] args)
+    {
+        return await new TaskRunner<Pipeline>().RunAsync(args);
+    }
+
+    [Stage]
+    [Job]
+    public void Ci() { }
+
+    [AutomatronTask(nameof(Ci), SkipDependencies = true)]
+    [DependentFor(nameof(Ci))]
+    [DependentOn(nameof(Version))]
+    public void Build()
+    {
+        _console.Out.WriteLine("Building");
+    }
+
+    [AutomatronTask(nameof(Ci), SkipDependencies = true)]
+    [DependentFor(nameof(Ci))]
+    [DependentOn(nameof(Build))]
+    public async Task Test()
+    {
+        await _console.Out.WriteLineAsync("Testing");
+    }
+}
+```
