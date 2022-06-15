@@ -1,4 +1,5 @@
-﻿using Automatron.Annotations;
+﻿using System.Reflection;
+using Automatron.Annotations;
 using Automatron.AzureDevOps;
 using Automatron.AzureDevOps.Generators.Annotations;
 using static SimpleExec.Command;
@@ -60,7 +61,13 @@ public class Pipeline
     [DependentFor(nameof(Ci))]
     public async Task Version()
     {
-        await _azureDevOpsTasks.UpdateBuildNumberWithAssemblyInformationalVersion();
+        var version = Assembly.GetEntryAssembly()!.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+        if (version == null)
+        {
+            return;
+        }
+
+        await _azureDevOpsTasks.UpdateBuildNumber(version);
     }
 
     [AutomatronTask(nameof(Ci), SkipDependencies = true)]
@@ -103,9 +110,9 @@ public class Pipeline
             await _azureDevOpsTasks.UploadArtifact("/", "Nuget", Path.GetFullPath(nuget));
         }
 
-        //foreach (var nuget in Directory.EnumerateFiles(ArtifactsDir, "*.nupkg"))
-        //{
-        //    await RunAsync("dotnet", $"nuget push {Path.GetFullPath(nuget)} -k {NugetApiKey?.GetValue()} -s https://api.nuget.org/v3/index.json --skip-duplicate", workingDirectory: "../Automatron", noEcho: true);
-        //}
+        foreach (var nuget in Directory.EnumerateFiles(ArtifactsDir, "*.nupkg"))
+        {
+            await RunAsync("dotnet", $"nuget push {Path.GetFullPath(nuget)} -k {NugetApiKey?.GetValue()} -s https://api.nuget.org/v3/index.json --skip-duplicate", workingDirectory: "../Automatron", noEcho: true);
+        }
     }
 }

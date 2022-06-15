@@ -1,5 +1,4 @@
 ﻿#if NET6_0
-using System.Reflection;
 using System.Threading.Tasks;
 using CommandDotNet;
 
@@ -17,17 +16,6 @@ namespace Automatron.AzureDevOps
         public async Task UpdateBuildNumber(string buildNumber)
         {
             await _console.Out.WriteLineAsync($"##vso[build.updatebuildnumber]{buildNumber}");
-        }
-
-        public async Task UpdateBuildNumberWithAssemblyInformationalVersion()
-        {
-            var version = Assembly.GetEntryAssembly()!.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-            if (version == null)
-            {
-                return;
-            }
-
-            await UpdateBuildNumber(version);
         }
 
         public async Task UploadArtifact(string folder,string name,string path)
