@@ -7,7 +7,11 @@
 	    <Description>AzureDevOps Support for Automatron. Uses a Source Gennerator to build the AzureDevOps yaml</Description>
 		<PackageTags>Build;Pipeline;AzureDevOps</PackageTags>
 	    <Copyright>© 2022 Lars Kjær Thomsen</Copyright>
-	    <RepositoryUrl>https://github.com/lkt82/automatron</RepositoryUrl>
+	    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+	    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+	    <IncludeSymbols>true</IncludeSymbols>
+	    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	    <ContinuousIntegrationBuild Condition="'$(Configuration)' != 'Debug'">true</ContinuousIntegrationBuild>
 	    <Authors>Lars Kjær Thomsen</Authors>
 	    <PackageLicenseExpression>MIT</PackageLicenseExpression>
 	    <MinClientVersion>5.9</MinClientVersion>
@@ -23,6 +27,10 @@
         </PackageReference>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.2.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+	        <PrivateAssets>all</PrivateAssets>
+	        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="MinVer" Version="4.0.0">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
