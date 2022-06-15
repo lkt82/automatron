@@ -100,7 +100,7 @@ public class Pipeline
     {
         foreach (var nuget in Directory.EnumerateFiles(ArtifactsDir, "*.nupkg"))
         {
-            await _azureDevOpsTasks.UploadArtifact("Nuget", Path.GetFileName(nuget), Path.GetFullPath(nuget));
+            await _azureDevOpsTasks.UploadArtifact("/", "Nuget", Path.GetFullPath(nuget));
         }
 
         //foreach (var nuget in Directory.EnumerateFiles(ArtifactsDir, "*.nupkg"))
