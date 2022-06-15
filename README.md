@@ -128,7 +128,7 @@ public class Pipeline
 
 Automatron can be used for gennerating the yaml pipeline for AzureDevOps.
 
-Pipelines are expression via the attributes
+Pipelines are expression via the attributes in the addon library [Automatron.AzureDevOps](https://www.nuget.org/packages/Automatron.AzureDevOps).
 
 ```c#
 [Pipeline(RootDir)]
@@ -172,3 +172,5 @@ public class Pipeline
     }
 }
 ```
+
+By reference the Automatron.AzureDevOps library and using the attributes on your class should result in a gennerated azure-pipelines.yml that is added to your project
