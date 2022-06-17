@@ -8,7 +8,7 @@
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-		<ContinuousIntegrationBuild Condition="'$(Configuration)' != 'Debug'">true</ContinuousIntegrationBuild>
+		<ContinuousIntegrationBuild Condition="'$(Configuration)' == 'Release'">true</ContinuousIntegrationBuild>
 		<Authors>Lars Kjær Thomsen</Authors>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<MinClientVersion>5.9</MinClientVersion>
