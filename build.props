@@ -12,6 +12,13 @@
 		<Authors>Lars Kjær Thomsen</Authors>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<MinClientVersion>5.9</MinClientVersion>
+		<RepositoryBranch>@(GitBranchName)</RepositoryBranch>
 	</PropertyGroup>
+
+	<Target Name="ComputeBranchName" AfterTargets="MinVer">
+		<Exec Command="git symbolic-ref --short HEAD" ConsoleToMSBuild="true" StandardOutputImportance="Low" >
+			<Output TaskParameter="ConsoleOutput" ItemName="GitBranchName" />
+		</Exec>
+	</Target>
 
 </Project>

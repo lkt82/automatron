@@ -19,7 +19,6 @@ public static class SymbolExtensions
 
     public static IEnumerable<T> GetCustomAbstractAttributes<T>(this ISymbol symbol) where T : Attribute
     {
-        return symbol.GetAttributes().Where(c => c.AttributeClass!.BaseType!.Name == typeof(T).Name).Select(c=> c.MapToCustomAttribute<T>(Type.GetType(c.AttributeClass + ", " + c.AttributeClass?.ContainingAssembly) ?? throw new InvalidOperationException()));
+        return symbol.GetAttributes().Where(c=> c.IsAssignableFrom<T>()).Select(c=> c.MapToCustomAttribute<T>(Type.GetType(c.AttributeClass + ", " + c.AttributeClass?.ContainingAssembly) ?? throw new InvalidOperationException()));
     }
-
 }

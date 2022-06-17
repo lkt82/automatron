@@ -24,8 +24,8 @@ public static class NamedTypeSymbolExtensions
         }
 
         types.Reverse();
-        types.AddRange(symbol.AllInterfaces);
-        return types;
+
+        return symbol.AllInterfaces.AddRange(types);
     }
 
     public static IEnumerable<IMethodSymbol> GetAllPublicMethods(this INamedTypeSymbol symbol)

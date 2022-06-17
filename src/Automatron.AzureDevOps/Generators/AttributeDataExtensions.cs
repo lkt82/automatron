@@ -88,4 +88,19 @@ public static class AttributeDataExtensions
         return attributeData.Where(c => c.IsCustomAttribute<T>()).Select(c => c.MapToCustomAttribute<T>());
     }
 
+    public static bool IsAssignableFrom<T>(this AttributeData attribute)
+    {
+        var current = attribute.AttributeClass;
+        while (current != null && current.Name != "Attribute")
+        {
+            if (current.Name == typeof(T).Name)
+            {
+                return true;
+            }
+            current = current.BaseType;
+        }
+
+        return false;
+    }
+
 }
