@@ -12,16 +12,16 @@
 		<Authors>Lars Kjær Thomsen</Authors>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<MinClientVersion>5.9</MinClientVersion>
-		<RepositoryBranch>@(GitBranchName)</RepositoryBranch>
 	</PropertyGroup>
 
-	<Target Name="ComputeBranchName" AfterTargets="MinVer">
-		<Exec Command="git name-rev --name-only $(BUILD_SOURCEBRANCH)" ConsoleToMSBuild="true" StandardOutputImportance="Low" Condition="$(TF_BUILD) == 'True'" >
-			<Output TaskParameter="ConsoleOutput" ItemName="GitBranchName" />
+	<Target Name="RepositoryBranch" AfterTargets="MinVer" Condition="'$(MinVerSkip)' != 'true'">
+		<Exec Command="git symbolic-ref HEAD" ConsoleToMSBuild="true" StandardOutputImportance="Low" Condition="$(TF_BUILD) == ''" >
+			<Output TaskParameter="ConsoleOutput" PropertyName="GitRef" />
 		</Exec>
-		<Exec Command="git branch --show-current" ConsoleToMSBuild="true" StandardOutputImportance="Low" Condition="$(TF_BUILD) == ''" >
-			<Output TaskParameter="ConsoleOutput" ItemName="GitBranchName" />
-		</Exec>
+		<PropertyGroup>
+			<GitRef Condition="$(TF_BUILD) == 'True'">$(BUILD_SOURCEBRANCH)</GitRef>
+			<RepositoryBranch Condition="$(GitRef.StartsWith('refs/heads/'))">$(GitRef.Replace('refs/heads/',''))</RepositoryBranch>
+		</PropertyGroup>
 	</Target>
 
 </Project>
