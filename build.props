@@ -12,9 +12,10 @@
 		<Authors>Lars Kjær Thomsen</Authors>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<MinClientVersion>5.9</MinClientVersion>
+		<GenerateNuspecDependsOn>$(GenerateNuspecDependsOn);BranchName</GenerateNuspecDependsOn>
 	</PropertyGroup>
 
-	<Target Name="RepositoryBranch" AfterTargets="MinVer" Condition="'$(MinVerSkip)' != 'true'">
+	<Target Name="BranchName">
 		<Exec Command="git symbolic-ref HEAD" ConsoleToMSBuild="true" StandardOutputImportance="Low" Condition="$(TF_BUILD) == ''" >
 			<Output TaskParameter="ConsoleOutput" PropertyName="GitRef" />
 		</Exec>
