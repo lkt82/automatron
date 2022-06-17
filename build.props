@@ -16,7 +16,10 @@
 	</PropertyGroup>
 
 	<Target Name="ComputeBranchName" AfterTargets="MinVer">
-		<Exec Command="git symbolic-ref --short HEAD" ConsoleToMSBuild="true" StandardOutputImportance="Low" >
+		<Exec Command="git name-rev --name-only $BUILD_SOURCEBRANCH" ConsoleToMSBuild="true" StandardOutputImportance="Low" Condition="$(TF_BUILD) == 'True'" >
+			<Output TaskParameter="ConsoleOutput" ItemName="GitBranchName" />
+		</Exec>
+		<Exec Command="git branch --show-current" ConsoleToMSBuild="true" StandardOutputImportance="Low" Condition="$(TF_BUILD) == ''" >
 			<Output TaskParameter="ConsoleOutput" ItemName="GitBranchName" />
 		</Exec>
 	</Target>
