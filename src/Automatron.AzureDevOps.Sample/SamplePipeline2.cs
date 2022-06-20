@@ -4,7 +4,7 @@ using CommandDotNet;
 
 namespace Automatron.AzureDevOps.Sample;
 
-[Pipeline("../../", Cd)]
+[Pipeline(Cd)]
 [CiTrigger(Cd, Batch = true, IncludeBranches = new[] { "main" })]
 public interface IContinuousDeployment
 {
@@ -69,24 +69,37 @@ public class SamplePipeline2 : IContinuousDeployment
 {
     public const string Cd = "ContinuousDeployment2";
 
+    private static async Task<int> Main(string[] args)
+    {
+        return await new TaskRunner<SamplePipeline2>().UseAzureDevOps().RunAsync(args);
+    }
+
     public void Default()
     {
     }
 
-    [Stage(Cd,DependsOn = new []{nameof(IContinuousDeployment.DeployToTesting)})]
+    [Stage(Cd, DependsOn = new[] { nameof(IContinuousDeployment.DeployToTesting) })]
     [DependentOn(nameof(IContinuousDeployment.DeployToTesting))]
     public void Default2()
     {
     }
 
-    [Stage(Cd, DependsOn = new[] { nameof(Default2) })]
+    [Stage(Cd, DependsOn = new[] { nameof(IContinuousDeployment.DeployToTesting), nameof(Default4) })]
+    [DependentOn(nameof(Default3))]
+    public void Default5()
+    {
+    }
+
+    [Stage(Cd, DependsOn = new[] { nameof(IContinuousDeployment.DeployToTesting) })]
+    [DependentOn(nameof(Default3))]
+    public void Default4()
+    {
+    }
+
+    [Stage(Cd, DependsOn = new[] { nameof(Default4) })]
     [DependentOn(nameof(Default2))]
     public void Default3()
     {
     }
 
-    private static async Task<int> Main(string[] args)
-    {
-        return await new TaskRunner<SamplePipeline2>().UseAzureDevOps().RunAsync(args);
-    }
 }

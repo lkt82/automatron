@@ -42,10 +42,11 @@ namespace Automatron.AzureDevOps.Generators.Annotations
 
         private static string GetWorkingDirectory(IJob job)
         {
-            const string start = "./";
-            var path = PathExtensions.GetUnixPath(PathExtensions.GetRelativePath(Path.GetFullPath(Path.Combine(job.Stage.Pipeline.ProjectDirectory, job.Stage.Pipeline.RootPath)), job.Stage.Pipeline.ProjectDirectory));
+            var fullRoot = PathExtensions.GetUnixPath(Path.GetFullPath(job.Stage.Pipeline.RootPath))+"/";
 
-            return path.StartsWith(start) ? path : $"{start}{path}";
+            var path = PathExtensions.GetUnixPath(PathExtensions.GetRelativePath(fullRoot, job.Stage.Pipeline.ProjectDirectory));
+
+            return path;
         }
     }
 }

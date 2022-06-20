@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Automatron.AzureDevOps.Generators.Converters;
@@ -19,19 +20,51 @@ internal class YamlPipelineGenerator : ISourceGenerator
         _serializer = CreateYamlSerializer();
     }
 
+    private static bool IsLocal => Environment.GetEnvironmentVariable("TF_BUILD")?.ToUpperInvariant() != "TRUE";
+
+    private readonly Dictionary<string, string> _vscRoot = new();
+
+    private static string GetGitRoot(string workingDirectory)
+    {
+        using var git = new Process();
+        git.StartInfo.FileName = "git";
+        git.StartInfo.Arguments = "rev-parse --show-toplevel";
+        git.StartInfo.UseShellExecute = false;
+        git.StartInfo.RedirectStandardOutput = true;
+        git.StartInfo.WorkingDirectory = workingDirectory;
+        git.Start();
+
+        var gitRoot = git.StandardOutput.ReadToEnd();
+        git.WaitForExit();
+        return gitRoot.TrimEnd('\n');
+    }
+
     public void Execute(GeneratorExecutionContext context)
     {
-        if (Environment.GetEnvironmentVariable("TF_BUILD")?.ToUpperInvariant() == "TRUE")
+        if (!IsLocal)
         {
             return;
         }
-    
+
         Debug.WriteLine($"Execute {nameof(YamlPipelineGenerator)}");
 
         if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.PipelineProjectDirectory",
                 out var projectDirectory))
         {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("PipelineProjectDirectory not set");
+        }
+
+        string? vscRoot = null;
+
+        if (!_vscRoot.ContainsKey(projectDirectory))
+        {
+            vscRoot = GetGitRoot(projectDirectory);
+            _vscRoot[projectDirectory] = vscRoot;
+        }
+
+        if (vscRoot == null)
+        {
+            throw new NullReferenceException("vscRoot was null");
         }
 
         var mainMethod = context.Compilation.GetEntryPoint(context.CancellationToken);
@@ -41,7 +74,7 @@ internal class YamlPipelineGenerator : ISourceGenerator
             return;
         }
 
-        var pipelineVisitor = new PipelineVisitor(projectDirectory);
+        var pipelineVisitor = new PipelineVisitor(vscRoot, PathExtensions.GetUnixPath(projectDirectory));
         pipelineVisitor.Visit(mainMethod.ContainingAssembly.GlobalNamespace);
 
         foreach (var pipeline in pipelineVisitor.Pipelines)

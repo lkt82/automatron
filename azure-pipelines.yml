@@ -16,19 +16,19 @@ stages:
   - job: Ci
     steps:
     - script: dotnet run -- -r Version
-      workingDirectory: ./src/Automatron.Pipeline
+      workingDirectory: src/Automatron.Pipeline
       name: Version
     - script: dotnet run -- -r Build -s
-      workingDirectory: ./src/Automatron.Pipeline
+      workingDirectory: src/Automatron.Pipeline
       name: Build
     - script: dotnet run -- -r Test -s
-      workingDirectory: ./src/Automatron.Pipeline
+      workingDirectory: src/Automatron.Pipeline
       name: Test
     - script: dotnet run -- -r Pack -s
-      workingDirectory: ./src/Automatron.Pipeline
+      workingDirectory: src/Automatron.Pipeline
       name: Pack
     - script: dotnet run -- -r Publish -s
-      workingDirectory: ./src/Automatron.Pipeline
+      workingDirectory: src/Automatron.Pipeline
       env:
         NUGET_API_KEY: $(NugetApiKey)
       name: Publish

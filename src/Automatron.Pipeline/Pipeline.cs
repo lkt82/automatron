@@ -6,7 +6,7 @@ using static SimpleExec.Command;
 
 namespace Automatron.Pipeline;
 
-[Pipeline(RootDir, YmlPath = RootDir)]
+[Pipeline(YmlPath = RootDir)]
 [CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
 [Pool(VmImage = "ubuntu-latest")]
 [VariableGroup("nuget")]

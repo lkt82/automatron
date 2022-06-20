@@ -3,7 +3,7 @@ using Automatron.AzureDevOps.Generators.Annotations;
 
 namespace Automatron.AzureDevOps.Sample
 {
-    [Pipeline("../../", It)]
+    [Pipeline(It)]
     [CiTrigger(It, Disabled = true)]
     [ScheduledTrigger(It,
         "2 0 * * *",

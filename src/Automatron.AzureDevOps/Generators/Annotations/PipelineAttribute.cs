@@ -11,14 +11,13 @@ namespace Automatron.AzureDevOps.Generators.Annotations
 
         public string YmlPath { get; set; }
 
-        public string RootPath { get; set; }
+        public string? RootPath { get; set; }
 
-        public PipelineAttribute(string rootPath, string name = "azure-pipelines")
+        public PipelineAttribute(string name = "azure-pipelines")
         {
             Name = name;
             YmlName = name + ".yml";
             YmlPath = "./";
-            RootPath = rootPath;
         }
     }
 }

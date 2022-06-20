@@ -4,9 +4,9 @@ using CommandDotNet;
 
 namespace Automatron.AzureDevOps.Sample
 {
-    [Pipeline("../../", Cd)]
+    [Pipeline(Cd)]
     [CiTrigger(Cd, Batch = true, IncludeBranches = new []{ "master" })]
-    [Pipeline("../../", Pr)]
+    [Pipeline(Pr)]
     [CiTrigger(Pr,Disabled = true)]
     [VariableGroup(Cd,"pulumi")]
     [Variable(Cd,"test",1)]

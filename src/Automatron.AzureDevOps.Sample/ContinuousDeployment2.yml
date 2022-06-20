@@ -15,14 +15,21 @@ stages:
         deploy:
           steps:
           - script: dotnet run -- -r DeploymentTestingBuild
-            workingDirectory: ./src/Automatron.AzureDevOps.Sample
+            workingDirectory: src/Automatron.AzureDevOps.Sample
             name: Build
           - script: dotnet run -- -r DeploymentTestingDeploy -s
-            workingDirectory: ./src/Automatron.AzureDevOps.Sample
+            workingDirectory: src/Automatron.AzureDevOps.Sample
             name: Deploy
 - stage: Default2
   dependsOn:
   - DeployToTesting
+- stage: Default4
+  dependsOn:
+  - DeployToTesting
+- stage: Default5
+  dependsOn:
+  - DeployToTesting
+  - Default4
 - stage: Default3
   dependsOn:
-  - Default2
+  - Default4

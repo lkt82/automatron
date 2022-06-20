@@ -3,7 +3,7 @@ using Automatron.AzureDevOps.Generators.Annotations;
 
 namespace Automatron.AzureDevOps.Tests
 {
-    [Pipeline("../../", Cd)]
+    [Pipeline(Cd)]
     [CiTrigger(Cd, Batch = true, IncludeBranches = new[] { "main" })]
     public interface IContinuousDeployment
     {
