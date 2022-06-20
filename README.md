@@ -130,15 +130,14 @@ Automatron can be used for gennerating the yaml pipeline for AzureDevOps.
 
 Pipelines are expression via the attributes in the addon library [Automatron.AzureDevOps](https://www.nuget.org/packages/Automatron.AzureDevOps).
 
+*The project needs to be in git repostiory to able to compute paths correctly or have the RootPath property set*
+
 ```c#
-[Pipeline(RootDir)]
+[Pipeline]
 [CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
 [Pool(VmImage = "ubuntu-latest")]
 public class Pipeline
 {
-    /*You git repository root. Used for computed paths in the yaml pipeline */
-    private const string RootDir = "../../";
-
     private readonly IConsole _console;
 
     public Pipeline(IConsole console)
@@ -173,4 +172,4 @@ public class Pipeline
 }
 ```
 
-By reference the Automatron.AzureDevOps library and using the attributes on your class should result in a gennerated azure-pipelines.yml that is added to your project
+By reference the Automatron.AzureDevOps library and using the attributes on the class should result in a gennerated azure-pipelines.yml that is added to the project.
