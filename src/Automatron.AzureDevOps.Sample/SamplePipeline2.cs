@@ -1,6 +1,8 @@
-﻿using Automatron.Annotations;
+﻿using System.ComponentModel;
+using Automatron.Annotations;
 using Automatron.AzureDevOps.Generators.Annotations;
 using CommandDotNet;
+using Parameter = Automatron.AzureDevOps.Generators.Annotations.ParameterAttribute;
 
 namespace Automatron.AzureDevOps.Sample;
 
@@ -34,7 +36,7 @@ public interface IContinuousDeployment
         {
         }
 
-        [Parameter("The Azure AD application's client secret")]
+        [Description("The Azure AD application's client secret")]
         public Secret? AzureClientSecret { get; set; }
     }
 
@@ -74,32 +76,14 @@ public class SamplePipeline2 : IContinuousDeployment
         return await new TaskRunner<SamplePipeline2>().UseAzureDevOps().RunAsync(args);
     }
 
+    [Parameter(Cd, "runPerfTests", ParameterTypes.Boolean, Value = false)]
+    public bool RunPerfTests { get; set; }
+
+    //[AutomatronTask(nameof(Default))]
+    //[Stage(Cd, DependsOn = new[] { nameof(IContinuousDeployment.DeployToTesting) })]
+    //[Job(nameof(IContinuousDeployment.DeployToTesting))]
+    [DependentFor(typeof(IContinuousDeployment.DeploymentTesting),nameof(IContinuousDeployment.DeploymentTesting.Deployment))]
     public void Default()
     {
     }
-
-    [Stage(Cd, DependsOn = new[] { nameof(IContinuousDeployment.DeployToTesting) })]
-    [DependentOn(nameof(IContinuousDeployment.DeployToTesting))]
-    public void Default2()
-    {
-    }
-
-    [Stage(Cd, DependsOn = new[] { nameof(IContinuousDeployment.DeployToTesting), nameof(Default4) })]
-    [DependentOn(nameof(Default3))]
-    public void Default5()
-    {
-    }
-
-    [Stage(Cd, DependsOn = new[] { nameof(IContinuousDeployment.DeployToTesting) })]
-    [DependentOn(nameof(Default3))]
-    public void Default4()
-    {
-    }
-
-    [Stage(Cd, DependsOn = new[] { nameof(Default4) })]
-    [DependentOn(nameof(Default2))]
-    public void Default3()
-    {
-    }
-
 }

@@ -40,6 +40,8 @@ internal class StageVisitor : SymbolVisitor
 
     public List<Stage> Stages { get; } = new();
 
+    private readonly Dictionary<Stage, INamedTypeSymbol> _templates = new();
+
     public StageVisitor(Pipeline pipeline)
     {
         _pipeline = pipeline;
@@ -56,8 +58,18 @@ internal class StageVisitor : SymbolVisitor
 
         foreach (var stage in Stages)
         {
-            var jobVisitor = new JobVisitor(stage);
-            symbol.Accept(jobVisitor);
+            JobVisitor jobVisitor;
+
+             if (_templates.ContainsKey(stage))
+            {
+                 jobVisitor = new TemplateJobVisitor(stage);
+                 _templates[stage].Accept(jobVisitor);
+            }
+            else
+            {
+                jobVisitor = new JobVisitor(stage);
+                symbol.Accept(jobVisitor);
+            }
             stage.Jobs.AddRange(jobVisitor.Jobs);
             stage.Jobs.Sort(new JobComparer());
         }
@@ -93,7 +105,8 @@ internal class StageVisitor : SymbolVisitor
 
         if (stageAttribute.TemplateSymbol != null)
         {
-            stage.Template = stageAttribute.TemplateSymbol.Name;
+            stage.TemplateName = stageAttribute.TemplateSymbol.Name;
+            _templates[stage] = stageAttribute.TemplateSymbol;
         }
 
         return stage;

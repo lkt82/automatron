@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using YamlDotNet.Serialization;
 
 namespace Automatron.AzureDevOps.Generators.Models
 {
@@ -19,6 +18,6 @@ namespace Automatron.AzureDevOps.Generators.Models
 
         Stage Stage { get; }
 
-        string? Template { get; }
+        string? TemplateName { get; }
     }
 }

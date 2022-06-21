@@ -4,16 +4,12 @@ using CommandDotNet;
 
 namespace Automatron.AzureDevOps.Sample
 {
-    [Pipeline(Cd)]
-    [CiTrigger(Cd, Batch = true, IncludeBranches = new []{ "master" })]
     [Pipeline(Pr)]
-    [CiTrigger(Pr,Disabled = true)]
-    [VariableGroup(Cd,"pulumi")]
-    [Variable(Cd,"test",1)]
+    [CiTrigger(Pr, Disabled = true)]
+    [VariableGroup(Cd, "pulumi")]
+    [Variable(Cd, "test", 1)]
     public class SamplePipeline : BasePipeline, ICompositeIntegrationTesting
     {
-        public const string Cd = "ContinuousDeployment";
-
         public const string CdPath = "Infrastructure";
 
         public const string CdYmlName = "ContinuousDeployment";
@@ -59,7 +55,7 @@ namespace Automatron.AzureDevOps.Sample
         {
         }
 
-        [DeploymentJob(nameof(CiStage),"test")]
+        [DeploymentJob(nameof(CiStage), "test")]
         [DownloadTask(DownloadSource.None)]
         [CheckoutTask(CheckoutSource.Self)]
         [NuGetAuthenticateTask]
@@ -83,8 +79,8 @@ namespace Automatron.AzureDevOps.Sample
         {
         }
 
-        [AutomatronTask(nameof(CiJob1),DisplayName = "Step 3",Secrets = new []{ "AZURE_CLIENT_SECRET" })]
-        [DependentOn(nameof(RunStep1),nameof(Build))]
+        [AutomatronTask(nameof(CiJob1), DisplayName = "Step 3", Secrets = new[] { "AZURE_CLIENT_SECRET" })]
+        [DependentOn(nameof(RunStep1), nameof(Build))]
         [DependentFor(nameof(CiJob1))]
         public void RunStep3()
         {

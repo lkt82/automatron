@@ -27,7 +27,7 @@ namespace Automatron.AzureDevOps.Generators.Annotations
 
         public override Step Create(ISymbol symbol, IJob job)
         {
-            var target = string.Concat(job.Template,symbol.Name);
+            var target = string.Concat(job.TemplateName,symbol.Name);
 
             var name = string.IsNullOrEmpty(Name) ? symbol.Name : Name;
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -148,12 +149,12 @@ public sealed class TaskRunner<TController> where TController : class
 
                 var name = parameter.Name.ToLower();
 
-                var parameterAttribute = parameter.GetCustomAttribute<ParameterAttribute>();
+                var descriptionAttribute = parameter.GetCustomAttribute<DescriptionAttribute>();
 
                 var option = new Option(name, null, typeInfo, arity, BooleanMode.Explicit, parameter.Name,
                     customAttributes: new TaskAttributeProvider(parameter))
                 {
-                    Description = parameterAttribute?.Description,
+                    Description = descriptionAttribute?.Description,
                     Split = arity.AllowsOneOrMore() ? ',' : null,
                     IsMiddlewareOption = true,
                     Default = GetParameterDefault(args.CommandContext.Environment, parameter.Name, typeInfo),
@@ -225,39 +226,56 @@ public sealed class TaskRunner<TController> where TController : class
     {
         var targets = ControllerTasks.SelectMany(target =>
         {
-            return target.Item2.Select(methodInfo =>
+            var (serviceType, methods) = target;
+            return methods.Select(method =>
             {
-                var dependentOnAttribute = methodInfo.GetCustomAttribute<DependentOnAttribute>();
-                var dependentForAttribute = methodInfo.GetCustomAttribute<DependentForAttribute>();
+                var dependentOnAttribute = method.GetCustomAttribute<DependentOnAttribute>();
+                var dependentForAttribute = method.GetCustomAttribute<DependentForAttribute>();
 
                 var dependentOn = Enumerable.Empty<string>();
-
-                var serviceType = target.Item1;
+                var dependentFor = Enumerable.Empty<string>();
 
                 if (dependentOnAttribute != null)
                 {
-                    if (methodInfo.ReflectedType == ControllerType)
-                    {
-                        dependentOn = dependentOnAttribute.Targets;
-                    }
-                    else if (dependentOnAttribute.Controller is { IsClass: true })
+                    if (dependentOnAttribute.Controller is { IsClass: true })
                     {
                         dependentOn = dependentOnAttribute.Targets.Select(t => dependentOnAttribute.Controller.Name + t);
                     }
+                    else if (method.ReflectedType == ControllerType)
+                    {
+                        dependentOn = dependentOnAttribute.Targets;
+                    }
                     else
                     {
-                        dependentOn = dependentOnAttribute.Targets.Select(t => target.Item1.Name + t);
+                        dependentOn = dependentOnAttribute.Targets.Select(t => serviceType.Name + t);
                     }
                 }
 
+                if (dependentForAttribute != null)
+                {
+                    if (dependentForAttribute.Controller is { IsClass: true })
+                    {
+                        dependentFor = dependentForAttribute.Targets.Select(t => dependentForAttribute.Controller.Name + t);
+                    }
+                    else if (method.ReflectedType == ControllerType)
+                    {
+                        dependentFor = dependentForAttribute.Targets;
+                    }
+                    else
+                    {
+                        dependentFor = dependentForAttribute.Targets.Select(t => serviceType.Name + t);
+                    }
+                }
+
+
                 return new
                 {
-                    Name = target.Item1 != ControllerType
-                        ? target.Item1.Name + methodInfo.Name
-                        : methodInfo.Name,
+                    Name = serviceType != ControllerType
+                        ? serviceType.Name + method.Name
+                        : method.Name,
                     DependentOn = dependentOn,
-                    DependentFor = dependentForAttribute?.Targets ?? Enumerable.Empty<string>(),
-                    Method = methodInfo,
+                    DependentFor = dependentFor,
+                    Method = method,
                     Service = serviceType
                 };
             });

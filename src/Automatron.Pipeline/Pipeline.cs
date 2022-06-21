@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel;
+using System.Reflection;
 using Automatron.Annotations;
 using Automatron.AzureDevOps;
 using Automatron.AzureDevOps.Generators.Annotations;
@@ -20,7 +21,7 @@ public class Pipeline
 
     private const string ArtifactsDir = $"{RootDir}.artifacts";
 
-    [Parameter("The nuget api key")]
+    [Description("The nuget api key")]
     public Secret? NugetApiKey { get; set; }
 
     public Pipeline(AzureDevOpsTasks azureDevOpsTasks)

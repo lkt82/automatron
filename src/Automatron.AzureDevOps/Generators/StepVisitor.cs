@@ -31,7 +31,7 @@ internal class StepVisitor : SymbolVisitor
         {
             var jobName = !string.IsNullOrEmpty(attribute.Job) ? attribute.Job! : symbol.Name;
 
-            if (jobName != _job.Name && string.IsNullOrEmpty(_job.Template))
+            if (jobName != _job.Name && string.IsNullOrEmpty(_job.TemplateName))
             {
                 continue;
             }

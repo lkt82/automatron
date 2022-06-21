@@ -8,13 +8,13 @@ namespace Automatron.AzureDevOps.Generators;
 
 internal class JobVisitor : SymbolVisitor
 {
-    private readonly Stage _stage;
+    protected readonly Stage Stage;
  
     public List<IJob> Jobs { get; } = new();
 
     public JobVisitor(Stage stage)
     {
-        _stage = stage;
+        Stage = stage;
     }
 
     public override void VisitNamedType(INamedTypeSymbol symbol)
@@ -37,51 +37,36 @@ internal class JobVisitor : SymbolVisitor
 
     public override void VisitMethod(IMethodSymbol symbol)
     {
-        foreach (var attribute in symbol.GetCustomAttributes<JobAttribute>())
+        foreach (var attribute in symbol.GetCustomAbstractAttributes<JobAttribute>())
         {
             var stageName = !string.IsNullOrEmpty(attribute.Stage) ? attribute.Stage! : symbol.Name;
 
-            if (stageName != _stage.Name && string.IsNullOrEmpty(_stage.Template))
+            if (stageName != Stage.Name)
             {
                 continue;
             }
 
-            CreateJob(attribute, symbol);
-        }
-
-        foreach (var attribute in symbol.GetCustomAttributes<DeploymentJobAttribute>())
-        {
-            var stageName = !string.IsNullOrEmpty(attribute.Stage) ? attribute.Stage! : symbol.Name;
-
-            if (stageName != _stage.Name && string.IsNullOrEmpty(_stage.Template))
+            if (attribute is DeploymentJobAttribute deploymentJobAttribute)
             {
-                continue;
+                CreateDeploymentJob(deploymentJobAttribute, symbol);
             }
-
-            CreateDeploymentJob(attribute, symbol);
-        }
-
-        foreach (var stageAttribute in symbol.GetCustomAttributes<StageAttribute>())
-        {
-            if (stageAttribute.Pipeline != _stage.Pipeline.Name && stageAttribute.Pipeline != null)
+            else
             {
-                continue;
+                CreateJob(attribute, symbol);
             }
-
-            stageAttribute.TemplateSymbol?.Accept(this);
         }
     }
 
-    private void CreateDeploymentJob(DeploymentJobAttribute jobAttribute, ISymbol member)
+    protected void CreateDeploymentJob(DeploymentJobAttribute jobAttribute, ISymbol member)
     {
-        var job = CreateDeploymentJob(_stage, member, jobAttribute);
+        var job = CreateDeploymentJob(Stage, member, jobAttribute);
 
         Jobs.Add(job);
     }
 
-    private void CreateJob(JobAttribute jobAttribute, ISymbol member)
+    protected void CreateJob(JobAttribute jobAttribute, ISymbol member)
     {
-        var job = CreateJob(_stage, member, jobAttribute);
+        var job = CreateJob(Stage, member, jobAttribute);
 
         Jobs.Add(job);
     }
@@ -98,7 +83,6 @@ internal class JobVisitor : SymbolVisitor
         };
 
         if(!member.HasCustomAttributes<StageAttribute>())
-        //if (job.Stage.Name != name)
         {
             var poolAttribute = member.GetCustomAttributes<PoolAttribute>().FirstOrDefault(c => c.Target == name || c.Target == null);
 
@@ -108,9 +92,9 @@ internal class JobVisitor : SymbolVisitor
             }
         }
 
-        if (!string.IsNullOrEmpty(stage.Template))
+        if (!string.IsNullOrEmpty(stage.TemplateName))
         {
-            job.Template = stage.Template;
+            job.TemplateName = stage.TemplateName;
         }
 
         return job;
@@ -122,7 +106,7 @@ internal class JobVisitor : SymbolVisitor
 
         var job = new Job(stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition);
 
-        if (job.Stage.Name != name)
+        if (!member.HasCustomAttributes<StageAttribute>())
         {
             var poolAttribute = member.GetCustomAttributes<PoolAttribute>().FirstOrDefault(c => c.Target == name || c.Target == null);
 
@@ -132,9 +116,9 @@ internal class JobVisitor : SymbolVisitor
             }
         }
 
-        if (!string.IsNullOrEmpty(stage.Template))
+        if (!string.IsNullOrEmpty(stage.TemplateName))
         {
-            job.Template = stage.Template;
+            job.TemplateName = stage.TemplateName;
         }
 
         return job;

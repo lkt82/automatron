@@ -38,6 +38,6 @@ namespace Automatron.AzureDevOps.Generators.Models
         public Stage Stage { get; }
 
         [YamlIgnore]
-        public string? Template { get; set; }
+        public string? TemplateName { get; set; }
     }
 }

@@ -2,8 +2,12 @@
 
 namespace Automatron.AzureDevOps.Sample
 {
+    [Pipeline(Cd)]
+    [CiTrigger(Cd, Batch = true, IncludeBranches = new[] { "master" })]
     public abstract class BasePipeline
     {
+        public const string Cd = "ContinuousDeployment";
+
         [Stage(SamplePipeline.Cd)]
         public void DefaultStage()
         {
