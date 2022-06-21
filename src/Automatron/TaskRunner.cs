@@ -149,17 +149,29 @@ public sealed class TaskRunner<TController> where TController : class
 
                 var name = parameter.Name.ToLower();
 
-                var descriptionAttribute = parameter.GetCustomAttribute<DescriptionAttribute>();
+                var parameterAttribute = parameter.GetCustomAttribute<ParameterAttribute>();
 
                 var option = new Option(name, null, typeInfo, arity, BooleanMode.Explicit, parameter.Name,
                     customAttributes: new TaskAttributeProvider(parameter))
                 {
-                    Description = descriptionAttribute?.Description,
                     Split = arity.AllowsOneOrMore() ? ',' : null,
                     IsMiddlewareOption = true,
                     Default = GetParameterDefault(args.CommandContext.Environment, parameter.Name, typeInfo),
                     Hidden = false
                 };
+
+                if (parameterAttribute != null && !string.IsNullOrEmpty(parameterAttribute.Description))
+                {
+                    option.Description = parameterAttribute.Description;
+                }
+                else
+                {
+                    var descriptionAttribute = parameter.GetCustomAttribute<DescriptionAttribute>();
+                    if (descriptionAttribute != null)
+                    {
+                        option.Description = descriptionAttribute.Description;
+                    }
+                }
 
                 _optionLockUp[parameter] = option;
 
