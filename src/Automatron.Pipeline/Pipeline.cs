@@ -96,11 +96,26 @@ public class Pipeline
     [DependentOn(nameof(Build), nameof(Clean))]
     public async Task Test()
     {
-        await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration} -r {ArtifactsDir} --collect:\"XPlat Code Coverage\" --logger:xunit;LogFileName=Automatron.Tests.xml", workingDirectory: "../Automatron.Tests", noEcho: true);
-        await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration} -r {ArtifactsDir} --collect:\"XPlat Code Coverage\" --logger:xunit;LogFileName=Automatron.AzureDevOps.Tests.xml", workingDirectory: "../Automatron.AzureDevOps.Tests", noEcho: true);
+        var failedTests = false;
 
-        //##vso[results.publish type=VSTest;mergeResults=false;publishRunAttachments=true;resultFiles=D:\xxxxxx_work\r9\a\TestResults\xxxxxx_2018-05-10_13_23_01.trx;]
-        //Console.WriteLine($"##vso[results.publish type=xUnit;mergeResults=true;publishRunAttachments=true;resultFiles={Path.GetFullPath(ArtifactsDir)}/*.Tests.xml");
+        await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration} -r {ArtifactsDir} --collect:\"XPlat Code Coverage\" --logger:xunit;LogFileName=Automatron.Tests.xml", workingDirectory: "../Automatron.Tests", noEcho: true,handleExitCode: c=>
+        {
+            if (c == 0) return false;
+            failedTests = true;
+            return true;
+        });
+
+        await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration} -r {ArtifactsDir} --collect:\"XPlat Code Coverage\" --logger:xunit;LogFileName=Automatron.AzureDevOps.Tests.xml", workingDirectory: "../Automatron.AzureDevOps.Tests", noEcho: true, handleExitCode: c =>
+        {
+            if (c == 0) return false;
+            failedTests = true;
+            return true;
+        });
+
+        if (failedTests)
+        {
+            throw new Exception("Failed Unit Tests");
+        }
     }
 
     [AutomatronTask(nameof(Ci), SkipDependencies = true)]
