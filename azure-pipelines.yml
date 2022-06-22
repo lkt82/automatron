@@ -24,6 +24,12 @@ stages:
     - script: dotnet run -- -r Test -s
       workingDirectory: src/Automatron.Pipeline
       name: Test
+    - task: PublishTestResults@2
+      inputs:
+        testRunner: xUnit
+        testResultsFiles: '.artifacts/Tests.xml'
+        mergeResults: true
+        failTaskOnFailedTests: true
     - script: dotnet run -- -r Pack -s
       workingDirectory: src/Automatron.Pipeline
       name: Pack
