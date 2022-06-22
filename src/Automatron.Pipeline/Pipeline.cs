@@ -71,12 +71,21 @@ public class Pipeline
         await _azureDevOpsTasks.UpdateBuildNumber(version);
     }
 
+    public void Clean()
+    {
+        EnsureDirectory(ArtifactsDir);
+        CleanDirectory(ArtifactsDir);
+    }
+
     [AutomatronTask(nameof(Ci), SkipDependencies = true)]
     [DependentFor(nameof(Ci))]
-    [DependentOn(nameof(Version))]
+    [DependentOn(nameof(Version), nameof(Clean))]
     public async Task Build()
     {
-        await RunAsync("dotnet", $"dotnet build -c {Configuration}",workingDirectory: "../Automatron",noEcho:true);
+        EnsureDirectory(ArtifactsDir);
+        CleanDirectory(ArtifactsDir);
+
+        await RunAsync("dotnet", $"dotnet build -c {Configuration}", workingDirectory: "../Automatron",noEcho:true);
         await RunAsync("dotnet", $"dotnet build -c {Configuration}", workingDirectory: "../Automatron.AzureDevOps", noEcho: true);
         await RunAsync("dotnet", $"dotnet build -c {Configuration}", workingDirectory: "../Automatron.Tests", noEcho: true);
         await RunAsync("dotnet", $"dotnet build -c {Configuration}", workingDirectory: "../Automatron.AzureDevOps.Tests", noEcho: true);
@@ -84,21 +93,21 @@ public class Pipeline
 
     [AutomatronTask(nameof(Ci), SkipDependencies = true)]
     [DependentFor(nameof(Ci))]
-    [DependentOn(nameof(Build))]
+    [DependentOn(nameof(Build), nameof(Clean))]
     public async Task Test()
     {
-        await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration}", workingDirectory: "../Automatron.Tests", noEcho: true);
-        await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration}", workingDirectory: "../Automatron.AzureDevOps.Tests", noEcho: true);
+        await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration} -r {ArtifactsDir} --collect:\"XPlat Code Coverage\" --logger:xunit;LogFileName=Automatron.Tests.xml", workingDirectory: "../Automatron.Tests", noEcho: true);
+        await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration} -r {ArtifactsDir} --collect:\"XPlat Code Coverage\" --logger:xunit;LogFileName=Automatron.AzureDevOps.Tests.xml", workingDirectory: "../Automatron.AzureDevOps.Tests", noEcho: true);
+
+        //##vso[results.publish type=VSTest;mergeResults=false;publishRunAttachments=true;resultFiles=D:\xxxxxx_work\r9\a\TestResults\xxxxxx_2018-05-10_13_23_01.trx;]
+        Console.WriteLine($"##vso[results.publish type=xUnit;mergeResults=true;publishRunAttachments=true;resultFiles={Path.GetFullPath(ArtifactsDir)}/*.Tests.xml");
     }
 
     [AutomatronTask(nameof(Ci), SkipDependencies = true)]
     [DependentFor(nameof(Ci))]
-    [DependentOn(nameof(Test))]
+    [DependentOn(nameof(Test), nameof(Clean))]
     public async Task Pack()
     {
-        EnsureDirectory(ArtifactsDir);
-        CleanDirectory(ArtifactsDir);
-
         await RunAsync("dotnet", $"dotnet pack --no-build -c {Configuration} -o {ArtifactsDir}", workingDirectory: "../Automatron", noEcho: true);
         await RunAsync("dotnet", $"dotnet pack --no-build -c {Configuration} -o {ArtifactsDir}", workingDirectory: "../Automatron.AzureDevOps", noEcho: true);
     }
@@ -108,11 +117,11 @@ public class Pipeline
     [DependentOn(nameof(Pack))]
     public async Task Publish()
     {
-        foreach (var nuget in Directory.EnumerateFiles(ArtifactsDir, "*.nupkg"))
-        {
-            await _azureDevOpsTasks.UploadArtifact("/", "Nuget", Path.GetFullPath(nuget));
-            await _azureDevOpsTasks.UploadArtifact("/", "Nuget", Path.GetFullPath(nuget.Replace("nupkg", "snupkg")));
-            await RunAsync("dotnet", $"nuget push {Path.GetFullPath(nuget)} -k {NugetApiKey?.GetValue()} -s https://api.nuget.org/v3/index.json --skip-duplicate", workingDirectory: "../Automatron", noEcho: true);
-        }
+        //foreach (var nuget in Directory.EnumerateFiles(ArtifactsDir, "*.nupkg"))
+        //{
+        //    await _azureDevOpsTasks.UploadArtifact("/", "Nuget", Path.GetFullPath(nuget));
+        //    await _azureDevOpsTasks.UploadArtifact("/", "Nuget", Path.GetFullPath(nuget.Replace("nupkg", "snupkg")));
+        //    await RunAsync("dotnet", $"nuget push {Path.GetFullPath(nuget)} -k {NugetApiKey?.GetValue()} -s https://api.nuget.org/v3/index.json --skip-duplicate", workingDirectory: "../Automatron", noEcho: true);
+        //}
     }
 }
