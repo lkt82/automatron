@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Automatron.AzureDevOps.Generators.Annotations;
 using Automatron.AzureDevOps.Generators.Models;
@@ -34,7 +35,24 @@ internal class ParameterVisitor : SymbolVisitor
 
         foreach (var parameterAttribute in parameterAttributes)
         {
-            Parameters.Add(new Parameter(parameterAttribute.Name, parameterAttribute.DisplayName, parameterAttribute.Type, parameterAttribute.Value, parameterAttribute.Values));
+            Parameters.Add(new Parameter(!string.IsNullOrEmpty(parameterAttribute.Name) ? parameterAttribute.Name! : symbol.Name, parameterAttribute.DisplayName, !string.IsNullOrEmpty(parameterAttribute.Type) ? parameterAttribute.Type! : GetParameterType(symbol.Type), parameterAttribute.Default, parameterAttribute.Values));
         }
+    }
+
+    private static string GetParameterType(ITypeSymbol type)
+    {
+        switch (type.Name)
+        {
+            case "String":
+                return ParameterTypes.String;
+            case "Boolean":
+                return ParameterTypes.Boolean;
+            case "Int":
+                return ParameterTypes.Number;
+            default:
+                throw new NotSupportedException();
+
+        }
+
     }
 }

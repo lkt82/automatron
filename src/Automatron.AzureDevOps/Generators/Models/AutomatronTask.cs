@@ -27,10 +27,14 @@ public sealed class AutomatronTask : Script
 
         if (parameters != null)
         {
-            arguments.Append(" ");
-
-            foreach (var parameter in parameters)
+            for (var index = 0; index < parameters.Length; index++)
             {
+                if (index == 0)
+                {
+                    arguments.Append(" ");
+                }
+
+                var parameter = parameters[index];
                 arguments.Append("--");
                 arguments.Append(parameter.ToLower());
                 arguments.Append(" ");

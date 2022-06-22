@@ -17,22 +17,32 @@ stages:
     steps:
     - script: dotnet run -- -r Version
       workingDirectory: src/Automatron.Pipeline
+      env:
+        NUGET_API_KEY: $(NugetApiKey)
       name: Version
       displayName: "\U0001F522 Version"
     - script: dotnet run -- -r Clean
       workingDirectory: src/Automatron.Pipeline
+      env:
+        NUGET_API_KEY: $(NugetApiKey)
       name: Clean
       displayName: "\U0001F9F9 Clean"
     - script: dotnet run -- -r Build -s
       workingDirectory: src/Automatron.Pipeline
+      env:
+        NUGET_API_KEY: $(NugetApiKey)
       name: Build
       displayName: "\U0001F3D7 Build"
     - script: dotnet run -- -r Test -s
       workingDirectory: src/Automatron.Pipeline
+      env:
+        NUGET_API_KEY: $(NugetApiKey)
       name: Test
       displayName: "\U0001F9EA Test"
     - script: dotnet run -- -r Pack -s
       workingDirectory: src/Automatron.Pipeline
+      env:
+        NUGET_API_KEY: $(NugetApiKey)
       name: Pack
       displayName: "\U0001F4E6 Pack"
     - script: dotnet run -- -r Publish -s

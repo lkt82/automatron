@@ -30,6 +30,9 @@ public sealed class Pipeline
     [YamlIgnore]
     public string ProjectDirectory { get; }
 
+    [YamlIgnore]
+    public List<string> Secrets { get; set; } = new();
+
     public List<Parameter> Parameters { get; set; } = new();
 
     [YamlMember(Alias = "trigger")]

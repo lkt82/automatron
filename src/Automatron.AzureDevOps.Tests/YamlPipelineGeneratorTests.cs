@@ -28,7 +28,7 @@ using ParameterAttribute = Automatron.AzureDevOps.Generators.Annotations.Paramet
 [Pipeline(""" + nameof(Should_be_able_to_map_boolean_pipeline_parameter) + @""")]
 public class Pipeline
 {
-    [Parameter(""runPerfTests"", ParameterTypes.Boolean, Value = false, Values = new object[] { true, false })]
+    [Parameter(Default = false, Values = new object[] { true, false })]
     public bool RunPerfTests { get; set; }
 
     [Stage]
@@ -70,7 +70,7 @@ using ParameterAttribute = Automatron.AzureDevOps.Generators.Annotations.Paramet
 [Pipeline(""" + nameof(Should_be_able_to_map_boolean_pipeline_parameter) + @""")]
 public class Pipeline
 {
-    [Parameter(""runPerfTests"", ParameterTypes.Boolean, Value = false, Values = new object[] { true, false })]
+    [Parameter(Default = false, Values = new object[] { true, false })]
     public bool RunPerfTests { get; set; }
 
     [Stage]
@@ -98,7 +98,7 @@ public class Pipeline
             generator.Pipelines!.First().Parameters
                 .Should()
                 .Satisfy(c =>
-                    c.Name == "runPerfTests" &&
+                    c.Name == "RunPerfTests" &&
                     c.Type == ParameterTypes.Boolean &&
                     (bool)c.Value! == false &&
                     c.Values!.Length == 2
@@ -117,10 +117,10 @@ using ParameterAttribute = Automatron.AzureDevOps.Generators.Annotations.Paramet
 [Pipeline("""+nameof(Should_be_able_to_map_multiple_pipeline_parameters)+ @""")]
 public class Pipeline
 {
-    [Parameter(""runPerfTests1"", ParameterTypes.Boolean, Value = false)]
+    [Parameter]
     public bool RunPerfTests1 { get; set; }
 
-    [Parameter(""runPerfTests2"", ParameterTypes.Boolean, Value = false)]
+    [Parameter]
     public bool RunPerfTests2 { get; set; }
 
     [Stage]

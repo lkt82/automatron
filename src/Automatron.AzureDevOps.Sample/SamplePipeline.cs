@@ -79,7 +79,7 @@ namespace Automatron.AzureDevOps.Sample
         {
         }
 
-        [AutomatronTask(nameof(CiJob1), DisplayName = "Step 3", Secrets = new[] { "AZURE_CLIENT_SECRET" })]
+        [AutomatronTask(nameof(CiJob1), DisplayName = "Step 3")]
         [DependentOn(nameof(RunStep1), nameof(Build))]
         [DependentFor(nameof(CiJob1))]
         public void RunStep3()

@@ -33,8 +33,6 @@ stages:
             name: RunStep1
           - script: dotnet run -- -r RunStep3
             workingDirectory: src/Automatron.AzureDevOps.Sample
-            env:
-              AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
             name: RunStep3
             displayName: Step 3
   - job: CiJob2

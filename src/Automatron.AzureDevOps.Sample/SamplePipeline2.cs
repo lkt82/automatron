@@ -29,13 +29,14 @@ public interface IContinuousDeployment
         }
 
 
-        [AutomatronTask(SkipDependencies = true)]
+        [AutomatronTask(SkipDependencies = true,DependsOn = new []{nameof(Build)})]
         [DependentOn(nameof(Build))]
         public void Deploy()
         {
         }
 
         [Description("The Azure AD application's client secret")]
+        [SecretVariable]
         public Secret? AzureClientSecret { get; set; }
     }
 

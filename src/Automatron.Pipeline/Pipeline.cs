@@ -23,6 +23,7 @@ public class Pipeline
 
     private static string ArtifactsDir => $"{RootDir}.artifacts";
 
+    [SecretVariable]
     [Description("The nuget api key")]
     public Secret? NugetApiKey { get; set; }
 
@@ -129,7 +130,7 @@ public class Pipeline
         await RunAsync("dotnet", $"dotnet pack --no-build -c {Configuration} -o {ArtifactsDir}", workingDirectory: "../Automatron.AzureDevOps", noEcho: true);
     }
 
-    [AutomatronTask(nameof(Ci), Emoji = "🚀", Secrets = new []{ nameof(NugetApiKey) }, SkipDependencies = true)]
+    [AutomatronTask(nameof(Ci), Emoji = "🚀", SkipDependencies = true)]
     [DependentFor(nameof(Ci))]
     [DependentOn(nameof(Pack))]
     public async Task Publish()

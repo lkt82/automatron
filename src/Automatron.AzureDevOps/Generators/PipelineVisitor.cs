@@ -103,6 +103,10 @@ internal class PipelineVisitor : SymbolVisitor
 
             CreateVariables(attributes, pipeline);
 
+            var secretVariableVisitor = new SecretVariableVisitor(pipeline);
+
+            symbol.Accept(secretVariableVisitor);
+
             CreateScheduledTriggers(attributes, pipeline);
 
             CreatePool(attributes, pipeline);
