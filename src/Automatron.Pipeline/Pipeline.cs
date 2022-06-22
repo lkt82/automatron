@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Reflection;
 using Automatron.Annotations;
 using Automatron.AzureDevOps;
@@ -19,7 +20,7 @@ public class Pipeline
 
     private const string Configuration = "Release";
 
-    private static string RootDir => Path.GetFullPath(RootPath);
+    private static string RootDir => Path.GetFullPath(RootPath,Directory.GetCurrentDirectory());
 
     private static string ArtifactsDir => $"{RootDir}.artifacts";
 
@@ -100,14 +101,16 @@ public class Pipeline
     {
         var failedTests = false;
 
-        await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration} -r '{ArtifactsDir}' --collect:\"XPlat Code Coverage\" --logger:xunit;LogFileName=Automatron.Tests.xml", workingDirectory: "../Automatron.Tests", noEcho: true,handleExitCode: c=>
+        Debugger.Launch();
+
+        await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration} -r {ArtifactsDir} --collect:\"XPlat Code Coverage\" --logger:xunit;LogFileName=Automatron.Tests.xml", workingDirectory: "../Automatron.Tests", noEcho: true,handleExitCode: c=>
         {
             if (c == 0) return false;
             failedTests = true;
             return true;
         });
 
-        await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration} -r '{ArtifactsDir}' --collect:\"XPlat Code Coverage\" --logger:xunit;LogFileName=Automatron.AzureDevOps.Tests.xml", workingDirectory: "../Automatron.AzureDevOps.Tests", noEcho: true, handleExitCode: c =>
+        await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration} -r {ArtifactsDir} --collect:\"XPlat Code Coverage\" --logger:xunit;LogFileName=Automatron.AzureDevOps.Tests.xml", workingDirectory: "../Automatron.AzureDevOps.Tests", noEcho: true, handleExitCode: c =>
         {
             if (c == 0) return false;
             failedTests = true;
