@@ -114,7 +114,7 @@ public class Pipeline
             return true;
         });
 
-        await _azureDevOpsTasks.PublishTestResults("XUnit", Directory.EnumerateFiles(ArtifactsDir, "*.Tests.xml").Select(Path.GetFullPath), nameof(Test), true);
+        await _azureDevOpsTasks.PublishTestResults("XUnit", Directory.EnumerateFiles(ArtifactsDir, "*.Tests.xml").Select(Path.GetFullPath), "Tests", true);
 
         if (failedTests)
         {
