@@ -7,7 +7,7 @@ using static SimpleExec.Command;
 
 namespace Automatron.Pipeline;
 
-[Pipeline(YmlPath = RootDir)]
+[Pipeline(YmlPath = RootPath)]
 [CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
 [Pool(VmImage = "ubuntu-latest")]
 [VariableGroup("nuget")]
@@ -15,11 +15,13 @@ public class Pipeline
 {
     private readonly AzureDevOpsTasks _azureDevOpsTasks;
 
-    private const string RootDir = "../../";
+    private const string RootPath = "../../";
 
     private const string Configuration = "Release";
 
-    private const string ArtifactsDir = $"{RootDir}.artifacts";
+    private static string RootDir => Path.GetFullPath(RootPath);
+
+    private static string ArtifactsDir => $"{RootDir}.artifacts";
 
     [Description("The nuget api key")]
     public Secret? NugetApiKey { get; set; }
@@ -98,21 +100,21 @@ public class Pipeline
     {
         var failedTests = false;
 
-        await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration} -r {ArtifactsDir} --collect:\"XPlat Code Coverage\" --logger:xunit;LogFileName=Automatron.Tests.xml", workingDirectory: "../Automatron.Tests", noEcho: true,handleExitCode: c=>
+        await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration} -r '{ArtifactsDir}' --collect:\"XPlat Code Coverage\" --logger:xunit;LogFileName=Automatron.Tests.xml", workingDirectory: "../Automatron.Tests", noEcho: true,handleExitCode: c=>
         {
             if (c == 0) return false;
             failedTests = true;
             return true;
         });
 
-        await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration} -r {ArtifactsDir} --collect:\"XPlat Code Coverage\" --logger:xunit;LogFileName=Automatron.AzureDevOps.Tests.xml", workingDirectory: "../Automatron.AzureDevOps.Tests", noEcho: true, handleExitCode: c =>
+        await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration} -r '{ArtifactsDir}' --collect:\"XPlat Code Coverage\" --logger:xunit;LogFileName=Automatron.AzureDevOps.Tests.xml", workingDirectory: "../Automatron.AzureDevOps.Tests", noEcho: true, handleExitCode: c =>
         {
             if (c == 0) return false;
             failedTests = true;
             return true;
         });
 
-        Console.WriteLine($"##vso[results.publish type=XUnit;resultFiles={string.Join(",", Directory.EnumerateFiles(ArtifactsDir, "*.Tests.xml").Select(Path.GetFullPath))};mergeResults=true;runTitle='{nameof(Test)}']");
+        await _azureDevOpsTasks.PublishTestResults("XUnit", Directory.EnumerateFiles(ArtifactsDir, "*.Tests.xml").Select(Path.GetFullPath), nameof(Test), true);
 
         if (failedTests)
         {
