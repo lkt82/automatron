@@ -1,6 +1,5 @@
-﻿namespace Automatron.AzureDevOps.Generators.Models
+﻿namespace Automatron.AzureDevOps.Generators.Models;
+
+public sealed class DisabledCiTrigger : ICiTrigger
 {
-    public class DisabledCiTrigger : ICiTrigger
-    {
-    }
 }

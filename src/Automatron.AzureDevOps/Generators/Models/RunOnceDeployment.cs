@@ -1,7 +1,6 @@
-﻿namespace Automatron.AzureDevOps.Generators.Models
+﻿namespace Automatron.AzureDevOps.Generators.Models;
+
+public sealed class RunOnceDeployment
 {
-    public class RunOnceDeployment
-    {
-        public Deploy Deploy { get; set; } = new();
-    }
+    public Deploy Deploy { get; set; } = new();
 }

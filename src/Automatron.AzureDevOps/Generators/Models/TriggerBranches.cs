@@ -1,9 +1,8 @@
-﻿namespace Automatron.AzureDevOps.Generators.Models
-{
-    public class TriggerBranches
-    {
-        public string[]? Include { get; set; }
+﻿namespace Automatron.AzureDevOps.Generators.Models;
 
-        public string[]? Exclude { get; set; }
-    }
+public sealed class TriggerBranches
+{
+    public string[]? Include { get; set; }
+
+    public string[]? Exclude { get; set; }
 }

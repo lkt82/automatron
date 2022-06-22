@@ -1,15 +1,14 @@
-﻿namespace Automatron.AzureDevOps.Generators.Models
+﻿namespace Automatron.AzureDevOps.Generators.Models;
+
+public sealed class Pool
 {
-    public class Pool
+    public Pool(string? name, string? vmImage)
     {
-        public Pool(string? name, string? vmImage)
-        {
-            Name = name;
-            VmImage = vmImage;
-        }
-
-        public string? Name { get; set; }
-
-        public string? VmImage { get; set; }
+        Name = name;
+        VmImage = vmImage;
     }
+
+    public string? Name { get; set; }
+
+    public string? VmImage { get; set; }
 }

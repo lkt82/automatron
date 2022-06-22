@@ -3,58 +3,57 @@ using System.Linq;
 using System.Text;
 using YamlDotNet.Serialization;
 
-namespace Automatron.AzureDevOps.Generators.Models
+namespace Automatron.AzureDevOps.Generators.Models;
+
+public class Script : Step
 {
-    public class Script : Step
+    private IDictionary<string, object>? _env;
+
+    public Script(IJob job,string content) : base(job)
     {
-        private IDictionary<string, object>? _env;
+        Content = content;
+    }
 
-        public Script(IJob job,string content) : base(job)
+    [YamlMember(Alias = "script")]
+    public string Content { get; set; }
+
+    [YamlMember]
+    public string? WorkingDirectory { get; set; }
+
+    [YamlIgnore]
+    public string[]? Secrets { get; set; }
+
+    public IDictionary<string, object>? Env
+    {
+        get
         {
-            Content = content;
+            return Secrets?.ToDictionary(GetEnvVarName, c=> (object)$"$({c})") ?? _env;
         }
+        set => _env = value;
+    }
 
-        [YamlMember(Alias = "script")]
-        public string Content { get; set; }
+    private static string GetEnvVarName(string name)
+    {
+        var envVarName = new StringBuilder();
 
-        [YamlMember]
-        public string? WorkingDirectory { get; set; }
-
-        [YamlIgnore]
-        public string[]? Secrets { get; set; }
-
-        public IDictionary<string, object>? Env
+        for (var index = 0; index < name.Length; index++)
         {
-            get
+            var n = name[index];
+            if (index > 0 && char.IsLower(name[index - 1]) && char.IsUpper(n))
             {
-                return Secrets?.ToDictionary(GetEnvVarName, c=> (object)$"$({c})") ?? _env;
+                envVarName.Append('_');
+                envVarName.Append(n);
             }
-            set => _env = value;
-        }
-
-        private static string GetEnvVarName(string name)
-        {
-            var envVarName = new StringBuilder();
-
-            for (var index = 0; index < name.Length; index++)
+            else if (char.IsLower(n))
             {
-                var n = name[index];
-                if (index > 0 && char.IsLower(name[index - 1]) && char.IsUpper(n))
-                {
-                    envVarName.Append('_');
-                    envVarName.Append(n);
-                }
-                else if (char.IsLower(n))
-                {
-                    envVarName.Append(char.ToUpper(n));
-                }
-                else
-                {
-                    envVarName.Append(n);
-                }
+                envVarName.Append(char.ToUpper(n));
             }
-
-            return envVarName.ToString();
+            else
+            {
+                envVarName.Append(n);
+            }
         }
+
+        return envVarName.ToString();
     }
 }

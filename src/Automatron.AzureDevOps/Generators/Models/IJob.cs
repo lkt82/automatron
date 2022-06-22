@@ -1,23 +1,22 @@
 ﻿using System.Collections.Generic;
 
-namespace Automatron.AzureDevOps.Generators.Models
+namespace Automatron.AzureDevOps.Generators.Models;
+
+public interface IJob
 {
-    public interface IJob
-    {
-        string Name { get; }
+    string Name { get; }
 
-        string? DisplayName { get; }
+    string? DisplayName { get; }
 
-        string[]? DependsOn { get; }
+    string[]? DependsOn { get; }
 
-        string? Condition { get; }
+    string? Condition { get; }
 
-        Pool? Pool { get; }
+    Pool? Pool { get; }
 
-        List<Step> Steps { get; }
+    List<Step> Steps { get; }
 
-        Stage Stage { get; }
+    Stage Stage { get; }
 
-        string? TemplateName { get; }
-    }
+    string? TemplateName { get; }
 }

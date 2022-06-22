@@ -1,19 +1,18 @@
 ﻿using YamlDotNet.Serialization;
 
-namespace Automatron.AzureDevOps.Generators.Models
+namespace Automatron.AzureDevOps.Generators.Models;
+
+public abstract class Task<T> : Step
 {
-    public abstract class Task<T> : Step
+    protected Task(IJob job,string type,T? inputs) : base(job)
     {
-        protected Task(IJob job,string type,T? inputs) : base(job)
-        {
-            Type = type;
-            Inputs = inputs;
-        }
-
-        [YamlMember(Alias = "task")]
-        public string Type { get; set; }
-
-        [YamlMember]
-        public T? Inputs { get; set; }
+        Type = type;
+        Inputs = inputs;
     }
+
+    [YamlMember(Alias = "task")]
+    public string Type { get; set; }
+
+    [YamlMember]
+    public T? Inputs { get; set; }
 }

@@ -1,7 +1,6 @@
-﻿namespace Automatron.AzureDevOps.Generators.Models
-{
-    public interface ICiTrigger
-    {
+﻿namespace Automatron.AzureDevOps.Generators.Models;
 
-    }
+public interface ICiTrigger
+{
+
 }

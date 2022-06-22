@@ -33,6 +33,11 @@ public static class NamedTypeSymbolExtensions
         return symbol.GetHierarchy().SelectMany(c => c.GetMembers().Where(member => member.Kind == SymbolKind.Method && member.DeclaredAccessibility == Accessibility.Public).Cast<IMethodSymbol>().Where(member => member.MethodKind == MethodKind.Ordinary));
     }
 
+    public static IEnumerable<IPropertySymbol> GetAllPublicProperties(this INamedTypeSymbol symbol)
+    {
+        return symbol.GetHierarchy().SelectMany(c => c.GetMembers().Where(member => member.Kind == SymbolKind.Property && member.DeclaredAccessibility == Accessibility.Public).Cast<IPropertySymbol>());
+    }
+
     public static IEnumerable<AttributeData> GetAllAttributes(this INamedTypeSymbol symbol)
     {
         return symbol.GetHierarchy().SelectMany(c => c.GetAttributes());

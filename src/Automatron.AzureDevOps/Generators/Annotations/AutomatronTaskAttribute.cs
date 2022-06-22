@@ -25,13 +25,15 @@ namespace Automatron.AzureDevOps.Generators.Annotations
 
         public string[]? Secrets { get; set; }
 
+        public string[]? Parameters { get; set; }
+
         public override Step Create(ISymbol symbol, IJob job)
         {
             var target = string.Concat(job.TemplateName,symbol.Name);
 
             var name = string.IsNullOrEmpty(Name) ? symbol.Name : Name;
 
-            return new AutomatronTask(job,new[]{ target }, SkipDependencies, Parallel) { 
+            return new AutomatronTask(job,new[]{ target }, SkipDependencies, Parallel, Parameters) { 
                 Name = name, 
                 DisplayName = DisplayName,
                 Condition = Condition,

@@ -1,7 +1,6 @@
-﻿namespace Automatron.AzureDevOps.Generators.Models
+﻿namespace Automatron.AzureDevOps.Generators.Models;
+
+public interface IVariable
 {
-    public interface IVariable
-    {
-        string Name { get; set; }
-    }
+    string Name { get; set; }
 }

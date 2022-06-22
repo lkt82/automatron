@@ -64,6 +64,7 @@ public static class AttributeDataExtensions
             "int[]" => typedConstant.Values.Select(a => a.Value).OfType<int>().ToArray(),
             "DateTime[]" => typedConstant.Values.Select(a => a.Value).OfType<DateTime>().ToArray(),
             "bool[]" => typedConstant.Values.Select(a => a.Value).OfType<bool>().ToArray(),
+            "object[]" => typedConstant.Values.Select(a => a.Value).OfType<object>().ToArray(),
             "string" => typedConstant.Value!,
             "bool" => typedConstant.Value!,
             "int" => typedConstant.Value!,

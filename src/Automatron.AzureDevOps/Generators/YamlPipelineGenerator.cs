@@ -81,7 +81,11 @@ internal class YamlPipelineGenerator : ISourceGenerator
         {
             SavePipeline(pipeline);
         }
+
+        Pipelines = pipelineVisitor.Pipelines;
     }
+
+    public List<Pipeline>? Pipelines { get; set; }
 
     private static ISerializer CreateYamlSerializer()
     {

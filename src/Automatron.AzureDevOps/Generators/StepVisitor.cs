@@ -17,11 +17,11 @@ internal class StepVisitor : SymbolVisitor
 
     public override void VisitNamedType(INamedTypeSymbol symbol)
     {
-        var publicMembers = symbol.GetAllPublicMethods();
+        var methods = symbol.GetAllPublicMethods();
 
-        foreach (var member in publicMembers)
+        foreach (var method in methods)
         {
-            member.Accept(this);
+            method.Accept(this);
         }
     }
 

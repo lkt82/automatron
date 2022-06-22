@@ -10,34 +10,6 @@ namespace Automatron.AzureDevOps.Generators;
 
 internal class PipelineVisitor : SymbolVisitor
 {
-    private class StageComparer : IComparer<Stage>
-    {
-        public int Compare(Stage? x, Stage? y)
-        {
-            if (x == null || y == null)
-            {
-                return 0;
-            }
-
-            if (x.DependsOn != null && x.DependsOn.Contains(y.Name))
-            {
-                return 1;
-            }
-
-            if (y.DependsOn != null && y.DependsOn.Contains(x.Name))
-            {
-                return -1;
-            }
-
-            if (y.DependsOn != null && x.DependsOn == null)
-            {
-                return -1;
-            }
-
-            return 0;
-        }
-    }
-
     private class ConcreteClassCollector : SymbolVisitor
     {
         public List<INamedTypeSymbol> NamedTypes { get; } = new();
@@ -123,6 +95,10 @@ internal class PipelineVisitor : SymbolVisitor
         { 
             var pipeline = CreatePipeline(pipelineAttribute, _projectDirectory);
 
+            var parameterVisitor = new ParameterVisitor(pipeline);
+
+            symbol.Accept(parameterVisitor);
+
             CreateCiTrigger(attributes, pipeline);
 
             CreateVariables(attributes, pipeline);
@@ -134,9 +110,6 @@ internal class PipelineVisitor : SymbolVisitor
             var stageVisitor = new StageVisitor(pipeline);
 
             symbol.Accept(stageVisitor);
-
-            pipeline.Stages.AddRange(stageVisitor.Stages);
-            pipeline.Stages.Sort(new StageComparer());
 
             Pipelines.Add(pipeline);
         }

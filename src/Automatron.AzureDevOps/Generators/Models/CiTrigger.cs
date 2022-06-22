@@ -1,11 +1,10 @@
-﻿namespace Automatron.AzureDevOps.Generators.Models
+﻿namespace Automatron.AzureDevOps.Generators.Models;
+
+public sealed class CiTrigger: ICiTrigger
 {
-    public class CiTrigger: ICiTrigger
-    {
-        public bool? Batch { get; set; }
+    public bool? Batch { get; set; }
 
-        public TriggerBranches? Branches { get; set; }
+    public TriggerBranches? Branches { get; set; }
 
-        public TriggerPaths? Paths { get; set; }
-    }
+    public TriggerPaths? Paths { get; set; }
 }

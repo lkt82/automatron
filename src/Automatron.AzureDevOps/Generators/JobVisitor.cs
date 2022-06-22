@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
 
-internal class JobVisitor : SymbolVisitor
+internal class JobVisitor : SymbolVisitor, IComparer<IJob>
 {
     protected readonly Stage Stage;
  
@@ -17,13 +17,38 @@ internal class JobVisitor : SymbolVisitor
         Stage = stage;
     }
 
+    public int Compare(IJob? x, IJob? y)
+    {
+        if (x == null || y == null)
+        {
+            return 0;
+        }
+
+        if (x.DependsOn != null && x.DependsOn.Contains(y.Name))
+        {
+            return 1;
+        }
+
+        if (y.DependsOn != null && y.DependsOn.Contains(x.Name))
+        {
+            return -1;
+        }
+
+        if (y.DependsOn != null && x.DependsOn == null)
+        {
+            return -1;
+        }
+
+        return 0;
+    }
+
     public override void VisitNamedType(INamedTypeSymbol symbol)
     {
-        var publicMembers = symbol.GetAllPublicMethods();
+        var methods = symbol.GetAllPublicMethods();
 
-        foreach (var member in publicMembers)
+        foreach (var method in methods)
         {
-            member.Accept(this);
+            method.Accept(this);
         }
 
         foreach (var job in Jobs)
@@ -33,6 +58,9 @@ internal class JobVisitor : SymbolVisitor
 
             job.Steps.AddRange(stepVisitor.Steps);
         }
+
+        Stage.Jobs.AddRange(Jobs);
+        Stage.Jobs.Sort(this);
     }
 
     public override void VisitMethod(IMethodSymbol symbol)

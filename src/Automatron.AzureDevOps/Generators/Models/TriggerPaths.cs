@@ -1,6 +1,6 @@
 ﻿namespace Automatron.AzureDevOps.Generators.Models;
 
-public class TriggerPaths
+public sealed class TriggerPaths
 {
     public string[]? Include { get; set; }
 

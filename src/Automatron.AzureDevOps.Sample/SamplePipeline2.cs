@@ -2,7 +2,6 @@
 using Automatron.Annotations;
 using Automatron.AzureDevOps.Generators.Annotations;
 using CommandDotNet;
-using Parameter = Automatron.AzureDevOps.Generators.Annotations.ParameterAttribute;
 
 namespace Automatron.AzureDevOps.Sample;
 
@@ -76,12 +75,8 @@ public class SamplePipeline2 : IContinuousDeployment
         return await new TaskRunner<SamplePipeline2>().UseAzureDevOps().RunAsync(args);
     }
 
-    [Parameter(Cd, "runPerfTests", ParameterTypes.Boolean, Value = false)]
-    public bool RunPerfTests { get; set; }
+    public int RunPerfTests { get; set; }
 
-    //[AutomatronTask(nameof(Default))]
-    //[Stage(Cd, DependsOn = new[] { nameof(IContinuousDeployment.DeployToTesting) })]
-    //[Job(nameof(IContinuousDeployment.DeployToTesting))]
     [DependentFor(typeof(IContinuousDeployment.DeploymentTesting),nameof(IContinuousDeployment.DeploymentTesting.Deployment))]
     public void Default()
     {
