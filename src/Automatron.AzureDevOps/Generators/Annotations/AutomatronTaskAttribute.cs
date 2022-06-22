@@ -27,6 +27,8 @@ namespace Automatron.AzureDevOps.Generators.Annotations
 
         public string[]? Parameters { get; set; }
 
+        public string? Emoji { get; set; }
+
         public override Step Create(ISymbol symbol, IJob job)
         {
             var target = string.Concat(job.TemplateName,symbol.Name);
@@ -35,7 +37,7 @@ namespace Automatron.AzureDevOps.Generators.Annotations
 
             return new AutomatronTask(job,new[]{ target }, SkipDependencies, Parallel, Parameters) { 
                 Name = name, 
-                DisplayName = DisplayName,
+                DisplayName = string.IsNullOrEmpty(Emoji) ? DisplayName: $"{Emoji} {name}",
                 Condition = Condition,
                 WorkingDirectory = WorkingDirectory?? GetWorkingDirectory(job),
                 Secrets = Secrets
