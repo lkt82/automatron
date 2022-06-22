@@ -2,11 +2,14 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 	<PropertyGroup>
-		<PipelineProjectDirectory>$(MSBuildProjectDirectory)</PipelineProjectDirectory>
+		<AzureDevOpsPipelineProjectDirectory>$(MSBuildProjectDirectory)</AzureDevOpsPipelineProjectDirectory>
+		<AzureDevOpsPipelineSkip Condition="$(TF_BUILD) == 'True'">True</AzureDevOpsPipelineSkip>
+		<AzureDevOpsPipelineSkip Condition="$(TF_BUILD) == ''">False</AzureDevOpsPipelineSkip>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<CompilerVisibleProperty Include="PipelineProjectDirectory" />
+		<CompilerVisibleProperty Include="AzureDevOpsPipelineProjectDirectory" />
+		<CompilerVisibleProperty Include="AzureDevOpsPipelineSkip" />
 	</ItemGroup>
 
 </Project>

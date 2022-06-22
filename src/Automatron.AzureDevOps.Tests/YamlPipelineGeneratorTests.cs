@@ -49,7 +49,7 @@ public class Pipeline
             // Act
             RunGenerator(compilation, new Dictionary<string, string>
             {
-                {"build_property.PipelineProjectDirectory", _projectPath}
+                {"build_property.AzureDevOpsPipelineProjectDirectory", _projectPath}
             }, generator);
 
             // Assert
@@ -91,7 +91,7 @@ public class Pipeline
             // Act
             RunGenerator(compilation, new Dictionary<string, string>
             {
-                {"build_property.PipelineProjectDirectory", _projectPath}
+                {"build_property.AzureDevOpsPipelineProjectDirectory", _projectPath}
             }, generator);
 
             // Assert
@@ -141,7 +141,7 @@ public class Pipeline
             // Act
             RunGenerator(compilation,new Dictionary<string, string>
             {
-                {"build_property.PipelineProjectDirectory", _projectPath}
+                {"build_property.AzureDevOpsPipelineProjectDirectory", _projectPath}
             }, generator);
 
             // Assert

@@ -20,8 +20,6 @@ internal class YamlPipelineGenerator : ISourceGenerator
         _serializer = CreateYamlSerializer();
     }
 
-    private static bool IsLocal => Environment.GetEnvironmentVariable("TF_BUILD")?.ToUpperInvariant() != "TRUE";
-
     private readonly Dictionary<string, string> _vscRoot = new();
 
     private static string GetGitRoot(string workingDirectory)
@@ -41,17 +39,17 @@ internal class YamlPipelineGenerator : ISourceGenerator
 
     public void Execute(GeneratorExecutionContext context)
     {
-        if (!IsLocal)
+        if (context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.AzureDevOpsPipelineSkip", out var skipYamlPipeline) && bool.Parse(skipYamlPipeline))
         {
             return;
         }
 
         Debug.WriteLine($"Execute {nameof(YamlPipelineGenerator)}");
 
-        if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.PipelineProjectDirectory",
+        if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.AzureDevOpsPipelineProjectDirectory",
                 out var projectDirectory))
         {
-            throw new InvalidOperationException("PipelineProjectDirectory not set");
+            throw new InvalidOperationException("AzureDevOpsPipelineProjectDirectory not set");
         }
 
         string? vscRoot = null;
