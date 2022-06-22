@@ -112,7 +112,7 @@ public class Pipeline
             return true;
         });
 
-        Console.WriteLine("##vso[results.publish type=xUnit resultFiles='.artifacts/*.Tests.xml' mergeResults=true]");
+        Console.WriteLine($"##vso[results.publish type=xUnit resultFiles={string.Join(",", Directory.EnumerateFiles(ArtifactsDir, "*.Tests.xml").Select(Path.GetFullPath))} mergeResults=true]");
 
         if (failedTests)
         {
