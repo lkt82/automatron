@@ -24,6 +24,7 @@ stages:
     - script: dotnet run -- -r Test -s
       workingDirectory: src/Automatron.Pipeline
       name: Test
+      continueOnError: true
     - task: PublishTestResults@2
       inputs:
         testRunner: xUnit
