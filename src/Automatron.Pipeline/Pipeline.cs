@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Diagnostics;
 using System.Reflection;
 using Automatron.Annotations;
 using Automatron.AzureDevOps;
@@ -101,8 +100,6 @@ public class Pipeline
     {
         var failedTests = false;
 
-        Debugger.Launch();
-
         await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration} -r {ArtifactsDir} --collect:\"XPlat Code Coverage\" --logger:xunit;LogFileName=Automatron.Tests.xml", workingDirectory: "../Automatron.Tests", noEcho: true,handleExitCode: c=>
         {
             if (c == 0) return false;
@@ -117,7 +114,7 @@ public class Pipeline
             return true;
         });
 
-        await _azureDevOpsTasks.PublishTestResults("XUnit", Directory.EnumerateFiles(ArtifactsDir, "*.Tests.xml").Select(Path.GetFullPath), "Tests", true);
+        await _azureDevOpsTasks.PublishTestResults("XUnit", Directory.EnumerateFiles(ArtifactsDir, "*.Tests.xml"), "Tests", true);
 
         if (failedTests)
         {
