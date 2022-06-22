@@ -28,7 +28,7 @@ stages:
     - task: PublishTestResults@2
       inputs:
         testRunner: xUnit
-        testResultsFiles: '.artifacts/Tests.xml'
+        testResultsFiles: '.artifacts/*.Tests.xml'
         mergeResults: true
         failTaskOnFailedTests: true
     - script: dotnet run -- -r Pack -s
