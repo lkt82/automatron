@@ -112,6 +112,8 @@ public class Pipeline
             return true;
         });
 
+        Console.WriteLine("##vso[results.publish type=xUnit resultFiles='.artifacts/*.Tests.xml' mergeResults=true]");
+
         if (failedTests)
         {
             throw new Exception("Failed Unit Tests");
