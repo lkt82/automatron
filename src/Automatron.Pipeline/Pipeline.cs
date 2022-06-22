@@ -60,7 +60,7 @@ public class Pipeline
     [Job]
     public void Ci() { }
 
-    [AutomatronTask(nameof(Ci))]
+    [AutomatronTask(nameof(Ci),DisplayName = "🔢 Version")]
     [DependentFor(nameof(Ci))]
     public async Task Version()
     {
@@ -73,27 +73,25 @@ public class Pipeline
         await _azureDevOpsTasks.UpdateBuildNumber(version);
     }
 
+    [AutomatronTask(nameof(Ci), DisplayName = "🧹 Clean")]
     public void Clean()
     {
         EnsureDirectory(ArtifactsDir);
         CleanDirectory(ArtifactsDir);
     }
 
-    [AutomatronTask(nameof(Ci), SkipDependencies = true)]
+    [AutomatronTask(nameof(Ci),DisplayName = "🏗 Build", SkipDependencies = true)]
     [DependentFor(nameof(Ci))]
     [DependentOn(nameof(Version), nameof(Clean))]
     public async Task Build()
     {
-        EnsureDirectory(ArtifactsDir);
-        CleanDirectory(ArtifactsDir);
-
         await RunAsync("dotnet", $"dotnet build -c {Configuration}", workingDirectory: "../Automatron",noEcho:true);
         await RunAsync("dotnet", $"dotnet build -c {Configuration}", workingDirectory: "../Automatron.AzureDevOps", noEcho: true);
         await RunAsync("dotnet", $"dotnet build -c {Configuration}", workingDirectory: "../Automatron.Tests", noEcho: true);
         await RunAsync("dotnet", $"dotnet build -c {Configuration}", workingDirectory: "../Automatron.AzureDevOps.Tests", noEcho: true);
     }
 
-    [AutomatronTask(nameof(Ci), SkipDependencies = true)]
+    [AutomatronTask(nameof(Ci), DisplayName = "🧪 Test", SkipDependencies = true)]
     [DependentFor(nameof(Ci))]
     [DependentOn(nameof(Build), nameof(Clean))]
     public async Task Test()
@@ -122,7 +120,7 @@ public class Pipeline
         }
     }
 
-    [AutomatronTask(nameof(Ci), SkipDependencies = true)]
+    [AutomatronTask(nameof(Ci),DisplayName = "📦 Pack", SkipDependencies = true)]
     [DependentFor(nameof(Ci))]
     [DependentOn(nameof(Test), nameof(Clean))]
     public async Task Pack()
@@ -131,7 +129,7 @@ public class Pipeline
         await RunAsync("dotnet", $"dotnet pack --no-build -c {Configuration} -o {ArtifactsDir}", workingDirectory: "../Automatron.AzureDevOps", noEcho: true);
     }
 
-    [AutomatronTask(nameof(Ci),Secrets = new []{ nameof(NugetApiKey) }, SkipDependencies = true)]
+    [AutomatronTask(nameof(Ci),DisplayName = "🚀 Publish", Secrets = new []{ nameof(NugetApiKey) }, SkipDependencies = true)]
     [DependentFor(nameof(Ci))]
     [DependentOn(nameof(Pack))]
     public async Task Publish()
