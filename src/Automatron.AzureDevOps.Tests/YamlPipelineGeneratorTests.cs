@@ -55,7 +55,7 @@ public class Pipeline
             // Assert
             generator.Pipelines!.First().Stages.First().Jobs.First().Steps.First().As<AutomatronTask>().Content
                 .Should()
-                .Be("dotnet run -- -r Default --runperftests2 \"${{ parameters.RunPerfTests }}\"");
+                .Be("dotnet run -- -r Default --runperftests \"${{ parameters.RunPerfTests }}\"");
         }
 
         [Fact]
