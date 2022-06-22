@@ -87,6 +87,7 @@ public class Pipeline
     public async Task Test()
     {
         await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration}", workingDirectory: "../Automatron.Tests", noEcho: true);
+        await RunAsync("dotnet", $"dotnet test --no-build -c {Configuration}", workingDirectory: "../Automatron.AzureDevOps.Tests", noEcho: true);
     }
 
     [AutomatronTask(nameof(Ci), SkipDependencies = true)]
