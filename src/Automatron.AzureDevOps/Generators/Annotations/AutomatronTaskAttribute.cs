@@ -21,8 +21,6 @@ namespace Automatron.AzureDevOps.Generators.Annotations
 
         public bool SkipDependencies { get; set; }
 
-        public string[]? DependsOn { get; set; }
-
         public bool Parallel { get; set; }
 
         public string? WorkingDirectory { get; set; }
