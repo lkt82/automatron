@@ -29,7 +29,7 @@ public interface IContinuousDeployment
         }
 
 
-        [AutomatronTask(SkipDependencies = true,DependsOn = new []{nameof(Build)})]
+        [AutomatronTask(SkipDependencies = true)]
         [DependentOn(nameof(Build))]
         public void Deploy()
         {
