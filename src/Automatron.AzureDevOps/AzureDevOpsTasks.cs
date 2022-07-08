@@ -12,6 +12,7 @@ namespace Automatron.AzureDevOps
         public AzureDevOpsTasks(IConsole console)
         {
             _console = console;
+            _console.SetBufferSize(1000,1000);
         }
 
         public async Task UpdateBuildNumber(string buildNumber)
