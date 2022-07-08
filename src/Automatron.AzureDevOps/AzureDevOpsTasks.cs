@@ -28,12 +28,6 @@ namespace Automatron.AzureDevOps
         {
             await _console.Out.WriteLineAsync($"##vso[results.publish type={type};resultFiles={string.Join(",", resultFiles)};mergeResults={mergeResults};runTitle='{title}']");
         }
-
-        public void PublishTestResults2(string type, IEnumerable<string> resultFiles, string title, bool mergeResults = false)
-        {
-            _console.WriteLine($"##vso[results.publish type={type};resultFiles={string.Join(",", resultFiles)};mergeResults={mergeResults};runTitle='{title}']");
-        }
-
     }
 }
 #endif

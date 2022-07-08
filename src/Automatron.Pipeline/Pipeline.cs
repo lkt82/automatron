@@ -113,7 +113,7 @@ public class Pipeline
             return true;
         });
 
-         _azureDevOpsTasks.PublishTestResults2("XUnit", Directory.EnumerateFiles(ArtifactsDir, "*.Tests.xml"), "Tests", true);
+        //await _azureDevOpsTasks.PublishTestResults("XUnit", Directory.EnumerateFiles(ArtifactsDir, "*.Tests.xml"), "Tests", true);
 
         if (failedTests)
         {
