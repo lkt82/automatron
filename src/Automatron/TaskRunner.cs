@@ -347,7 +347,7 @@ public sealed class TaskRunner<TController> where TController : class
                 if (c.Environment.GetEnvironmentVariable("TF_BUILD") == "True")
                 {
 
-                    var console = AnsiConsole.Create(new AnsiConsoleSettings
+                    ansiConsole = AnsiConsole.Create(new AnsiConsoleSettings
                     {
                         Ansi = AnsiSupport.Yes,
                         ColorSystem = ColorSystemSupport.Standard,
@@ -355,7 +355,7 @@ public sealed class TaskRunner<TController> where TController : class
 
                         Out = new AnsiConsoleOutput(Console.Out)
                     });
-                    console.Profile.Width = 1000;
+                    ansiConsole.Profile.Width = 1000;
                 }
 
                 ansiConsole ??= AnsiConsole.Console;
