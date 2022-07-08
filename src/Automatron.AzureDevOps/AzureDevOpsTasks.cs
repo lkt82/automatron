@@ -27,7 +27,9 @@ namespace Automatron.AzureDevOps
 
         public async Task PublishTestResults(string type, IEnumerable<string> resultFiles, string title,bool mergeResults=false)
         {
-            Console.WriteLine($"##vso[results.publish type={type};resultFiles={string.Join(",", resultFiles)};mergeResults={mergeResults};runTitle='{title}']");
+            _console.WriteLine();
+
+            Console.Out.WriteLine($"##vso[results.publish type={type};resultFiles={string.Join(",", resultFiles)};mergeResults={mergeResults};runTitle='{title}']");
             //await _console.Out.WriteLineAsync($"##vso[results.publish type={type};resultFiles={string.Join(",", resultFiles)};mergeResults={mergeResults};runTitle='{title}']");
         }
     }
