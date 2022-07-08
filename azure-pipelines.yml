@@ -39,9 +39,7 @@ stages:
         NUGET_API_KEY: $(NugetApiKey)
       name: Test
       displayName: "\U0001F9EA Test"
-    - script: | 
-        dotnet run -- -a -t Pack
-        echo "##vso[results.publish type=XUnit;resultFiles=/home/vsts/work/1/s/.artifacts/Automatron.AzureDevOps.Tests.xml,/home/vsts/work/1/s/.artifacts/Automatron.Tests.xml;mergeResults=True;runTitle='Tests']"
+    - script: dotnet run -- -a -t Pack
       workingDirectory: src/Automatron.Pipeline
       env:
         NUGET_API_KEY: $(NugetApiKey)
