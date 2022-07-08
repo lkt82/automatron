@@ -94,6 +94,8 @@ internal sealed class TaskCommand
     {
         tasks ??= new[] { "default" };
 
+        tasks.ToArray();
+
         return 0;
 
         var assemblyName = Assembly.GetEntryAssembly()!.GetName().Name;
