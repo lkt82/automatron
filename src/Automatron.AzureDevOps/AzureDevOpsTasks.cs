@@ -1,4 +1,5 @@
 ﻿#if NET6_0
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CommandDotNet;
@@ -26,8 +27,8 @@ namespace Automatron.AzureDevOps
 
         public async Task PublishTestResults(string type, IEnumerable<string> resultFiles, string title,bool mergeResults=false)
         {
-            await _console.Out.WriteLineAsync();
-            await _console.Out.WriteLineAsync($"##vso[results.publish type={type};resultFiles={string.Join(",", resultFiles)};mergeResults={mergeResults};runTitle='{title}']");
+            Console.WriteLine($"##vso[results.publish type={type};resultFiles={string.Join(",", resultFiles)};mergeResults={mergeResults};runTitle='{title}']");
+            //await _console.Out.WriteLineAsync($"##vso[results.publish type={type};resultFiles={string.Join(",", resultFiles)};mergeResults={mergeResults};runTitle='{title}']");
         }
     }
 }
