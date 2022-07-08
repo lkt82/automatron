@@ -326,16 +326,6 @@ public sealed class TaskRunner<TController> where TController : class
         Services.AddSingleton(_tasks);
         Services.AddSingleton(typeof(TaskCommand));
 
-        var console = AnsiConsole.Create(new AnsiConsoleSettings
-        {
-            Ansi = AnsiSupport.Yes,
-            ColorSystem = ColorSystemSupport.Standard,
-            Interactive = InteractionSupport.No,
-
-            Out = new AnsiConsoleOutput(Console.Out)
-        });
-        console.Profile.Width = 1000;
-
         foreach (var type in _controllerTypes)
         {
             Services.AddSingleton(type);
@@ -350,21 +340,34 @@ public sealed class TaskRunner<TController> where TController : class
                 c.BuildEvents.OnCommandCreated += AddControllerParameters;
             })
             .UseCancellationHandlers()
-            .UseSpectreAnsiConsole(console)
             .Configure(c =>
             {
+                IAnsiConsole? ansiConsole = null;
+
+                if (c.Environment.GetEnvironmentVariable("TF_BUILD") == "True")
+                {
+
+                    var console = AnsiConsole.Create(new AnsiConsoleSettings
+                    {
+                        Ansi = AnsiSupport.Yes,
+                        ColorSystem = ColorSystemSupport.Standard,
+                        Interactive = InteractionSupport.No,
+
+                        Out = new AnsiConsoleOutput(Console.Out)
+                    });
+                    console.Profile.Width = 1000;
+                }
+
+                ansiConsole ??= AnsiConsole.Console;
+
+                c.Console = new AnsiConsoleForwardingConsole(ansiConsole);
+
+                c.UseParameterResolver(_ => ansiConsole);
+                c.Services.Add(ansiConsole);
+
                 Services.AddSingleton(c.Console);
                 Services.AddSingleton(c.Environment);
-
-                var console = c.Services.GetOrThrow<IAnsiConsole>();
-      
-                Console.WriteLine($"Ansi: {console.Profile.Capabilities.Ansi}");
-                Console.WriteLine($"ColorSystem: {console.Profile.Capabilities.ColorSystem}");
-                Console.WriteLine($"Width: {console.Profile.Width}");
-                Console.WriteLine($"Height: {console.Profile.Height}");
-
-
-                Services.AddSingleton(console);
+                Services.AddSingleton(ansiConsole);
             })
             .Configure(b => b.CustomHelpProvider = new TaskHelpTextProvider(b.AppSettings, _tasks))
             .UseMicrosoftDependencyInjection(Services.BuildServiceProvider());
