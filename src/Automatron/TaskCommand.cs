@@ -88,21 +88,25 @@ internal sealed class TaskCommand
         [Option('a',Description = "Skips all dependencies")]
         bool skipAll,
         [Option('t',Description = "List of tasks to be invoked",Split = ',')]
-        IEnumerable<string>? run,
+        IEnumerable<string>? taskList,
         CommandContext ctx
     )
     {
-        tasks ??= new[] { "default" };
+        string[] taskArray = { "default" };
 
-        tasks.ToArray();
-
-        return 0;
+        if (taskList != null)
+        {
+            taskArray = taskList.ToArray();
+        }
+        else if(tasks != null)
+        {
+            taskArray = tasks.ToArray();
+        }
 
         var assemblyName = Assembly.GetEntryAssembly()!.GetName().Name;
 
         var resolvedTasks = new Dictionary<string,ControllerTask>();
 
-        var taskArray = tasks as string[] ?? tasks.ToArray();
 
         foreach (var task in taskArray)
         {

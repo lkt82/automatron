@@ -51,8 +51,8 @@ public sealed class AutomatronTask : Script
             }
         }
 
-        arguments.Append(" ");
-        arguments.Append(string.Join(" ", targets));
+        arguments.Append(" -t ");
+        arguments.Append(string.Join(",", targets));
 
         return arguments.ToString();
     }

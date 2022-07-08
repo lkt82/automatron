@@ -14,9 +14,9 @@ stages:
       runOnce:
         deploy:
           steps:
-          - script: dotnet run -- DeploymentTestingBuild
+          - script: dotnet run -- -t DeploymentTestingBuild
             workingDirectory: src/Automatron.AzureDevOps.Sample
             name: Build
-          - script: dotnet run -- DeploymentTestingDeploy
+          - script: dotnet run -- -t DeploymentTestingDeploy
             workingDirectory: src/Automatron.AzureDevOps.Sample
             name: Deploy
