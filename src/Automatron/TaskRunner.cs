@@ -329,7 +329,7 @@ public sealed class TaskRunner<TController> where TController : class
         var console = AnsiConsole.Create(new AnsiConsoleSettings
         {
             Ansi = AnsiSupport.Yes,
-            ColorSystem = ColorSystemSupport.Standard,
+            ColorSystem = ColorSystemSupport.TrueColor,
             Interactive = InteractionSupport.No,
 
             Out = new AnsiConsoleOutput(Console.Out)
