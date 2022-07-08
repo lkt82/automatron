@@ -24,8 +24,9 @@ public interface IContinuousDeployment
         }
 
         [AutomatronTask]
-        public void Build()
+        public async Task Build()
         {
+            await _azureDevOpsTasks.UpdateBuildNumberAsync("1");
         }
 
 

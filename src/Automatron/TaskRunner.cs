@@ -326,6 +326,15 @@ public sealed class TaskRunner<TController> where TController : class
         Services.AddSingleton(_tasks);
         Services.AddSingleton(typeof(TaskCommand));
 
+        var console = AnsiConsole.Create(new AnsiConsoleSettings
+        {
+            Ansi = AnsiSupport.Yes,
+            ColorSystem = ColorSystemSupport.TrueColor,
+            Interactive = InteractionSupport.No,
+            Out = new AnsiConsoleOutput(Console.Out)
+        });
+        console.Profile.Width = 800;
+
         foreach (var type in _controllerTypes)
         {
             Services.AddSingleton(type);
@@ -340,12 +349,17 @@ public sealed class TaskRunner<TController> where TController : class
                 c.BuildEvents.OnCommandCreated += AddControllerParameters;
             })
             .UseCancellationHandlers()
-            .UseSpectreAnsiConsole()
+            .UseSpectreAnsiConsole(console)
             .Configure(c =>
             {
                 Services.AddSingleton(c.Console);
                 Services.AddSingleton(c.Environment);
-                Services.AddSingleton(c.Services.GetOrThrow<IAnsiConsole>());
+
+                var console = c.Services.GetOrThrow<IAnsiConsole>();
+
+                //System.Console.WriteLine();
+
+                Services.AddSingleton(console);
             })
             .Configure(b => b.CustomHelpProvider = new TaskHelpTextProvider(b.AppSettings, _tasks))
             .UseMicrosoftDependencyInjection(Services.BuildServiceProvider());
