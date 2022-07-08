@@ -326,15 +326,15 @@ public sealed class TaskRunner<TController> where TController : class
         Services.AddSingleton(_tasks);
         Services.AddSingleton(typeof(TaskCommand));
 
-        //var console = AnsiConsole.Create(new AnsiConsoleSettings
-        //{
-        //    Ansi = AnsiSupport.Detect,
-        //    ColorSystem = ColorSystemSupport.Detect,
-        //    Interactive = InteractionSupport.No,
-      
-        //    Out = new AnsiConsoleOutput(Console.Out)
-        //});
-        //console.Profile.Width = 800;
+        var console = AnsiConsole.Create(new AnsiConsoleSettings
+        {
+            Ansi = AnsiSupport.Yes,
+            ColorSystem = ColorSystemSupport.Standard,
+            Interactive = InteractionSupport.No,
+
+            Out = new AnsiConsoleOutput(Console.Out)
+        });
+        console.Profile.Width = 1000;
 
         foreach (var type in _controllerTypes)
         {
@@ -357,11 +357,12 @@ public sealed class TaskRunner<TController> where TController : class
                 Services.AddSingleton(c.Environment);
 
                 var console = c.Services.GetOrThrow<IAnsiConsole>();
-
+      
                 Console.WriteLine($"Ansi: {console.Profile.Capabilities.Ansi}");
                 Console.WriteLine($"ColorSystem: {console.Profile.Capabilities.ColorSystem}");
                 Console.WriteLine($"Width: {console.Profile.Width}");
                 Console.WriteLine($"Height: {console.Profile.Height}");
+
 
                 Services.AddSingleton(console);
             })
