@@ -161,7 +161,7 @@ internal sealed class TaskCommand
 
                 taskStopWatch.Stop();
                 _console.MarkupLine($"[grey53]{assemblyName}:[/] [deepskyblue3_1]{task.Name}[/]: [green]Succeeded[/]: [purple]({taskStopWatch.ElapsedMilliseconds} ms)[/]");
-                table.AddRow($"[deepskyblue1]{task.Name}[/]", "[green]Succeeded[/]", $"[purple]{taskStopWatch.ElapsedMilliseconds} ms[/]");
+                table.AddRow($"[deepskyblue3_1]{task.Name}[/]", "[green]Succeeded[/]", $"[purple]{taskStopWatch.ElapsedMilliseconds} ms[/]");
             }
             catch (Exception e)
             {
