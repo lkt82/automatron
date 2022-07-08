@@ -117,7 +117,7 @@ internal sealed class TaskCommand
                 resolvedTasks.Add(key,controllerTask);
                 continue;
             }
-            _console.MarkupLine($"[dim]{assemblyName}:[/] [deepskyblue1]{task}[/]: [red]Not found[/]");
+            _console.MarkupLine($"[grey53]{assemblyName}:[/] [deepskyblue3_1]{task}[/]: [red]Not found[/]");
 
             return 1;
         }
@@ -129,7 +129,7 @@ internal sealed class TaskCommand
         var resolvedTasksString = string.Join(" ", resolvedTasks.Values.Select(c => c.Name));
 
         var runStopWatch = new Stopwatch();
-         _console.MarkupLine($"[dim]{assemblyName}:[/] Starting... [deepskyblue1]({resolvedTasksString})[/]");
+         _console.MarkupLine($"[grey53]{assemblyName}:[/] Starting... [deepskyblue3_1]({resolvedTasksString})[/]");
 
         runStopWatch.Start();
 
@@ -146,7 +146,7 @@ internal sealed class TaskCommand
         {
             var task = _tasks[graphItem.Name];
             var taskStopWatch = new Stopwatch();
-            _console.MarkupLine($"[dim]{assemblyName}:[/] [deepskyblue1]{task.Name}[/]: Starting...");
+            _console.MarkupLine($"[grey53]{assemblyName}:[/] [deepskyblue3_1]{task.Name}[/]: Starting...");
             taskStopWatch.Start();
             try
             {
@@ -160,16 +160,16 @@ internal sealed class TaskCommand
                 }
 
                 taskStopWatch.Stop();
-                _console.MarkupLine($"[dim]{assemblyName}:[/] [deepskyblue1]{task.Name}[/]: [green]Succeeded[/]: [mediumpurple1]({taskStopWatch.ElapsedMilliseconds} ms)[/]");
-                table.AddRow($"[deepskyblue1]{task.Name}[/]", "[green]Succeeded[/]", $"[mediumpurple1]{taskStopWatch.ElapsedMilliseconds} ms[/]");
+                _console.MarkupLine($"[grey53]{assemblyName}:[/] [deepskyblue3_1]{task.Name}[/]: [green]Succeeded[/]: [purple]({taskStopWatch.ElapsedMilliseconds} ms)[/]");
+                table.AddRow($"[deepskyblue1]{task.Name}[/]", "[green]Succeeded[/]", $"[purple]{taskStopWatch.ElapsedMilliseconds} ms[/]");
             }
             catch (Exception e)
             {
                 taskStopWatch.Stop();
                 var error = Markup.Escape(e.ToString());
 
-                _console.MarkupLine($"[dim]{assemblyName}:[/] [deepskyblue1]{task.Name}[/]: [red]{error}[/]");
-                table.AddRow($"[deepskyblue1]{task.Name}[/]", "[red]FAILED[/]", $"[mediumpurple1]{taskStopWatch.ElapsedMilliseconds} ms[/]");
+                _console.MarkupLine($"[grey53]{assemblyName}:[/] [deepskyblue3_1]{task.Name}[/]: [red]{error}[/]");
+                table.AddRow($"[deepskyblue3_1]{task.Name}[/]", "[red]FAILED[/]", $"[purple]{taskStopWatch.ElapsedMilliseconds} ms[/]");
 
                 failed = true;
                 break;
@@ -185,12 +185,12 @@ internal sealed class TaskCommand
         outerTable.ShowHeaders = false;
         outerTable.AddColumn("assemblyName");
         outerTable.AddColumn("result");
-        outerTable.AddRow(new Markup($"[dim]{assemblyName}:[/]"), table);
+        outerTable.AddRow(new Markup($"[grey53]{assemblyName}:[/]"), table);
         _console.Write(outerTable);
 
         _console.MarkupLine(failed
-            ? $"[dim]{assemblyName}:[/] [red]FAILED![/] [deepskyblue1]({resolvedTasksString}[/] [mediumpurple1]({runStopWatch.ElapsedMilliseconds} ms))[/]"
-            : $"[dim]{assemblyName}:[/] [green]Succeeded[/] [deepskyblue1]({resolvedTasksString}[/] [mediumpurple1]({runStopWatch.ElapsedMilliseconds} ms))[/]");
+            ? $"[grey53]{assemblyName}:[/] [red]FAILED![/] [deepskyblue3_1]({resolvedTasksString}[/] [purple]({runStopWatch.ElapsedMilliseconds} ms))[/]"
+            : $"[grey53]{assemblyName}:[/] [green]Succeeded[/] [deepskyblue3_1]({resolvedTasksString}[/] [purple]({runStopWatch.ElapsedMilliseconds} ms))[/]");
 
         return failed ? 1 : 0;
 
