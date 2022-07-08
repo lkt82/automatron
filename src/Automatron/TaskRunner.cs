@@ -350,7 +350,7 @@ public sealed class TaskRunner<TController> where TController : class
                 c.BuildEvents.OnCommandCreated += AddControllerParameters;
             })
             .UseCancellationHandlers()
-            .UseSpectreAnsiConsole()
+            .UseSpectreAnsiConsole(console)
             .Configure(c =>
             {
                 Services.AddSingleton(c.Console);
