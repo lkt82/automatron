@@ -71,7 +71,7 @@ public class Pipeline
             return;
         }
 
-        await _azureDevOpsTasks.UpdateBuildNumber(version);
+        await _azureDevOpsTasks.UpdateBuildNumberAsync(version);
     }
 
     [AutomatronTask(nameof(Ci), Emoji = "🧹", SkipAll = true)]
@@ -113,7 +113,7 @@ public class Pipeline
             return true;
         });
 
-        await _azureDevOpsTasks.PublishTestResults("XUnit", Directory.EnumerateFiles(ArtifactsDir, "*.Tests.xml"), "Tests", true);
+        await _azureDevOpsTasks.PublishTestResultsAsync("XUnit", Directory.EnumerateFiles(ArtifactsDir, "*.Tests.xml"), "Tests", true);
 
         if (failedTests)
         {
