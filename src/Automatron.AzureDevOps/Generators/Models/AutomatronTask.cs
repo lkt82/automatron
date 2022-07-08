@@ -12,7 +12,6 @@ public sealed class AutomatronTask : Script
     {
         var arguments = new StringBuilder();
 
-        //arguments.Append("dotnet run -- -r ");
         arguments.Append("dotnet run --");
 
         if (skipAll)
@@ -24,7 +23,7 @@ public sealed class AutomatronTask : Script
             arguments.Append(" -s");
             foreach (var target in skip)
             {
-                arguments.Append(" ");
+                arguments.Append(",");
                 arguments.Append(target);
             }
         }

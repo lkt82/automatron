@@ -78,17 +78,17 @@ internal sealed class TaskCommand
     [UsedImplicitly]
     public async Task<int> Execute(
         [Operand(Description = "A list of tasks to run. If not specified, the \"default\" task will be invoked")]
-        string[]? tasks,
+        IEnumerable<string>? tasks,
         [Option('n',Description = "Do a dry run without executing actions")]
         bool? dryRun,
         [Option('p',Description = "Run tasks in parallel")]
         bool? parallel,
-        [Option('s',Description = "List of dependencies to be skipped")]
-        string[]? skip,
+        [Option('s',Description = "List of dependencies to be skipped",Split = ',')]
+        IEnumerable<string>? skip,
         [Option('a',Description = "Skips all dependencies")]
         bool skipAll,
-        [Option('t',Description = "List of tasks to be invoked")]
-        string[]? run,
+        [Option('t',Description = "List of tasks to be invoked",Split = ',')]
+        IEnumerable<string>? run,
         CommandContext ctx
     )
     {
@@ -98,7 +98,9 @@ internal sealed class TaskCommand
 
         var resolvedTasks = new Dictionary<string,ControllerTask>();
 
-        foreach (var task in tasks)
+        var taskArray = tasks as string[] ?? tasks.ToArray();
+
+        foreach (var task in taskArray)
         {
             var key = task.ToLowerInvariant();
 
@@ -112,9 +114,9 @@ internal sealed class TaskCommand
             return 1;
         }
 
-        var tasksToSkip = BuildSkippedTasks(tasks, skip, skipAll);
+        var tasksToSkip = BuildSkippedTasks(taskArray, skip, skipAll);
 
-        var dependencyGraph = BuildTaskGraph(tasks, tasksToSkip);
+        var dependencyGraph = BuildTaskGraph(taskArray, tasksToSkip);
 
         var resolvedTasksString = string.Join(" ", resolvedTasks.Values.Select(c => c.Name));
 
@@ -186,7 +188,7 @@ internal sealed class TaskCommand
 
     }
 
-    private string[] BuildSkippedTasks(string[] tasks, string[]? skip, bool skipAll)
+    private string[] BuildSkippedTasks(string[] tasks, IEnumerable<string>? skip, bool skipAll)
     {
         var tasksToSkip = Array.Empty<string>();
 
