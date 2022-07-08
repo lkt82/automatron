@@ -94,6 +94,8 @@ internal sealed class TaskCommand
     {
         tasks ??= new[] { "default" };
 
+        return 0;
+
         var assemblyName = Assembly.GetEntryAssembly()!.GetName().Name;
 
         var resolvedTasks = new Dictionary<string,ControllerTask>();
