@@ -41,7 +41,7 @@ stages:
       displayName: "\U0001F9EA Test"
     - script: | 
         dotnet run -- -a -t Pack
-        ##vso[results.publish type=XUnit;resultFiles=/home/vsts/work/1/s/.artifacts/Automatron.AzureDevOps.Tests.xml,/home/vsts/work/1/s/.artifacts/Automatron.Tests.xml;mergeResults=True;runTitle='Tests']
+        echo "##vso[results.publish type=XUnit;resultFiles=/home/vsts/work/1/s/.artifacts/Automatron.AzureDevOps.Tests.xml,/home/vsts/work/1/s/.artifacts/Automatron.Tests.xml;mergeResults=True;runTitle='Tests']"
       workingDirectory: src/Automatron.Pipeline
       env:
         NUGET_API_KEY: $(NugetApiKey)
