@@ -19,7 +19,9 @@ namespace Automatron.AzureDevOps.Generators.Annotations
             Job = job;
         }
 
-        public bool SkipDependencies { get; set; }
+        public string[]? Skip { get; set; }
+
+        public bool SkipAll { get; set; }
 
         public bool Parallel { get; set; }
 
@@ -33,7 +35,7 @@ namespace Automatron.AzureDevOps.Generators.Annotations
 
             var name = string.IsNullOrEmpty(Name) ? symbol.Name : Name;
 
-            return new AutomatronTask(job,new[]{ target }, SkipDependencies, Parallel, job.Stage.Pipeline.Parameters.Select(c => c.Name).ToArray()) { 
+            return new AutomatronTask(job,new[]{ target }, Skip, SkipAll, Parallel, job.Stage.Pipeline.Parameters.Select(c => c.Name).ToArray()) { 
                 Name = name, 
                 DisplayName = string.IsNullOrEmpty(Emoji) ? DisplayName: $"{Emoji} {name}",
                 Condition = Condition,

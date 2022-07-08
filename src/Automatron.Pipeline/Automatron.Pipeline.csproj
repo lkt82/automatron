@@ -7,14 +7,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-	<Import Project="..\Automatron.AzureDevOps\build.props"/>
+	<Import Project="..\Automatron.AzureDevOps\build.props" />
 
 	<ItemGroup>
 	  <None Include="..\..\azure-pipelines.yml" Link="azure-pipelines.yml" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="MinVer" Version="4.0.0">
+	  <PackageReference Include="MinVer" Version="4.1.0">
 	    <PrivateAssets>all</PrivateAssets>
 	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>

@@ -2,7 +2,7 @@
   "profiles": {
     "Automatron.AzureDevOps.Sample": {
       "commandName": "Project",
-      "commandLineArgs": "Default --runperftests \"3\"",
+      "commandLineArgs": "DeployToTesting Default --runperftests \"3\" -a",
       "environmentVariables": {
         "AZURE_CLIENT_SECRET": "hest"
       }

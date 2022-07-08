@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NET6_0
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -6,12 +7,13 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Automatron.Annotations;
-using Bullseye;
 using CommandDotNet;
 using CommandDotNet.Builders;
 using CommandDotNet.Execution;
 using CommandDotNet.IoC.MicrosoftDependencyInjection;
+using CommandDotNet.Spectre;
 using Microsoft.Extensions.DependencyInjection;
+using Spectre.Console;
 using TypeInfo = CommandDotNet.TypeInfo;
 
 namespace Automatron;
@@ -43,7 +45,8 @@ public sealed class TaskRunner<TController> where TController : class
         }
     }
 
-    private readonly Targets _bullseyeTargets = new();
+    private readonly Dictionary<string, ControllerTask> _tasks = new();
+
     private readonly object _objectType = typeof(object);
     private static readonly Type ControllerType = typeof(TController);
 
@@ -157,7 +160,7 @@ public sealed class TaskRunner<TController> where TController : class
                     Split = arity.AllowsOneOrMore() ? ',' : null,
                     IsMiddlewareOption = true,
                     Default = GetParameterDefault(args.CommandContext.Environment, parameter.Name, typeInfo),
-                    Hidden = false
+                    Hidden = false,
                 };
 
                 if (parameterAttribute != null && !string.IsNullOrEmpty(parameterAttribute.Description))
@@ -236,9 +239,9 @@ public sealed class TaskRunner<TController> where TController : class
 
     private Task<int> BuildTasks(CommandContext ctx, ExecutionDelegate next)
     {
-        var targets = ControllerTasks.SelectMany(target =>
+        var tasks = ControllerTasks.SelectMany(target =>
         {
-            var (serviceType, methods) = target;
+            var (controllerType, methods) = target;
             return methods.Select(method =>
             {
                 var dependentOnAttribute = method.GetCustomAttribute<DependentOnAttribute>();
@@ -259,7 +262,7 @@ public sealed class TaskRunner<TController> where TController : class
                     }
                     else
                     {
-                        dependentOn = dependentOnAttribute.Targets.Select(t => serviceType.Name + t);
+                        dependentOn = dependentOnAttribute.Targets.Select(t => controllerType.Name + t);
                     }
                 }
 
@@ -275,46 +278,34 @@ public sealed class TaskRunner<TController> where TController : class
                     }
                     else
                     {
-                        dependentFor = dependentForAttribute.Targets.Select(t => serviceType.Name + t);
+                        dependentFor = dependentForAttribute.Targets.Select(t => controllerType.Name + t);
                     }
                 }
 
-
                 return new
                 {
-                    Name = serviceType != ControllerType
-                        ? serviceType.Name + method.Name
+                    Name = controllerType != ControllerType
+                        ? controllerType.Name + method.Name
                         : method.Name,
                     DependentOn = dependentOn,
                     DependentFor = dependentFor,
                     Method = method,
-                    Service = serviceType
+                    ControllerType = controllerType
                 };
             });
         }).ToArray();
 
-        var taskType = typeof(Task);
-
-        foreach (var target in targets)
+        foreach (var task in tasks)
         {
             var dependencies = new HashSet<string>();
 
-            dependencies.UnionWith(target.DependentOn);
+            dependencies.UnionWith(task.DependentOn);
 
-            var dependentFor = targets.Where(c => c.Name != target.Name && c.DependentFor.Contains(target.Name))
-                .Select(c => c.Name);
+            var dependentFor = tasks.Where(c => c.Name != task.Name && c.DependentFor.Contains(task.Name)).Select(c => c.Name);
 
             dependencies.UnionWith(dependentFor);
+            _tasks.Add(task.Name.ToLowerInvariant(),new ControllerTask(task.Name,task.ControllerType, task.Method, dependencies));
 
-
-            if (taskType.IsAssignableFrom(target.Method.ReturnType))
-            {
-                _bullseyeTargets.Add(target.Name, dependencies, () => (Task)target.Method.Invoke(ctx.DependencyResolver!.Resolve(target.Service), null)!);
-            }
-            else
-            {
-                _bullseyeTargets.Add(target.Name, dependencies, () => target.Method.Invoke(ctx.DependencyResolver!.Resolve(target.Service), null));
-            }
         }
 
         return next(ctx);
@@ -332,7 +323,7 @@ public sealed class TaskRunner<TController> where TController : class
     {
         var appRunner = new AppRunner<TaskCommand>();
 
-        Services.AddSingleton(_bullseyeTargets);
+        Services.AddSingleton(_tasks);
         Services.AddSingleton(typeof(TaskCommand));
 
         foreach (var type in _controllerTypes)
@@ -343,14 +334,20 @@ public sealed class TaskRunner<TController> where TController : class
         return appRunner
             .Configure(c =>
             {
-                Services.AddSingleton(c.Console);
-                Services.AddSingleton(c.Environment);
+               
+                c.UseMiddleware(BuildTasks, MiddlewareStages.PostTokenizePreParseInput);
                 c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
-                c.UseMiddleware(BuildTasks, MiddlewareStages.PostBindValuesPreInvoke);
                 c.BuildEvents.OnCommandCreated += AddControllerParameters;
             })
-            .UseErrorHandler((_, _) => ExitCodes.Error.Result)
             .UseCancellationHandlers()
+            .UseSpectreAnsiConsole()
+            .Configure(c =>
+            {
+                Services.AddSingleton(c.Console);
+                Services.AddSingleton(c.Environment);
+                Services.AddSingleton(c.Services.GetOrThrow<IAnsiConsole>());
+            })
+            .Configure(b => b.CustomHelpProvider = new TaskHelpTextProvider(b.AppSettings, _tasks))
             .UseMicrosoftDependencyInjection(Services.BuildServiceProvider());
     }
 
@@ -365,3 +362,4 @@ public sealed class TaskRunner<TController> where TController : class
     }
 
 }
+#endif

@@ -12,7 +12,7 @@ stages:
   jobs:
   - job: DefaultJob
     steps:
-    - script: dotnet run -- -r DefaultTask
+    - script: dotnet run -- DefaultTask
       workingDirectory: src/Automatron.AzureDevOps.Sample
       name: DefaultTask
 - stage: CiStage
@@ -28,15 +28,15 @@ stages:
           - task: NuGetAuthenticate@0
           - task: Pulumi@1
             displayName: Install Pulumi
-          - script: dotnet run -- -r RunStep1
+          - script: dotnet run -- RunStep1
             workingDirectory: src/Automatron.AzureDevOps.Sample
             name: RunStep1
-          - script: dotnet run -- -r RunStep3
+          - script: dotnet run -- RunStep3
             workingDirectory: src/Automatron.AzureDevOps.Sample
             name: RunStep3
             displayName: Step 3
   - job: CiJob2
     steps:
-    - script: dotnet run -- -r RunStep2
+    - script: dotnet run -- RunStep2
       workingDirectory: src/Automatron.AzureDevOps.Sample
       name: RunStep2

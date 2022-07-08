@@ -4,21 +4,29 @@ namespace Automatron.AzureDevOps.Generators.Models;
 
 public sealed class AutomatronTask : Script
 {
-    public AutomatronTask(IJob job, string[] targets, bool skipDependencies = false, bool parallel = false, string[]? parameters = null) : base(job, BuildCommand(targets, skipDependencies, parallel, parameters))
+    public AutomatronTask(IJob job, string[] targets, string[]? skip, bool skipAll = false, bool parallel = false, string[]? parameters = null) : base(job, BuildCommand(targets, skip, skipAll, parallel, parameters))
     {
     }
 
-    private static string BuildCommand(string[] targets, bool skipDependencies, bool parallel, string[]? parameters = null)
+    private static string BuildCommand(string[] targets, string[]? skip, bool skipAll, bool parallel, string[]? parameters = null)
     {
         var arguments = new StringBuilder();
 
-        arguments.Append("dotnet run -- -r ");
+        //arguments.Append("dotnet run -- -r ");
+        arguments.Append("dotnet run --");
 
-        arguments.Append(string.Join(" ", targets));
-
-        if (skipDependencies)
+        if (skipAll)
+        {
+            arguments.Append(" -a");
+        }
+        else if (skip is { Length: > 0 })
         {
             arguments.Append(" -s");
+            foreach (var target in skip)
+            {
+                arguments.Append(" ");
+                arguments.Append(target);
+            }
         }
         if (parallel)
         {
@@ -43,6 +51,9 @@ public sealed class AutomatronTask : Script
                 arguments.Append(" }}\"");
             }
         }
+
+        arguments.Append(" ");
+        arguments.Append(string.Join(" ", targets));
 
         return arguments.ToString();
     }

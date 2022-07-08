@@ -5,9 +5,10 @@
 	    <Nullable>enable</Nullable>
 	    <Description>AzureDevOps Support for Automatron. Uses a Source Gennerator to build the AzureDevOps yaml</Description>
 		<PackageTags>Build;Pipeline;AzureDevOps</PackageTags>
+	    <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
-	<Import Project="..\..\build.props"/>
+	<Import Project="..\..\build.props" />
 
 	<ItemGroup>
 		<None Include="build.props" Pack="true" PackagePath="\build\$(MSBuildProjectName).props" />
@@ -23,7 +24,7 @@
 	        <PrivateAssets>all</PrivateAssets>
 	        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="MinVer" Version="4.0.0">
+        <PackageReference Include="MinVer" Version="4.1.0">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -37,28 +38,12 @@
         <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-      <LangVersion>latest</LangVersion>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-      <LangVersion>latest</LangVersion>
-    </PropertyGroup>
-
-
 	<ItemGroup>
 		<None Include="$(OutputPath)\netstandard2.0\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
 
-	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-	  <PackageReference Include="CommandDotNet">
-	    <Version>6.0.5</Version>
-	  </PackageReference>
-	</ItemGroup>
-
-
-	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+	<ItemGroup>
 	  <ProjectReference Include="..\Automatron\Automatron.csproj" />
 	</ItemGroup>
 

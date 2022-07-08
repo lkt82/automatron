@@ -29,7 +29,7 @@ public interface IContinuousDeployment
         }
 
 
-        [AutomatronTask(SkipDependencies = true)]
+        [AutomatronTask(Skip = new string[0])]
         [DependentOn(nameof(Build))]
         public void Deploy()
         {
@@ -69,7 +69,13 @@ public interface IContinuousDeployment
 
 public class SamplePipeline2 : IContinuousDeployment
 {
+    private readonly IConsole _console;
     public const string Cd = "ContinuousDeployment2";
+
+    public SamplePipeline2(IConsole console)
+    {
+        _console = console;
+    }
 
     private static async Task<int> Main(string[] args)
     {
@@ -78,8 +84,10 @@ public class SamplePipeline2 : IContinuousDeployment
 
     public int RunPerfTests { get; set; }
 
-    [DependentFor(typeof(IContinuousDeployment.DeploymentTesting),nameof(IContinuousDeployment.DeploymentTesting.Deployment))]
+    //[DependentFor(typeof(IContinuousDeployment.DeploymentTesting),nameof(IContinuousDeployment.DeploymentTesting.Deployment))]
     public void Default()
     {
+        _console.WriteLine(RunPerfTests);
+        //throw new Exception();
     }
 }

@@ -1,66 +1,212 @@
-﻿using System.Collections.Generic;
+﻿#if NET6_0
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
-using Bullseye;
 using CommandDotNet;
 using JetBrains.Annotations;
+using Spectre.Console;
+using TopologicalSorting;
 
 namespace Automatron;
 
 internal sealed class TaskCommand
 {
-    private readonly Targets _bullseyeService;
-    private readonly IConsole _console;
+    private readonly Dictionary<string, ControllerTask> _tasks;
+    private readonly IAnsiConsole _console;
 
-    public TaskCommand(Targets bullseyeService, IConsole console)
+    public TaskCommand(Dictionary<string, ControllerTask> tasks, IAnsiConsole console)
     {
-        _bullseyeService = bullseyeService;
+        _tasks = tasks;
         _console = console;
+    }
+
+    private void BuildTaskGraph(IEnumerable<string> tasks,DependencyGraph graph, IDictionary<string, OrderedProcess> lookup, string[] skip)
+    {
+        foreach (var task in tasks.Select(c=> c.ToLowerInvariant()))
+        {
+            var taskCommand = _tasks[task];
+
+            if (lookup.ContainsKey(task))
+            {
+                continue;
+            }
+
+            if (skip.Contains(task))
+            {
+                continue;
+            }
+
+            var graphItem = new OrderedProcess(graph, task);
+            lookup.Add(task, graphItem);
+
+            BuildTaskGraph(taskCommand.Dependencies, graph, lookup, skip);
+        }
+    }
+
+    private DependencyGraph BuildTaskGraph(IEnumerable<string> tasks, string[] skip)
+    {
+        var dependencyGraph = new DependencyGraph();
+        var nameLookup = new Dictionary<string, OrderedProcess>();
+
+
+        BuildTaskGraph(tasks, dependencyGraph, nameLookup, skip);
+
+        foreach (var task in nameLookup)
+        {
+            var graphItem = task.Value;
+
+            var controllerTask = _tasks[task.Key];
+
+            foreach (var dependency in controllerTask.Dependencies.Select(c => c.ToLowerInvariant()))
+            {
+                if (skip.Contains(dependency))
+                {
+                    continue;
+                }
+
+                nameLookup[dependency].Before(graphItem);
+            }
+        }
+
+        return dependencyGraph;
     }
 
     [DefaultCommand]
     [UsedImplicitly]
-    public async Task Execute(
-        [Operand(Description = "A list of targets to run or list. If not specified, the \"default\" target will be run, or all targets will be listed.")]
-        IEnumerable<string>? targets,
+    public async Task<int> Execute(
+        [Operand(Description = "A list of tasks to run. If not specified, the \"default\" task will be invoked")]
+        string[]? tasks,
         [Option('n',Description = "Do a dry run without executing actions")]
         bool? dryRun,
-        [Option('d',Description = "List all (or specified) targets and dependencies, then exit")]
-        bool? listDependencies,
-        [Option('l',Description = "List all (or specified) targets, then exit")]
-        bool? listTargets,
-        [Option('t',Description = "List all (or specified) targets and dependency trees, then exit")]
-        bool? listTree,
-        [Option('p',Description = "Run targets in parallel")]
+        [Option('p',Description = "Run tasks in parallel")]
         bool? parallel,
-        [Option('s',Description = "Do not run targets' dependencies")]
-        bool? skipDependencies,
-        [Option('r',Description = "Run a list of targets")]
-        IEnumerable<string>? run
+        [Option('s',Description = "List of dependencies to be skipped")]
+        string[]? skip,
+        [Option('a',Description = "Skips all dependencies")]
+        bool skipAll,
+        [Option('t',Description = "List of tasks to be invoked")]
+        string[]? run,
+        CommandContext ctx
     )
     {
-        var options = new Options
-        {
-            Clear = false,
-            DryRun = dryRun ?? false,
-            Host = Host.Automatic,
-            ListDependencies = listDependencies ?? false,
-            ListInputs = false,
-            ListTargets = listTargets ?? false,
-            ListTree = listTree ?? false,
-            NoColor = false,
-            Parallel = parallel ?? false,
-            SkipDependencies = skipDependencies ?? false,
-            Verbose = false
-        };
+        tasks ??= new[] { "default" };
 
-        try
+        var assemblyName = Assembly.GetEntryAssembly()!.GetName().Name;
+
+        var resolvedTasks = new Dictionary<string,ControllerTask>();
+
+        foreach (var task in tasks)
         {
-            await _bullseyeService.RunAndExitAsync(run ?? targets?? Enumerable.Empty<string>(), options, outputWriter: _console.Out, diagnosticsWriter: _console.Error);
+            var key = task.ToLowerInvariant();
+
+            if (_tasks.TryGetValue(key, out var controllerTask))
+            {
+                resolvedTasks.Add(key,controllerTask);
+                continue;
+            }
+            _console.MarkupLine($"[dim]{assemblyName}:[/] [deepskyblue1]{task}[/]: [red]Not found[/]");
+
+            return 1;
         }
-        catch (InvalidUsageException exception)
+
+        var tasksToSkip = BuildSkippedTasks(tasks, skip, skipAll);
+
+        var dependencyGraph = BuildTaskGraph(tasks, tasksToSkip);
+
+        var resolvedTasksString = string.Join(" ", resolvedTasks.Values.Select(c => c.Name));
+
+        var runStopWatch = new Stopwatch();
+         _console.MarkupLine($"[dim]{assemblyName}:[/] Starting... [deepskyblue1]({resolvedTasksString})[/]");
+
+        runStopWatch.Start();
+
+        var table = new Table();
+
+        table.AddColumn("Task");
+        table.AddColumn("Outcome");
+        table.AddColumn("Duration");
+
+        var failed = false;
+
+
+        foreach (OrderedProcess graphItem in dependencyGraph.CalculateSort())
         {
-            await _console.Error.WriteLineAsync(exception.Message);
+            var task = _tasks[graphItem.Name];
+            var taskStopWatch = new Stopwatch();
+            _console.MarkupLine($"[dim]{assemblyName}:[/] [deepskyblue1]{task.Name}[/]: Starting...");
+            taskStopWatch.Start();
+            try
+            {
+                if (typeof(Task).IsAssignableFrom(task.Action.ReturnType))
+                {
+                    await (Task)task.Action.Invoke(ctx.DependencyResolver!.Resolve(task.ControllerType), null)!;
+                }
+                else
+                {
+                    task.Action.Invoke(ctx.DependencyResolver!.Resolve(task.ControllerType), null);
+                }
+
+                taskStopWatch.Stop();
+                _console.MarkupLine($"[dim]{assemblyName}:[/] [deepskyblue1]{task.Name}[/]: [green]Succeeded[/]: [mediumpurple1]({taskStopWatch.ElapsedMilliseconds} ms)[/]");
+                table.AddRow($"[deepskyblue1]{task.Name}[/]", "[green]Succeeded[/]", $"[mediumpurple1]{taskStopWatch.ElapsedMilliseconds} ms[/]");
+            }
+            catch (Exception e)
+            {
+                taskStopWatch.Stop();
+                var error = Markup.Escape(e.ToString());
+
+                _console.MarkupLine($"[dim]{assemblyName}:[/] [deepskyblue1]{task.Name}[/]: [red]{error}[/]");
+                table.AddRow($"[deepskyblue1]{task.Name}[/]", "[red]FAILED[/]", $"[mediumpurple1]{taskStopWatch.ElapsedMilliseconds} ms[/]");
+
+                failed = true;
+                break;
+            }
         }
+
+        runStopWatch.Stop();
+
+        table.Border(TableBorder.Ascii2);
+   
+        var outerTable = new Table();
+        outerTable.NoBorder();
+        outerTable.ShowHeaders = false;
+        outerTable.AddColumn("assemblyName");
+        outerTable.AddColumn("result");
+        outerTable.AddRow(new Markup($"[dim]{assemblyName}:[/]"), table);
+        _console.Write(outerTable);
+
+        _console.MarkupLine(failed
+            ? $"[dim]{assemblyName}:[/] [red]FAILED![/] [deepskyblue1]({resolvedTasksString}[/] [mediumpurple1]({runStopWatch.ElapsedMilliseconds} ms))[/]"
+            : $"[dim]{assemblyName}:[/] [green]Succeeded[/] [deepskyblue1]({resolvedTasksString}[/] [mediumpurple1]({runStopWatch.ElapsedMilliseconds} ms))[/]");
+
+        return failed ? 1 : 0;
+
+    }
+
+    private string[] BuildSkippedTasks(string[] tasks, string[]? skip, bool skipAll)
+    {
+        var tasksToSkip = Array.Empty<string>();
+
+        if (skip != null)
+        {
+            tasksToSkip = skip.Select(c => c.ToLowerInvariant()).ToArray();
+        }
+
+        if (skipAll)
+        {
+            var dependencies = new HashSet<string>();
+            foreach (var task in tasks.Select(c => c.ToLowerInvariant()))
+            {
+                dependencies.UnionWith(_tasks[task].Dependencies);
+            }
+
+            tasksToSkip = dependencies.Select(c => c.ToLowerInvariant()).ToArray();
+        }
+
+        return tasksToSkip;
     }
 }
+#endif
