@@ -18,7 +18,7 @@ namespace Automatron.AzureDevOps.Sample
         {
         }
 
-        [AutomatronTask(nameof(DefaultJob))]
+        [Task(nameof(DefaultJob))]
         public void DefaultTask()
         {
         }

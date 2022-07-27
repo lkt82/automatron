@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 namespace Automatron.AzureDevOps.Generators.Annotations
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class PulumiTaskAttribute : StepAttribute
+    public class PulumiAttribute : StepAttribute
     {
         public string? Command { get; set; }
 

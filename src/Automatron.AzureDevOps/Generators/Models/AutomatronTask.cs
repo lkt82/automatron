@@ -21,10 +21,18 @@ public sealed class AutomatronTask : Script
         else if (skip is { Length: > 0 })
         {
             arguments.Append(" -s");
-            foreach (var target in skip)
+            for (var index = 0; index < skip.Length; index++)
             {
-                arguments.Append(",");
+                if (index == 0)
+                {
+                    arguments.Append(" ");
+                }
+                var target = skip[index];
                 arguments.Append(target);
+                if (index+1 != skip.Length)
+                {
+                    arguments.Append(",");
+                }
             }
         }
         if (parallel)

@@ -5,15 +5,18 @@ using Microsoft.CodeAnalysis;
 namespace Automatron.AzureDevOps.Generators.Annotations
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class NuGetAuthenticateTaskAttribute : StepAttribute
+    public class CheckoutAttribute : StepAttribute
     {
+        public string Source { get; }
+
+        public CheckoutAttribute(string source)
+        {
+            Source = source;
+        }
+
         public override Step Create(ISymbol symbol, IJob job)
         {
-            return new NuGetAuthenticateTask(job)
-            {
-                Name = Name,
-                DisplayName = DisplayName
-            };
+            return new CheckoutTask(job,Source);
         }
     }
 }

@@ -61,7 +61,9 @@ public class Pipeline
     [Job]
     public void Ci() { }
 
-    [AutomatronTask(nameof(Ci),Emoji = "🔢", SkipAll = true)]
+    [Task(nameof(Ci),
+        Emoji = "🔢"
+    )]
     [DependentFor(nameof(Ci))]
     public async Task Version()
     {
@@ -74,14 +76,19 @@ public class Pipeline
         await _azureDevOpsTasks.UpdateBuildNumberAsync(version);
     }
 
-    [AutomatronTask(nameof(Ci), Emoji = "🧹", SkipAll = true)]
+    [Task(nameof(Ci), 
+        Emoji = "🧹"
+    )]
     public void Clean()
     {
         EnsureDirectory(ArtifactsDir);
         CleanDirectory(ArtifactsDir);
     }
 
-    [AutomatronTask(nameof(Ci), Emoji = "🏗", SkipAll = true)]
+    [Task(nameof(Ci),
+        Emoji = "🏗",
+        DependsOn = new []{ nameof(Version), nameof(Clean) } 
+    )]
     [DependentFor(nameof(Ci))]
     [DependentOn(nameof(Version), nameof(Clean))]
     public async Task Build()
@@ -92,7 +99,10 @@ public class Pipeline
         await RunAsync("dotnet", $"dotnet build -c {Configuration}", workingDirectory: "../Automatron.AzureDevOps.Tests", noEcho: true);
     }
 
-    [AutomatronTask(nameof(Ci), Emoji = "🧪", SkipAll = true)]
+    [Task(nameof(Ci), 
+        Emoji = "🧪",
+        DependsOn = new[] { nameof(Build), nameof(Clean) }
+    )]
     [DependentFor(nameof(Ci))]
     [DependentOn(nameof(Build), nameof(Clean))]
     public async Task Test()
@@ -121,7 +131,10 @@ public class Pipeline
         }
     }
 
-    [AutomatronTask(nameof(Ci), Emoji = "📦", SkipAll = true)]
+    [Task(nameof(Ci),
+        Emoji = "📦",
+        DependsOn = new[] { nameof(Build), nameof(Clean) }
+    )]
     [DependentFor(nameof(Ci))]
     [DependentOn(nameof(Test), nameof(Clean))]
     public async Task Pack()
@@ -130,7 +143,10 @@ public class Pipeline
         await RunAsync("dotnet", $"dotnet pack --no-build -c {Configuration} -o {ArtifactsDir}", workingDirectory: "../Automatron.AzureDevOps", noEcho: true);
     }
 
-    [AutomatronTask(nameof(Ci), Emoji = "🚀", SkipAll = true)]
+    [Task(nameof(Ci), 
+        Emoji = "🚀",
+        DependsOn = new[] { nameof(Pack) }
+    )]
     [DependentFor(nameof(Ci))]
     [DependentOn(nameof(Pack))]
     public async Task Publish()

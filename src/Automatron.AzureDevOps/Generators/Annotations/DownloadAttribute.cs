@@ -5,18 +5,23 @@ using Microsoft.CodeAnalysis;
 namespace Automatron.AzureDevOps.Generators.Annotations
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class CheckoutTaskAttribute : StepAttribute
+    public class DownloadAttribute: StepAttribute
     {
         public string Source { get; }
 
-        public CheckoutTaskAttribute(string source)
+        public DownloadAttribute(string source)
         {
             Source = source;
         }
 
         public override Step Create(ISymbol symbol, IJob job)
         {
-            return new CheckoutTask(job,Source);
+            return new DownloadTask(job,Source)
+            {
+                Name = Name,
+                DisplayName = DisplayName,
+                Source = Source
+            };
         }
     }
 }

@@ -8,13 +8,13 @@ using Microsoft.CodeAnalysis;
 namespace Automatron.AzureDevOps.Generators.Annotations
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class AutomatronTaskAttribute : StepAttribute
+    public class TaskAttribute : StepAttribute
     {
-        public AutomatronTaskAttribute()
+        public TaskAttribute()
         {
         }
 
-        public AutomatronTaskAttribute(string job)
+        public TaskAttribute(string job)
         {
             Job = job;
         }
@@ -29,13 +29,15 @@ namespace Automatron.AzureDevOps.Generators.Annotations
 
         public string? Emoji { get; set; }
 
+        public string[]? DependsOn { get; set; }
+
         public override Step Create(ISymbol symbol, IJob job)
         {
             var target = string.Concat(job.TemplateName,symbol.Name);
 
             var name = string.IsNullOrEmpty(Name) ? symbol.Name : Name;
 
-            return new AutomatronTask(job,new[]{ target }, Skip, SkipAll, Parallel, job.Stage.Pipeline.Parameters.Select(c => c.Name).ToArray()) { 
+            return new AutomatronTask(job,new[]{ target }, Skip ?? DependsOn, SkipAll, Parallel, job.Stage.Pipeline.Parameters.Select(c => c.Name).ToArray()) { 
                 Name = name, 
                 DisplayName = string.IsNullOrEmpty(Emoji) ? DisplayName: $"{Emoji} {name}",
                 Condition = Condition,

@@ -23,14 +23,14 @@ public interface IContinuousDeployment
             Environment = environment;
         }
 
-        [AutomatronTask]
+        [Task]
         public async Task Build()
         {
             await _azureDevOpsTasks.UpdateBuildNumberAsync("1");
         }
 
 
-        [AutomatronTask(Skip = new string[0])]
+        [Task(Skip = new string[0])]
         [DependentOn(nameof(Build))]
         public void Deploy()
         {

@@ -10,6 +10,7 @@ using Automatron.Annotations;
 using CommandDotNet;
 using CommandDotNet.Builders;
 using CommandDotNet.Execution;
+using CommandDotNet.Extensions;
 using CommandDotNet.IoC.MicrosoftDependencyInjection;
 using CommandDotNet.Spectre;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,29 +21,19 @@ namespace Automatron;
 
 public sealed class TaskRunner<TController> where TController : class
 {
-    internal class TaskAttributeProvider : ICustomAttributeProvider
+    public TaskRunner()
     {
-        private readonly PropertyInfo _propertyInfo;
+        Services.AddSingleton(_tasks);
+        Services.AddSingleton(typeof(TaskCommand));
 
-        public TaskAttributeProvider(PropertyInfo propertyInfo)
+        foreach (var type in _controllerTypes)
         {
-            _propertyInfo = propertyInfo;
+            Services.AddSingleton(type);
         }
 
-        public object[] GetCustomAttributes(bool inherit)
-        {
-            return _propertyInfo.GetCustomAttributes(inherit);
-        }
-
-        public object[] GetCustomAttributes(Type attributeType, bool inherit)
-        {
-            return _propertyInfo.GetCustomAttributes(attributeType,inherit);
-        }
-
-        public bool IsDefined(Type attributeType, bool inherit)
-        {
-            return _propertyInfo.IsDefined(attributeType, inherit);
-        }
+        Services.AddSingleton(_ => AnsiConsole.Console);
+        Services.AddSingleton<IConsole, AnsiConsoleForwardingConsole>();
+        Services.AddSingleton<IEnvironment>(_ => new SystemEnvironment());
     }
 
     private readonly Dictionary<string, ControllerTask> _tasks = new();
@@ -254,15 +245,15 @@ public sealed class TaskRunner<TController> where TController : class
                 {
                     if (dependentOnAttribute.Controller is { IsClass: true })
                     {
-                        dependentOn = dependentOnAttribute.Targets.Select(t => dependentOnAttribute.Controller.Name + t);
+                        dependentOn = dependentOnAttribute.Tasks.Select(t => dependentOnAttribute.Controller.Name + t);
                     }
                     else if (method.ReflectedType == ControllerType)
                     {
-                        dependentOn = dependentOnAttribute.Targets;
+                        dependentOn = dependentOnAttribute.Tasks;
                     }
                     else
                     {
-                        dependentOn = dependentOnAttribute.Targets.Select(t => controllerType.Name + t);
+                        dependentOn = dependentOnAttribute.Tasks.Select(t => controllerType.Name + t);
                     }
                 }
 
@@ -270,15 +261,15 @@ public sealed class TaskRunner<TController> where TController : class
                 {
                     if (dependentForAttribute.Controller is { IsClass: true })
                     {
-                        dependentFor = dependentForAttribute.Targets.Select(t => dependentForAttribute.Controller.Name + t);
+                        dependentFor = dependentForAttribute.Tasks.Select(t => dependentForAttribute.Controller.Name + t);
                     }
                     else if (method.ReflectedType == ControllerType)
                     {
-                        dependentFor = dependentForAttribute.Targets;
+                        dependentFor = dependentForAttribute.Tasks;
                     }
                     else
                     {
-                        dependentFor = dependentForAttribute.Targets.Select(t => controllerType.Name + t);
+                        dependentFor = dependentForAttribute.Tasks.Select(t => controllerType.Name + t);
                     }
                 }
 
@@ -289,7 +280,7 @@ public sealed class TaskRunner<TController> where TController : class
                         : method.Name,
                     DependentOn = dependentOn,
                     DependentFor = dependentFor,
-                    Method = method,
+                    Action = method,
                     ControllerType = controllerType
                 };
             });
@@ -304,7 +295,8 @@ public sealed class TaskRunner<TController> where TController : class
             var dependentFor = tasks.Where(c => c.Name != task.Name && c.DependentFor.Contains(task.Name)).Select(c => c.Name);
 
             dependencies.UnionWith(dependentFor);
-            _tasks.Add(task.Name.ToLowerInvariant(),new ControllerTask(task.Name,task.ControllerType, task.Method, dependencies));
+
+            _tasks.Add(task.Name.ToLowerInvariant(),new ControllerTask(task.Name,task.ControllerType, task.Action, dependencies));
 
         }
 
@@ -321,56 +313,25 @@ public sealed class TaskRunner<TController> where TController : class
 
     private AppRunner Build()
     {
-        var appRunner = new AppRunner<TaskCommand>();
-
-        Services.AddSingleton(_tasks);
-        Services.AddSingleton(typeof(TaskCommand));
-
-        foreach (var type in _controllerTypes)
-        {
-            Services.AddSingleton(type);
-        }
-
-        return appRunner
+        return new AppRunner<TaskCommand>()
             .Configure(c =>
             {
-               
                 c.UseMiddleware(BuildTasks, MiddlewareStages.PostTokenizePreParseInput);
                 c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
                 c.BuildEvents.OnCommandCreated += AddControllerParameters;
             })
             .UseCancellationHandlers()
+            .Configure(b => b.CustomHelpProvider = new TaskHelpTextProvider(b.AppSettings, _tasks))
+            .UseMicrosoftDependencyInjection(Services.BuildServiceProvider())
             .Configure(c =>
             {
-                IAnsiConsole? ansiConsole = null;
-
-                if (c.Environment.GetEnvironmentVariable("TF_BUILD") == "True")
-                {
-
-                    ansiConsole = AnsiConsole.Create(new AnsiConsoleSettings
-                    {
-                        Ansi = AnsiSupport.Yes,
-                        ColorSystem = ColorSystemSupport.Standard,
-                        Interactive = InteractionSupport.No,
-
-                        Out = new AnsiConsoleOutput(Console.Out)
-                    });
-                    ansiConsole.Profile.Width = 1000;
-                }
-
-                ansiConsole ??= AnsiConsole.Console;
-
-                c.Console = new AnsiConsoleForwardingConsole(ansiConsole);
+                var ansiConsole = c.DependencyResolver!.Resolve<IAnsiConsole>()!;
+                c.Environment = c.DependencyResolver!.Resolve<IEnvironment>()!;
+                c.Console = c.DependencyResolver!.Resolve<IConsole>()!;
 
                 c.UseParameterResolver(_ => ansiConsole);
                 c.Services.Add(ansiConsole);
-
-                Services.AddSingleton(c.Console);
-                Services.AddSingleton(c.Environment);
-                Services.AddSingleton(ansiConsole);
-            })
-            .Configure(b => b.CustomHelpProvider = new TaskHelpTextProvider(b.AppSettings, _tasks))
-            .UseMicrosoftDependencyInjection(Services.BuildServiceProvider());
+            });
     }
 
     public async Task<int> RunAsync(params string[] args)

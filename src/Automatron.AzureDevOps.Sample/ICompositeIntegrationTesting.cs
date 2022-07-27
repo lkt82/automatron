@@ -16,20 +16,20 @@ namespace Automatron.AzureDevOps.Sample
         public const string Environment = "InfrastructureIntegration";
 
         [DeploymentJob(nameof(Integration), Environment, TimeoutInMinutes = 180)]
-        [DownloadTask(DownloadSource.None)]
-        [CheckoutTask(CheckoutSource.Self)]
-        [NuGetAuthenticateTask]
-        [AutomatronTask]
+        [Download(DownloadSource.None)]
+        [Checkout(CheckoutSource.Self)]
+        [NuGetAuthenticate]
+        [Task]
         public void SetupIntegration()
         {
         }
 
 
         [DeploymentJob(nameof(Integration), Environment, TimeoutInMinutes = 180,DependsOn = new []{nameof(SetupIntegration)})]
-        [DownloadTask(DownloadSource.None)]
-        [CheckoutTask(CheckoutSource.Self)]
-        [NuGetAuthenticateTask]
-        [AutomatronTask]
+        [Download(DownloadSource.None)]
+        [Checkout(CheckoutSource.Self)]
+        [NuGetAuthenticate]
+        [Task]
         public void TeardownIntegration()
         {
         }

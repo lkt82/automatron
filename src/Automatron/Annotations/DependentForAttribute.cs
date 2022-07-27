@@ -7,17 +7,17 @@ namespace Automatron.Annotations
     {
         public Type? Controller { get; }
 
-        public string[] Targets { get; }
+        public string[] Tasks { get; }
 
-        public DependentForAttribute(params string[] targets)
+        public DependentForAttribute(params string[] tasks)
         {
-            Targets = targets;
+            Tasks = tasks;
         }
 
-        public DependentForAttribute(Type controller, params string[] targets)
+        public DependentForAttribute(Type controller, params string[] tasks)
         {
             Controller = controller;
-            Targets = targets;
+            Tasks = tasks;
         }
     }
 }

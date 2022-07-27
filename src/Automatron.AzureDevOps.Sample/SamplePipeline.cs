@@ -36,57 +36,47 @@ namespace Automatron.AzureDevOps.Sample
 
         [Stage(Pr)]
 
-        public void PrStage()
-        {
-        }
+        public void PrStage() { }
 
         [Job(nameof(PrStage))]
-        public void PrJob()
-        {
-        }
+        public void PrJob() { }
 
-        [AutomatronTask(nameof(PrJob))]
+        [Task(nameof(PrJob))]
         public void PrTask()
         {
         }
 
         [Stage(Cd)]
-        public void CiStage()
-        {
-        }
+        public void CiStage() { }
 
         [DeploymentJob(nameof(CiStage), "test")]
-        [DownloadTask(DownloadSource.None)]
-        [CheckoutTask(CheckoutSource.Self)]
-        [NuGetAuthenticateTask]
-        [PulumiTask(DisplayName = "Install Pulumi")]
+        [Download(DownloadSource.None)]
+        [Checkout(CheckoutSource.Self)]
+        [NuGetAuthenticate]
+        [Pulumi(DisplayName = "Install Pulumi")]
         [DependentFor(nameof(CiStage))]
-        public void CiJob1()
-        {
-        }
+        public void CiJob1() { }
 
         [Job(nameof(CiStage))]
         [DependentOn(nameof(RunStep2))]
         [DependentFor(nameof(CiStage))]
-        public void CiJob2()
-        {
-        }
+        public void CiJob2() { }
 
-        [AutomatronTask(nameof(CiJob1))]
+        [Task(nameof(CiJob1))]
         [DependentOn(nameof(Clean))]
         [DependentFor(nameof(CiJob1))]
         public void RunStep1()
         {
         }
 
-        [AutomatronTask(nameof(CiJob1), DisplayName = "Step 3")]
+        [Task(nameof(CiJob1), DisplayName = "Step 3")]
         [DependentOn(nameof(RunStep1), nameof(Build))]
         [DependentFor(nameof(CiJob1))]
         public void RunStep3()
         {
         }
 
-        [AutomatronTask(nameof(CiJob2))]
+        [Task(nameof(CiJob2))]
         public void RunStep2()
         {
         }
