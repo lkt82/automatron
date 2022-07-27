@@ -55,8 +55,6 @@ internal class JobVisitor : SymbolVisitor, IComparer<IJob>
         {
             var stepVisitor = new StepVisitor(job);
             symbol.Accept(stepVisitor);
-
-            job.Steps.AddRange(stepVisitor.Steps);
         }
 
         Stage.Jobs.AddRange(Jobs);

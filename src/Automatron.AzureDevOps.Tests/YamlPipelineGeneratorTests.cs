@@ -33,7 +33,7 @@ public class Pipeline
 
     [Stage]
     [Job]
-    [AutomatronTask(Parameters = new[] { nameof(RunPerfTests) })]
+    [Task(Parameters = new[] { nameof(RunPerfTests) })]
     public void Default()
     {
     }
@@ -55,7 +55,7 @@ public class Pipeline
             // Assert
             generator.Pipelines!.First().Stages.First().Jobs.First().Steps.First().As<AutomatronTask>().Content
                 .Should()
-                .Be("dotnet run -- -r Default --runperftests \"${{ parameters.RunPerfTests }}\"");
+                .Be("dotnet run -- --runperftests \"${{ parameters.RunPerfTests }}\" -t Default");
         }
 
         [Fact]
@@ -75,7 +75,7 @@ public class Pipeline
 
     [Stage]
     [Job]
-    [AutomatronTask(Parameters = new[] { nameof(RunPerfTests) })]
+    [Task(Parameters = new[] { nameof(RunPerfTests) })]
     public void Default()
     {
     }
@@ -125,7 +125,7 @@ public class Pipeline
 
     [Stage]
     [Job]
-    [AutomatronTask]
+    [Task]
     public void Default()
     {
     }

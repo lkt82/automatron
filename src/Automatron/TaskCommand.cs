@@ -124,7 +124,7 @@ internal sealed class TaskCommand
 
         var tasksToSkip = BuildSkippedTasks(taskArray, skip, skipAll);
 
-        var dependencyGraph = BuildTaskGraph(taskArray, tasksToSkip);
+        var taskGraph = BuildTaskGraph(taskArray, tasksToSkip);
 
         var resolvedTasksString = string.Join(" ", resolvedTasks.Values.Select(c => c.Name));
 
@@ -142,7 +142,7 @@ internal sealed class TaskCommand
         var failed = false;
 
 
-        foreach (OrderedProcess graphItem in dependencyGraph.CalculateSort())
+        foreach (OrderedProcess graphItem in taskGraph.CalculateSort())
         {
             var task = _tasks[graphItem.Name];
             var taskStopWatch = new Stopwatch();

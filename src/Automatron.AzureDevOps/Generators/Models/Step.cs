@@ -16,5 +16,8 @@ public abstract class Step
 
     public string? DisplayName { get; set; }
 
+    [YamlIgnore]
+    public string[]? DependsOn { get; set; }
+
     public string? Condition { get; set; }
 }

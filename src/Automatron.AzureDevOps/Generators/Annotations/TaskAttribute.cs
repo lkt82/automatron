@@ -41,6 +41,7 @@ namespace Automatron.AzureDevOps.Generators.Annotations
                 Name = name, 
                 DisplayName = string.IsNullOrEmpty(Emoji) ? DisplayName: $"{Emoji} {name}",
                 Condition = Condition,
+                DependsOn = DependsOn,
                 WorkingDirectory = WorkingDirectory?? GetWorkingDirectory(job),
                 Env = job.Stage.Pipeline.Secrets.ToDictionary(GetEnvVarName, c => (object)$"$({c})")
             };
