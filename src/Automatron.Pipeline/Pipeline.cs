@@ -1,16 +1,17 @@
-﻿using System.ComponentModel;
-using System.Reflection;
-using Automatron.Annotations;
+﻿using System.Reflection;
+using Automatron;
 using Automatron.AzureDevOps;
 using Automatron.AzureDevOps.Generators.Annotations;
 using static SimpleExec.Command;
 
-namespace Automatron.Pipeline;
+await new TaskRunner().UseAzureDevOps().RunAsync(args);
 
-[Pipeline(YmlPath = RootPath)]
+[Pipeline(YmlPath = RootPath,YmlName = "azure-pipelines")]
 [CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
 [Pool(VmImage = "ubuntu-latest")]
 [VariableGroup("nuget")]
+[Stage]
+[Job]
 public class Pipeline
 {
     private readonly AzureDevOpsTasks _azureDevOpsTasks;
@@ -24,17 +25,12 @@ public class Pipeline
     private static string ArtifactsDir => $"{RootDir}.artifacts";
 
     [SecretVariable]
-    [Description("The nuget api key")]
+    [Automatron.Annotations.Parameter(Description = "The nuget api key")]
     public Secret? NugetApiKey { get; set; }
 
     public Pipeline(AzureDevOpsTasks azureDevOpsTasks)
     {
         _azureDevOpsTasks = azureDevOpsTasks;
-    }
-
-    private static async Task<int> Main(string[] args)
-    {
-        return await new TaskRunner<Pipeline>().UseAzureDevOps().RunAsync(args);
     }
 
     private static void CleanDirectory(string dir)
@@ -57,14 +53,7 @@ public class Pipeline
         }
     }
 
-    [Stage]
-    [Job]
-    public void Ci() { }
-
-    [Task(nameof(Ci),
-        Emoji = "🔢"
-    )]
-    [DependentFor(nameof(Ci))]
+    [Step(Emoji = "🔢")]
     public async Task Version()
     {
         var version = Assembly.GetEntryAssembly()!.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
@@ -76,21 +65,14 @@ public class Pipeline
         await _azureDevOpsTasks.UpdateBuildNumberAsync(version);
     }
 
-    [Task(nameof(Ci), 
-        Emoji = "🧹"
-    )]
+    [Step(Emoji = "🧹")]
     public void Clean()
     {
         EnsureDirectory(ArtifactsDir);
         CleanDirectory(ArtifactsDir);
     }
 
-    [Task(nameof(Ci),
-        Emoji = "🏗",
-        DependsOn = new []{ nameof(Version), nameof(Clean) } 
-    )]
-    [DependentFor(nameof(Ci))]
-    [DependentOn(nameof(Version), nameof(Clean))]
+    [Step(Emoji = "🏗", DependsOn = new []{ nameof(Version), nameof(Clean) })]
     public async Task Build()
     {
         await RunAsync("dotnet", $"dotnet build -c {Configuration}", workingDirectory: "../Automatron",noEcho:true);
@@ -99,12 +81,7 @@ public class Pipeline
         await RunAsync("dotnet", $"dotnet build -c {Configuration}", workingDirectory: "../Automatron.AzureDevOps.Tests", noEcho: true);
     }
 
-    [Task(nameof(Ci), 
-        Emoji = "🧪",
-        DependsOn = new[] { nameof(Build), nameof(Clean) }
-    )]
-    [DependentFor(nameof(Ci))]
-    [DependentOn(nameof(Build), nameof(Clean))]
+    [Step(Emoji = "🧪", DependsOn = new[] { nameof(Build), nameof(Clean) })]
     public async Task Test()
     {
         var failedTests = false;
@@ -131,24 +108,14 @@ public class Pipeline
         }
     }
 
-    [Task(nameof(Ci),
-        Emoji = "📦",
-        DependsOn = new[] { nameof(Build), nameof(Clean) }
-    )]
-    [DependentFor(nameof(Ci))]
-    [DependentOn(nameof(Test), nameof(Clean))]
+    [Step(Emoji = "📦", DependsOn = new[] { nameof(Build), nameof(Clean) })]
     public async Task Pack()
     {
         await RunAsync("dotnet", $"dotnet pack --no-build -c {Configuration} -o {ArtifactsDir}", workingDirectory: "../Automatron", noEcho: true);
         await RunAsync("dotnet", $"dotnet pack --no-build -c {Configuration} -o {ArtifactsDir}", workingDirectory: "../Automatron.AzureDevOps", noEcho: true);
     }
 
-    [Task(nameof(Ci), 
-        Emoji = "🚀",
-        DependsOn = new[] { nameof(Pack) }
-    )]
-    [DependentFor(nameof(Ci))]
-    [DependentOn(nameof(Pack))]
+    [Step(Emoji = "🚀", DependsOn = new[] { nameof(Pack) })]
     public async Task Publish()
     {
         //foreach (var nuget in Directory.EnumerateFiles(ArtifactsDir, "*.nupkg"))

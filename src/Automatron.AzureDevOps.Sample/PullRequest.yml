@@ -1,9 +1,0 @@
-trigger: none
-stages:
-- stage: PrStage
-  jobs:
-  - job: PrJob
-    steps:
-    - script: dotnet run -- -t PrTask
-      workingDirectory: src/Automatron.AzureDevOps.Sample
-      name: PrTask

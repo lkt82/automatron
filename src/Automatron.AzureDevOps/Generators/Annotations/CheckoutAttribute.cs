@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 namespace Automatron.AzureDevOps.Generators.Annotations
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class CheckoutAttribute : StepAttribute
+    public class CheckoutAttribute : NodeAttribute
     {
         public string Source { get; }
 
@@ -14,9 +14,9 @@ namespace Automatron.AzureDevOps.Generators.Annotations
             Source = source;
         }
 
-        public override Step Create(ISymbol symbol, IJob job)
-        {
-            return new CheckoutTask(job,Source);
-        }
+        //public override Step Create(ISymbol symbol, IJob job)
+        //{
+        //    return new CheckoutTask(job,Source);
+        //}
     }
 }

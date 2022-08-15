@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 namespace Automatron.AzureDevOps.Generators.Annotations
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class DownloadAttribute: StepAttribute
+    public class DownloadAttribute: NodeAttribute
     {
         public string Source { get; }
 
@@ -14,14 +14,14 @@ namespace Automatron.AzureDevOps.Generators.Annotations
             Source = source;
         }
 
-        public override Step Create(ISymbol symbol, IJob job)
-        {
-            return new DownloadTask(job,Source)
-            {
-                Name = Name,
-                DisplayName = DisplayName,
-                Source = Source
-            };
-        }
+        //public override Step Create(ISymbol symbol, IJob job)
+        //{
+        //    return new DownloadTask(job,Source)
+        //    {
+        //        Name = Name,
+        //        DisplayName = DisplayName,
+        //        Source = Source
+        //    };
+        //}
     }
 }

@@ -1,14 +1,35 @@
 ﻿using System.Text;
+using YamlDotNet.Serialization;
 
 namespace Automatron.AzureDevOps.Generators.Models;
 
 public sealed class AutomatronTask : Script
 {
-    public AutomatronTask(IJob job, string[] targets, string[]? skip, bool skipAll = false, bool parallel = false, string[]? parameters = null) : base(job, BuildCommand(targets, skip, skipAll, parallel, parameters))
+    [YamlIgnore]
+    public string[] Tasks { get; }
+
+    [YamlIgnore]
+    public string[]? Skip { get; }
+
+    [YamlIgnore]
+    public bool SkipAll { get; }
+
+    [YamlIgnore]
+    public bool Parallel { get; }
+
+    [YamlIgnore]
+    public string[]? Parameters { get; }
+
+    public AutomatronTask(IJob job, string[] tasks, string[]? skip, bool skipAll = false, bool parallel = false, string[]? parameters = null) : base(job, BuildCommand(tasks, skip, skipAll, parallel, parameters))
     {
+        Tasks = tasks;
+        Skip = skip;
+        SkipAll = skipAll;
+        Parallel = parallel;
+        Parameters = parameters;
     }
 
-    private static string BuildCommand(string[] targets, string[]? skip, bool skipAll, bool parallel, string[]? parameters = null)
+    private static string BuildCommand(string[] tasks, string[]? skip, bool skipAll, bool parallel, string[]? parameters = null)
     {
         var arguments = new StringBuilder();
 
@@ -60,7 +81,7 @@ public sealed class AutomatronTask : Script
         }
 
         arguments.Append(" -t ");
-        arguments.Append(string.Join(",", targets));
+        arguments.Append(string.Join(",", tasks));
 
         return arguments.ToString();
     }

@@ -5,22 +5,20 @@ namespace Automatron.AzureDevOps.Generators.Annotations
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface,AllowMultiple = true)]
     public class PipelineAttribute : Attribute
     {
-        public string Name { get; }
+        public string? Name { get; }
 
-        public string YmlName { get; set; }
+        public string? YmlName { get; set; }
 
-        public string YmlPath { get; set; }
+        public string YmlPath { get; set; } = "./";
 
         public string? RootPath { get; set; }
 
         public PipelineAttribute(string name)
         {
             Name = name;
-            YmlName = name + ".yml";
-            YmlPath = "./";
         }
 
-        public PipelineAttribute() : this("azure-pipelines")
+        public PipelineAttribute()
         {
         }
     }

@@ -12,21 +12,21 @@ internal class TemplateJobVisitor : JobVisitor
 
     public override void VisitMethod(IMethodSymbol symbol)
     {
-        foreach (var attribute in symbol.GetCustomAbstractAttributes<JobAttribute>())
-        {
-            if (!string.IsNullOrEmpty(attribute.Stage))
-            {
-                continue;
-            }
+        //foreach (var attribute in symbol.GetCustomAbstractAttributes<JobAttribute>())
+        //{
+        //    if (!string.IsNullOrEmpty(attribute.Stage))
+        //    {
+        //        continue;
+        //    }
 
-            if (attribute is DeploymentJobAttribute deploymentJobAttribute)
-            {
-                CreateDeploymentJob(deploymentJobAttribute, symbol);
-            }
-            else
-            {
-                CreateJob(attribute, symbol);
-            }
-        }
+        //    if (attribute is DeploymentJobAttribute deploymentJobAttribute)
+        //    {
+        //        CreateDeploymentJob(deploymentJobAttribute, symbol);
+        //    }
+        //    else
+        //    {
+        //        CreateJob(attribute, symbol);
+        //    }
+        //}
     }
 }

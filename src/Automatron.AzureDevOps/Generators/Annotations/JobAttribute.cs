@@ -2,26 +2,18 @@
 
 namespace Automatron.AzureDevOps.Generators.Annotations
 {
-    [AttributeUsage(AttributeTargets.Method)]
-    public class JobAttribute: Attribute
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
+    public class JobAttribute : Attribute
     {
-        public string? Stage { get; }
-
         public string? Name { get; set; }
 
         public string? DisplayName { get; set; }
 
-        public string[]? DependsOn { get; set; }
-
         public string? Condition { get; set; }
 
-        public JobAttribute()
-        {
-        }
+        public string? Emoji { get; set; }
 
-        public JobAttribute(string stage)
-        {
-            Stage = stage;
-        }
+        public Type[]? DependsOn { get; set; }
     }
+
 }

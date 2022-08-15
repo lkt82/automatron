@@ -10,13 +10,6 @@ namespace Automatron.AzureDevOps.Generators.Annotations
             Cron = cron;
         }
 
-        public ScheduledTriggerAttribute(string pipeline, string cron) :this(cron)
-        {
-            Pipeline = pipeline;
-        }
-
-        public string? Pipeline { get; }
-
         public string Cron { get; }
             
         public string? DisplayName { get; set; }

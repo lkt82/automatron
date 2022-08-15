@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 namespace Automatron.AzureDevOps.Generators.Annotations
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class PulumiAttribute : StepAttribute
+    public class PulumiAttribute : NodeAttribute
     {
         public string? Command { get; set; }
 
@@ -15,30 +15,30 @@ namespace Automatron.AzureDevOps.Generators.Annotations
 
         public string? Args { get; set; }
 
-        public override Step Create(ISymbol symbol, IJob job)
-        {
-            if (Command != null || Stack != null || Cwd != null || Args != null)
-            {
-                return new PulumiTask(job,new PulumiTask.PulumiTaskInputs
-                {
-                    Command = Command,
-                    Stack = Stack,
-                    Cwd = Cwd,
-                    Args = Args
-                })
-                {
-                    Name = Name,
-                    DisplayName = DisplayName,
-                    Condition = Condition
-                };
-            }
+        //public override Step Create(ISymbol symbol, IJob job)
+        //{
+        //    if (Command != null || Stack != null || Cwd != null || Args != null)
+        //    {
+        //        return new PulumiTask(job,new PulumiTask.PulumiTaskInputs
+        //        {
+        //            Command = Command,
+        //            Stack = Stack,
+        //            Cwd = Cwd,
+        //            Args = Args
+        //        })
+        //        {
+        //            Name = Name,
+        //            DisplayName = DisplayName,
+        //            Condition = Condition
+        //        };
+        //    }
 
-            return new PulumiTask(job)
-            {
-                Name = Name,
-                DisplayName = DisplayName,
-                Condition = Condition
-            };
-        }
+        //    return new PulumiTask(job)
+        //    {
+        //        Name = Name,
+        //        DisplayName = DisplayName,
+        //        Condition = Condition
+        //    };
+        //}
     }
 }

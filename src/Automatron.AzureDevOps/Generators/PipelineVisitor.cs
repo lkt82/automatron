@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
 
-internal class PipelineVisitor : SymbolVisitor
+internal class PipelineVisitor : Microsoft.CodeAnalysis.SymbolVisitor
 {
     private class ConcreteClassCollector : SymbolVisitor
     {
@@ -128,12 +128,12 @@ internal class PipelineVisitor : SymbolVisitor
 
     private static void CreateCiTrigger(AttributeData[] attributes, Pipeline pipeline)
     {
-        var ciTriggerAttribute = attributes.GetCustomAttributes<CiTriggerAttribute>().FirstOrDefault(c => c.Pipeline == pipeline.Name || c.Pipeline == null);
+        //var ciTriggerAttribute = attributes.GetCustomAttributes<CiTriggerAttribute>().FirstOrDefault(c => c.Pipeline == pipeline.Name || c.Pipeline == null);
 
-        if (ciTriggerAttribute != null)
-        {
-            CreateCiTrigger(pipeline, ciTriggerAttribute);
-        }
+        //if (ciTriggerAttribute != null)
+        //{
+        //    CreateCiTrigger(pipeline, ciTriggerAttribute);
+        //}
     }
 
     private static void CreateCiTrigger(Pipeline pipeline, CiTriggerAttribute ciTriggerAttribute)
@@ -171,30 +171,30 @@ internal class PipelineVisitor : SymbolVisitor
 
     private static void CreateVariables(AttributeData[] attributes, Pipeline pipeline)
     {
-        var variableGroupAttributes = attributes.GetCustomAttributes<VariableGroupAttribute>();
-        var variableAttributes = attributes.GetCustomAttributes<VariableAttribute>();
+        //var variableGroupAttributes = attributes.GetCustomAttributes<VariableGroupAttribute>();
+        //var variableAttributes = attributes.GetCustomAttributes<VariableAttribute>();
 
-        foreach (var variableGroupAttribute in variableGroupAttributes.Where(c =>
-                     c.Pipeline == pipeline.Name || c.Pipeline == null))
-        {
-            pipeline.Variables.Add(new VariableGroup(variableGroupAttribute.Name));
-        }
+        //foreach (var variableGroupAttribute in variableGroupAttributes.Where(c =>
+        //             c.Pipeline == pipeline.Name || c.Pipeline == null))
+        //{
+        //    pipeline.Variables.Add(new VariableGroup(variableGroupAttribute.Name));
+        //}
 
-        foreach (var variableAttribute in variableAttributes.Where(c =>
-                     c.Pipeline == pipeline.Name || c.Pipeline == null))
-        {
-            pipeline.Variables.Add(new Variable(variableAttribute.Name, variableAttribute.Value));
-        }
+        //foreach (var variableAttribute in variableAttributes.Where(c =>
+        //             c.Pipeline == pipeline.Name || c.Pipeline == null))
+        //{
+        //    pipeline.Variables.Add(new Variable(variableAttribute.Name, variableAttribute.Value));
+        //}
     }
 
     private static void CreateScheduledTriggers(AttributeData[] attributes, Pipeline pipeline)
     {
-        var scheduledTriggerAttributes = attributes.GetCustomAttributes<ScheduledTriggerAttribute>().Where(c => c.Pipeline == pipeline.Name || c.Pipeline == null);
+        //var scheduledTriggerAttributes = attributes.GetCustomAttributes<ScheduledTriggerAttribute>().Where(c => c.Pipeline == pipeline.Name || c.Pipeline == null);
 
-        foreach (var scheduledTriggerAttribute in scheduledTriggerAttributes)
-        {
-            CreateScheduledTrigger(pipeline, scheduledTriggerAttribute);
-        }
+        //foreach (var scheduledTriggerAttribute in scheduledTriggerAttributes)
+        //{
+        //    CreateScheduledTrigger(pipeline, scheduledTriggerAttribute);
+        //}
     }
 
     private static void CreateScheduledTrigger(Pipeline pipeline, ScheduledTriggerAttribute scheduledTriggerAttribute)
@@ -218,11 +218,11 @@ internal class PipelineVisitor : SymbolVisitor
 
     private static void CreatePool(AttributeData[] attributes, Pipeline pipeline)
     {
-        var poolAttribute = attributes.GetCustomAttributes<PoolAttribute>().FirstOrDefault(c => c.Target == pipeline.Name || c.Target == null);
+        //var poolAttribute = attributes.GetCustomAttributes<PoolAttribute>().FirstOrDefault(c => c.Target == pipeline.Name || c.Target == null);
 
-        if (poolAttribute != null)
-        {
-            pipeline.Pool = new Pool(poolAttribute.Name, poolAttribute.VmImage);
-        }
+        //if (poolAttribute != null)
+        //{
+        //    pipeline.Pool = new Pool(poolAttribute.Name, poolAttribute.VmImage);
+        //}
     }
 }

@@ -10,10 +10,14 @@ public static class AzureDevOpsTaskRunnerExtensions
 {
     public static IServiceCollection AddAzureDevOps(this IServiceCollection services)
     {
-        return services.AddSingleton<AzureDevOpsTasks>();
+        return services.AddSingleton<AzureDevOpsTasks>().AddSingleton<ITaskModelFactory>(c=> new AzureDevOpsTaskModelFactoryDecorator(
+            c.GetRequiredService<TaskModelFactory>(),
+            c.GetRequiredService<IServiceProvider>(),
+            c.GetRequiredService<ITypeProvider>()
+            ));
     }
 
-    public static TaskRunner<TController> UseAzureDevOps<TController>(this TaskRunner<TController> taskRunner) where TController : class
+    public static TaskRunner UseAzureDevOps(this TaskRunner taskRunner)
     {
         return taskRunner.ConfigureServices(c =>
         {

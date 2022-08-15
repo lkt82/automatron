@@ -12,13 +12,6 @@ namespace Automatron.AzureDevOps.Generators.Annotations
 
         }
 
-        public CiTriggerAttribute(string pipeline)
-        {
-            Pipeline = pipeline;
-        }
-
-        public string? Pipeline { get;}
-
         public bool Batch { get; set; }
 
         public bool Disabled { get; set; }

@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
 
-internal class StepVisitor : SymbolVisitor, IComparer<Step>
+internal class StepVisitor : Microsoft.CodeAnalysis.SymbolVisitor, IComparer<Step>
 {
     private readonly IJob _job;
     public List<Step> Steps { get; } = new();
@@ -31,27 +31,27 @@ internal class StepVisitor : SymbolVisitor, IComparer<Step>
 
     public override void VisitMethod(IMethodSymbol symbol)
     {
-        foreach (var attribute in symbol.GetCustomAbstractAttributes<StepAttribute>())
-        {
-            var jobName = !string.IsNullOrEmpty(attribute.Job) ? attribute.Job! : symbol.Name;
+        //foreach (var attribute in symbol.GetCustomAbstractAttributes<NodeAttribute>())
+        //{
+        //    var jobName = !string.IsNullOrEmpty(attribute.Job) ? attribute.Job! : symbol.Name;
 
-            if (jobName != _job.Name && string.IsNullOrEmpty(_job.TemplateName))
-            {
-                continue;
-            }
+        //    if (jobName != _job.Name && string.IsNullOrEmpty(_job.TemplateName))
+        //    {
+        //        continue;
+        //    }
 
-            var step = CreateStep(attribute, symbol);
+        //    var step = CreateStep(attribute, symbol);
 
-            Steps.Add(step);
-        }
+        //    Steps.Add(step);
+        //}
     }
 
-    private Step CreateStep(StepAttribute stepAttribute, ISymbol member)
-    {
-        var step = stepAttribute.Create(member, _job);
+    //private Step CreateStep(NodeAttribute stepAttribute, ISymbol member)
+    //{
+    //    var step = stepAttribute.Create(member, _job);
 
-        return step;
-    }
+    //    return step;
+    //}
 
     public int Compare(Step? x, Step? y)
     {

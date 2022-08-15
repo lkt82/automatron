@@ -77,7 +77,7 @@ internal class YamlPipelineGenerator : ISourceGenerator
 
         foreach (var pipeline in pipelineVisitor.Pipelines)
         {
-            SavePipeline(pipeline);
+            //SavePipeline(pipeline);
         }
 
         Pipelines = pipelineVisitor.Pipelines;

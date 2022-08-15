@@ -2,21 +2,20 @@
 
 namespace Automatron.AzureDevOps.Generators.Annotations
 {
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public class DeploymentJobAttribute : JobAttribute
     {
-        public string Environment { get; }
+        public string? Environment { get; set; }
 
-        public int TimeoutInMinutes { get; set; }
+        public string? Timeout { get; set; }
 
-        public DeploymentJobAttribute(string environment)
+        public DeploymentJobAttribute()
         {
-            Environment = environment;
         }
 
-        public DeploymentJobAttribute(string stage, string environment) :base(stage)
+        public DeploymentJobAttribute(string name)
         {
-            Environment = environment;
+            Name = name;
         }
     }
 }

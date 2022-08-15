@@ -30,11 +30,11 @@ internal class SecretVariableVisitor : SymbolVisitor
 
     public override void VisitProperty(IPropertySymbol symbol)
     {
-        var secretVariableAttributes = symbol.GetCustomAttributes<SecretVariableAttribute>().Where(c => c.Pipeline == _pipeline.Name || c.Pipeline == null);
+        //var secretVariableAttributes = symbol.GetCustomAttributes<SecretVariableAttribute>().Where(c => c.Pipeline == _pipeline.Name || c.Pipeline == null);
 
-        foreach (var secretVariableAttribute in secretVariableAttributes)
-        {
-            Secrets.Add(!string.IsNullOrEmpty(secretVariableAttribute.Name) ? secretVariableAttribute.Name! : symbol.Name);
-        }
+        //foreach (var secretVariableAttribute in secretVariableAttributes)
+        //{
+        //    Secrets.Add(!string.IsNullOrEmpty(secretVariableAttribute.Name) ? secretVariableAttribute.Name! : symbol.Name);
+        //}
     }
 }

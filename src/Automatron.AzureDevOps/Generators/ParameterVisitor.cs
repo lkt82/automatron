@@ -11,7 +11,7 @@ internal class ParameterVisitor : SymbolVisitor
 {
     private readonly Pipeline _pipeline;
 
-    public List<Parameter> Parameters { get; } = new();
+    public List<Models.Parameter> Parameters { get; } = new();
 
     public ParameterVisitor(Pipeline pipeline)
     {
@@ -31,12 +31,12 @@ internal class ParameterVisitor : SymbolVisitor
 
     public override void VisitProperty(IPropertySymbol symbol)
     {
-        var parameterAttributes = symbol.GetCustomAttributes<ParameterAttribute>().Where(c => c.Pipeline == _pipeline.Name || c.Pipeline == null);
+        //var parameterAttributes = symbol.GetCustomAttributes<ParameterAttribute>().Where(c => c.Pipeline == _pipeline.Name || c.Pipeline == null);
 
-        foreach (var parameterAttribute in parameterAttributes)
-        {
-            Parameters.Add(new Parameter(!string.IsNullOrEmpty(parameterAttribute.Name) ? parameterAttribute.Name! : symbol.Name, parameterAttribute.DisplayName, !string.IsNullOrEmpty(parameterAttribute.Type) ? parameterAttribute.Type! : GetParameterType(symbol.Type), parameterAttribute.Default, parameterAttribute.Values));
-        }
+        //foreach (var parameterAttribute in parameterAttributes)
+        //{
+        //    Parameters.Add(new Parameter(!string.IsNullOrEmpty(parameterAttribute.Name) ? parameterAttribute.Name! : symbol.Name, parameterAttribute.DisplayName, !string.IsNullOrEmpty(parameterAttribute.Type) ? parameterAttribute.Type! : GetParameterType(symbol.Type), parameterAttribute.Default, parameterAttribute.Values));
+        //}
     }
 
     private static string GetParameterType(ITypeSymbol type)

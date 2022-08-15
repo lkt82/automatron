@@ -2,22 +2,22 @@
 
 namespace Automatron.Annotations
 {
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
     public sealed class DependentOnAttribute : Attribute
     {
-        public Type? Controller { get; }
+        public Type? Type { get; }
 
-        public string[] Tasks { get; }
+        public string[] Actions { get; }
 
-        public DependentOnAttribute(params string[] tasks)
+        public DependentOnAttribute(params string[] actions)
         {
-            Tasks = tasks;
+            Actions = actions;
         }
 
-        public DependentOnAttribute(Type controller,params string[] tasks)
+        public DependentOnAttribute(Type type,params string[] actions)
         {
-            Controller = controller;
-            Tasks = tasks;
+            Type = type;
+            Actions = actions;
         }
     }
 }

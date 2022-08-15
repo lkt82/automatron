@@ -1,176 +1,115 @@
 ﻿#if NET6_0
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Automatron.Annotations;
+using Automatron.Reflection;
 using CommandDotNet;
 using CommandDotNet.Builders;
 using CommandDotNet.Execution;
 using CommandDotNet.Extensions;
 using CommandDotNet.IoC.MicrosoftDependencyInjection;
 using CommandDotNet.Spectre;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using TypeInfo = CommandDotNet.TypeInfo;
 
 namespace Automatron;
 
-public sealed class TaskRunner<TController> where TController : class
+public sealed class TaskRunner : ITypeProvider
 {
+    private readonly IDictionary<Parameter, Option> _optionLockUp = new Dictionary<Parameter, Option>();
+
+    private readonly IEnumerable<Type> _types = GetAssemblyTypes().ToArray();
+
     public TaskRunner()
     {
-        Services.AddSingleton(_tasks);
         Services.AddSingleton(typeof(TaskCommand));
-
-        foreach (var type in _controllerTypes)
+        Services.AddSingleton<ITypeProvider>(this);
+ 
+        foreach (var type in _types)
         {
-            Services.AddSingleton(type);
+            Services.AddScoped(type);
         }
 
         Services.AddSingleton(_ => AnsiConsole.Console);
         Services.AddSingleton<IConsole, AnsiConsoleForwardingConsole>();
         Services.AddSingleton<IEnvironment>(_ => new SystemEnvironment());
+
+        Services.AddSingleton<IActionRunner, ActionRunner>();
+        Services.AddSingleton<TaskVisitor>();
+        Services.AddSingleton<TaskModelFactory>();
+        Services.AddSingleton<ITaskModelFactory, TaskModelFactory>();
+        Services.AddSingleton<ITaskEngine, TaskEngine>();
+        Services.AddSingleton(c => c.GetRequiredService<ITaskModelFactory>().Create());
     }
 
-    private readonly Dictionary<string, ControllerTask> _tasks = new();
-
-    private readonly object _objectType = typeof(object);
-    private static readonly Type ControllerType = typeof(TController);
-
-    private readonly IEnumerable<Type> _controllerTypes = GetControllerTypes().ToArray();
-
-    private readonly IDictionary<PropertyInfo, Option> _optionLockUp = new Dictionary<PropertyInfo, Option>();
-
-    private static IEnumerable<Type> GetControllerTypes()
+    private static IEnumerable<Type> GetAssemblyTypes()
     {
-        return GetControllerTypes(ControllerType).Concat(ControllerType.Assembly.GetTypes().Where(c => c.GetCustomAttribute<TaskControllerAttribute>() != null));
+        return Assembly.GetEntryAssembly()!.GetTypes()
+            .Where(c=> !c.IsAbstract && !c.IsInterface && c.IsVisible)
+            .Where(c =>
+            {
+                var isTypeTask = c.GetCachedAttribute<TaskAttribute>() != null;
+                var hasMethodTasks = c.GetMethods().Any(m => m.GetCachedAttribute<TaskAttribute>() != null);
+                var hasInterfacesMethodTasks = c.GetInterfaces().SelectMany(t=> t.GetMethods()).Any(m => m.GetCachedAttribute<TaskAttribute>() != null);
+                var hasParameters = c.GetProperties().Any(m => m.GetCachedAttribute<ParameterAttribute>() != null);
+                var hasInterfacesParameters = c.GetInterfaces().SelectMany(t => t.GetProperties()).Any(m => m.GetCachedAttribute<ParameterAttribute>() != null);
+
+                return isTypeTask || hasMethodTasks || hasParameters || hasInterfacesMethodTasks || hasParameters|| hasInterfacesParameters;
+            });
     }
 
-    private static IEnumerable<Type> GetControllerTypes(Type type)
+    private void AddParameters(BuildEvents.CommandCreatedEventArgs args)
     {
-        var types = new HashSet<Type>();
+        var taskModel = args.CommandContext.DependencyResolver!.Resolve<TaskModel>()!;
 
-        types.UnionWith(type.GetNestedTypes().Where(c => !c.IsAbstract));
-        types.UnionWith(type.GetInterfaces().SelectMany(c=> c.GetNestedTypes()).Where(c => !c.IsAbstract));
-
-        types.UnionWith(types.SelectMany(GetControllerTypes));
-
-        types.Add(type);
-
-        return types;
-    }
-
-    private IEnumerable<(Type, IEnumerable<MethodInfo>)> GetTasks(IEnumerable<Type> types)
-    {
-        foreach (var controllerType in types)
+        foreach (var parameter in taskModel.Parameters)
         {
-            yield return (controllerType, controllerType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod).Where(c => !ReferenceEquals(c.DeclaringType, _objectType) && !c.IsSpecialName));
-
-            var interfaces = controllerType.GetInterfaces().ToArray();
-
-            if (!interfaces.Any())
+            if (args.CommandBuilder.Command.ContainsArgumentNode(parameter.Name))
             {
                 continue;
             }
 
-            foreach (var targets in GetTasks(interfaces))
+            TypeInfo typeInfo;
+            IArgumentArity arity;
+
+            if (parameter.Type.IsArray)
             {
-                yield return (controllerType, targets.Item2);
+                typeInfo = new TypeInfo(parameter.Type, parameter.Type.GetElementType()!);
+                arity = ArgumentArity.OneOrMore;
             }
-        }
-    }
-
-    private IEnumerable<(Type, IEnumerable<PropertyInfo>)> GetParameters(IEnumerable<Type> types)
-    {
-        foreach (var controllerType in types)
-        {
-            yield return (controllerType, controllerType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(c => !ReferenceEquals(c.DeclaringType, _objectType) && !c.IsSpecialName && c.CanWrite));
-
-            var interfaces = controllerType.GetInterfaces().ToArray();
-
-            if (!interfaces.Any())
+            else if (parameter.Type.IsGenericType &&
+                     (parameter.Type.GetGenericTypeDefinition() == typeof(List<>) ||
+                      parameter.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
             {
-                continue;
+                typeInfo = new TypeInfo(parameter.Type, parameter.Type.GetGenericArguments().First());
+                arity = ArgumentArity.OneOrMore;
             }
-
-            foreach (var options in GetParameters(interfaces))
+            else
             {
-                yield return (controllerType, options.Item2);
+                typeInfo = new TypeInfo(parameter.Type, parameter.Type);
+                arity = ArgumentArity.ExactlyOne;
             }
-        }
-    }
 
-    private IEnumerable<(Type, IEnumerable<PropertyInfo>)> ControllerParameters => GetParameters(_controllerTypes).ToArray();
-
-    private IEnumerable<(Type, IEnumerable<MethodInfo>)> ControllerTasks => GetTasks(_controllerTypes).ToArray();
-
-    private void AddControllerParameters(BuildEvents.CommandCreatedEventArgs args)
-    {
-        foreach (var (_, properties) in ControllerParameters)
-        {
-            foreach (var parameter in properties)
+            var option = new Option(parameter.Name, null, typeInfo, arity, BooleanMode.Explicit, parameter.Name,
+                aliases: new[] { parameter.Name.ToLower() }
+                )
             {
-                if (args.CommandBuilder.Command.ContainsArgumentNode(parameter.Name))
-                {
-                    continue;
-                }
+                Split = arity.AllowsOneOrMore() ? ',' : null,
+                IsMiddlewareOption = true,
+                Default = GetParameterDefault(args.CommandContext.Environment, parameter.Name, typeInfo),
+                Hidden = false,
+                Description = parameter.Description
+            };
 
-                TypeInfo typeInfo;
-                IArgumentArity arity;
+            _optionLockUp[parameter] = option;
 
-                if (parameter.PropertyType.IsArray)
-                {
-                    typeInfo = new TypeInfo(parameter.PropertyType, parameter.PropertyType.GetElementType()!);
-                    arity = ArgumentArity.OneOrMore;
-                }
-                else if (parameter.PropertyType.IsGenericType &&
-                         (parameter.PropertyType.GetGenericTypeDefinition() == typeof(List<>) ||
-                          parameter.PropertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
-                {
-                    typeInfo = new TypeInfo(parameter.PropertyType,
-                        parameter.PropertyType.GetGenericArguments().First());
-                    arity = ArgumentArity.OneOrMore;
-                }
-                else
-                {
-                    typeInfo = new TypeInfo(parameter.PropertyType, parameter.PropertyType);
-                    arity = ArgumentArity.ExactlyOne;
-                }
-
-                var name = parameter.Name.ToLower();
-
-                var parameterAttribute = parameter.GetCustomAttribute<ParameterAttribute>();
-
-                var option = new Option(name, null, typeInfo, arity, BooleanMode.Explicit, parameter.Name,
-                    customAttributes: new TaskAttributeProvider(parameter))
-                {
-                    Split = arity.AllowsOneOrMore() ? ',' : null,
-                    IsMiddlewareOption = true,
-                    Default = GetParameterDefault(args.CommandContext.Environment, parameter.Name, typeInfo),
-                    Hidden = false,
-                };
-
-                if (parameterAttribute != null && !string.IsNullOrEmpty(parameterAttribute.Description))
-                {
-                    option.Description = parameterAttribute.Description;
-                }
-                else
-                {
-                    var descriptionAttribute = parameter.GetCustomAttribute<DescriptionAttribute>();
-                    if (descriptionAttribute != null)
-                    {
-                        option.Description = descriptionAttribute.Description;
-                    }
-                }
-
-                _optionLockUp[parameter] = option;
-
-                args.CommandBuilder.AddArgument(option);
-            }
+            args.CommandBuilder.AddArgument(option);
         }
     }
 
@@ -206,98 +145,15 @@ public sealed class TaskRunner<TController> where TController : class
         return envVarName.ToString();
     }
 
-    private Task<int> CreateController(CommandContext ctx, ExecutionDelegate next)
+    private Task<int> MapParameters(CommandContext ctx, ExecutionDelegate next)
     {
-        foreach (var (type, properties) in ControllerParameters)
+        var taskModel = ctx.DependencyResolver!.Resolve<TaskModel>()!;
+
+        foreach (var parameter in taskModel.Parameters)
         {
-            foreach (var property in properties)
-            {
-                var controller = ctx.DependencyResolver!.Resolve(type);
+            var option = _optionLockUp[parameter];
 
-                var option = _optionLockUp[property];
-
-                if (option.Value == null && option.Default?.Value == null)
-                {
-                    continue;
-                }
-
-                property.SetValue(controller, option.Value ?? option.Default?.Value);
-            }
-        }
-
-        return next(ctx);
-    }
-
-    private Task<int> BuildTasks(CommandContext ctx, ExecutionDelegate next)
-    {
-        var tasks = ControllerTasks.SelectMany(target =>
-        {
-            var (controllerType, methods) = target;
-            return methods.Select(method =>
-            {
-                var dependentOnAttribute = method.GetCustomAttribute<DependentOnAttribute>();
-                var dependentForAttribute = method.GetCustomAttribute<DependentForAttribute>();
-
-                var dependentOn = Enumerable.Empty<string>();
-                var dependentFor = Enumerable.Empty<string>();
-
-                if (dependentOnAttribute != null)
-                {
-                    if (dependentOnAttribute.Controller is { IsClass: true })
-                    {
-                        dependentOn = dependentOnAttribute.Tasks.Select(t => dependentOnAttribute.Controller.Name + t);
-                    }
-                    else if (method.ReflectedType == ControllerType)
-                    {
-                        dependentOn = dependentOnAttribute.Tasks;
-                    }
-                    else
-                    {
-                        dependentOn = dependentOnAttribute.Tasks.Select(t => controllerType.Name + t);
-                    }
-                }
-
-                if (dependentForAttribute != null)
-                {
-                    if (dependentForAttribute.Controller is { IsClass: true })
-                    {
-                        dependentFor = dependentForAttribute.Tasks.Select(t => dependentForAttribute.Controller.Name + t);
-                    }
-                    else if (method.ReflectedType == ControllerType)
-                    {
-                        dependentFor = dependentForAttribute.Tasks;
-                    }
-                    else
-                    {
-                        dependentFor = dependentForAttribute.Tasks.Select(t => controllerType.Name + t);
-                    }
-                }
-
-                return new
-                {
-                    Name = controllerType != ControllerType
-                        ? controllerType.Name + method.Name
-                        : method.Name,
-                    DependentOn = dependentOn,
-                    DependentFor = dependentFor,
-                    Action = method,
-                    ControllerType = controllerType
-                };
-            });
-        }).ToArray();
-
-        foreach (var task in tasks)
-        {
-            var dependencies = new HashSet<string>();
-
-            dependencies.UnionWith(task.DependentOn);
-
-            var dependentFor = tasks.Where(c => c.Name != task.Name && c.DependentFor.Contains(task.Name)).Select(c => c.Name);
-
-            dependencies.UnionWith(dependentFor);
-
-            _tasks.Add(task.Name.ToLowerInvariant(),new ControllerTask(task.Name,task.ControllerType, task.Action, dependencies));
-
+            parameter.Value = option.Value ?? option.Default?.Value;
         }
 
         return next(ctx);
@@ -305,7 +161,8 @@ public sealed class TaskRunner<TController> where TController : class
 
     private ServiceCollection Services { get; } = new();
 
-    public TaskRunner<TController> ConfigureServices(Action<ServiceCollection> action)
+    [UsedImplicitly]
+    public TaskRunner ConfigureServices(Action<ServiceCollection> action)
     {
         action(Services);
         return this;
@@ -314,24 +171,22 @@ public sealed class TaskRunner<TController> where TController : class
     private AppRunner Build()
     {
         return new AppRunner<TaskCommand>()
-            .Configure(c =>
-            {
-                c.UseMiddleware(BuildTasks, MiddlewareStages.PostTokenizePreParseInput);
-                c.UseMiddleware(CreateController, MiddlewareStages.PostBindValuesPreInvoke);
-                c.BuildEvents.OnCommandCreated += AddControllerParameters;
-            })
-            .UseCancellationHandlers()
-            .Configure(b => b.CustomHelpProvider = new TaskHelpTextProvider(b.AppSettings, _tasks))
             .UseMicrosoftDependencyInjection(Services.BuildServiceProvider())
             .Configure(c =>
             {
+                c.UseMiddleware(MapParameters, MiddlewareStages.PostBindValuesPreInvoke);
+                c.BuildEvents.OnCommandCreated += AddParameters;
+
                 var ansiConsole = c.DependencyResolver!.Resolve<IAnsiConsole>()!;
                 c.Environment = c.DependencyResolver!.Resolve<IEnvironment>()!;
                 c.Console = c.DependencyResolver!.Resolve<IConsole>()!;
 
                 c.UseParameterResolver(_ => ansiConsole);
                 c.Services.Add(ansiConsole);
-            });
+
+                c.CustomHelpProvider = new TaskHelpTextProvider(c.AppSettings, c.DependencyResolver!.Resolve<TaskModel>()!);
+            })
+            .UseCancellationHandlers();
     }
 
     public async Task<int> RunAsync(params string[] args)
@@ -344,5 +199,9 @@ public sealed class TaskRunner<TController> where TController : class
         return Build().Run(args);
     }
 
+    public IEnumerable<Type> GetTypes()
+    {
+       return _types;
+    }
 }
 #endif

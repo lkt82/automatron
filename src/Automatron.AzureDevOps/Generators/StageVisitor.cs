@@ -50,40 +50,40 @@ internal class StageVisitor : SymbolVisitor, IComparer<Stage>
 
     public override void VisitMethod(IMethodSymbol symbol)
     {
-        foreach (var stageAttribute in symbol.GetCustomAttributes<StageAttribute>())
-        {
-            if (stageAttribute.Pipeline != _pipeline.Name && stageAttribute.Pipeline != null)
-            {
-                continue;
-            }
+        //foreach (var stageAttribute in symbol.GetCustomAttributes<StageAttribute>())
+        //{
+        //    if (stageAttribute.Pipeline != _pipeline.Name && stageAttribute.Pipeline != null)
+        //    {
+        //        continue;
+        //    }
 
-            var stage = CreateStage(stageAttribute, symbol);
+        //    var stage = CreateStage(stageAttribute, symbol);
 
-            Stages.Add(stage);
-        }
+        //    Stages.Add(stage);
+        //}
     }
 
-    private Stage CreateStage(StageAttribute stageAttribute, ISymbol member)
-    {
-        var name = !string.IsNullOrEmpty(stageAttribute.Name) ? stageAttribute.Name! : member.Name;
+    //private Stage CreateStage(StageAttribute stageAttribute, ISymbol member)
+    //{
+    //    var name = !string.IsNullOrEmpty(stageAttribute.Name) ? stageAttribute.Name! : member.Name;
 
-        var stage = new Stage(_pipeline, name, stageAttribute.DisplayName, stageAttribute.DependsOn, stageAttribute.Condition);
+    //    var stage = new Stage(_pipeline, name, stageAttribute.DisplayName, stageAttribute.DependsOn, stageAttribute.Condition);
 
-        var poolAttribute = member.GetCustomAttributes<PoolAttribute>().FirstOrDefault(c => c.Target == name || c.Target == null);
+    //    var poolAttribute = member.GetCustomAttributes<PoolAttribute>().FirstOrDefault(c => c.Target == name || c.Target == null);
 
-        if (poolAttribute != null)
-        {
-            stage.Pool = new Pool(poolAttribute.Name, poolAttribute.VmImage);
-        }
+    //    if (poolAttribute != null)
+    //    {
+    //        stage.Pool = new Pool(poolAttribute.Name, poolAttribute.VmImage);
+    //    }
 
-        if (stageAttribute.TemplateSymbol != null)
-        {
-            stage.TemplateName = stageAttribute.TemplateSymbol.Name;
-            _templates[stage] = stageAttribute.TemplateSymbol;
-        }
+    //    if (stageAttribute.TemplateSymbol != null)
+    //    {
+    //        stage.TemplateName = stageAttribute.TemplateSymbol.Name;
+    //        _templates[stage] = stageAttribute.TemplateSymbol;
+    //    }
 
-        return stage;
-    }
+    //    return stage;
+    //}
 
     public int Compare(Stage? x, Stage? y)
     {

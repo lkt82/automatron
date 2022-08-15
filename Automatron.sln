@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Automatron.IO", "src\Automa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Automatron.AzureDevOps.Tests", "src\Automatron.AzureDevOps.Tests\Automatron.AzureDevOps.Tests.csproj", "{2A77395C-8546-46F9-A640-618227D24B08}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Automatron.Sample", "src\Automatron.Sample\Automatron.Sample.csproj", "{EA907B48-B5E3-428D-82FF-877BFC447614}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,10 @@ Global
 		{2A77395C-8546-46F9-A640-618227D24B08}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A77395C-8546-46F9-A640-618227D24B08}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A77395C-8546-46F9-A640-618227D24B08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA907B48-B5E3-428D-82FF-877BFC447614}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA907B48-B5E3-428D-82FF-877BFC447614}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA907B48-B5E3-428D-82FF-877BFC447614}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA907B48-B5E3-428D-82FF-877BFC447614}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

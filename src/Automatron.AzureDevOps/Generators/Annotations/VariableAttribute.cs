@@ -3,14 +3,12 @@ using JetBrains.Annotations;
 
 namespace Automatron.AzureDevOps.Generators.Annotations
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Method, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property, AllowMultiple = true)]
     public class VariableAttribute : Attribute
     {
-        public string? Pipeline { get; }
+        public string? Name { get; set; }
 
-        public string Name { get; }
-
-        public object Value { get; }
+        public object? Value { get; set; }
 
         [UsedImplicitly]
         public VariableAttribute(string name, object value)
@@ -19,11 +17,9 @@ namespace Automatron.AzureDevOps.Generators.Annotations
             Value = value;
         }
 
-        public VariableAttribute(string pipeline, string name,object value)
+        [UsedImplicitly]
+        public VariableAttribute()
         {
-            Pipeline = pipeline;
-            Name = name;
-            Value = value;
         }
     }
 }

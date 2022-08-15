@@ -63,90 +63,90 @@ internal class JobVisitor : SymbolVisitor, IComparer<IJob>
 
     public override void VisitMethod(IMethodSymbol symbol)
     {
-        foreach (var attribute in symbol.GetCustomAbstractAttributes<JobAttribute>())
-        {
-            var stageName = !string.IsNullOrEmpty(attribute.Stage) ? attribute.Stage! : symbol.Name;
+        //foreach (var attribute in symbol.GetCustomAbstractAttributes<JobAttribute>())
+        //{
+        //    var stageName = !string.IsNullOrEmpty(attribute.Stage) ? attribute.Stage! : symbol.Name;
 
-            if (stageName != Stage.Name)
-            {
-                continue;
-            }
+        //    if (stageName != Stage.Name)
+        //    {
+        //        continue;
+        //    }
 
-            if (attribute is DeploymentJobAttribute deploymentJobAttribute)
-            {
-                CreateDeploymentJob(deploymentJobAttribute, symbol);
-            }
-            else
-            {
-                CreateJob(attribute, symbol);
-            }
-        }
+        //    if (attribute is DeploymentJobAttribute deploymentJobAttribute)
+        //    {
+        //        CreateDeploymentJob(deploymentJobAttribute, symbol);
+        //    }
+        //    else
+        //    {
+        //        CreateJob(attribute, symbol);
+        //    }
+        //}
     }
 
-    protected void CreateDeploymentJob(DeploymentJobAttribute jobAttribute, ISymbol member)
-    {
-        var job = CreateDeploymentJob(Stage, member, jobAttribute);
+    //protected void CreateDeploymentJob(DeploymentJobAttribute jobAttribute, ISymbol member)
+    //{
+    //    var job = CreateDeploymentJob(Stage, member, jobAttribute);
 
-        Jobs.Add(job);
-    }
+    //    Jobs.Add(job);
+    //}
 
-    protected void CreateJob(JobAttribute jobAttribute, ISymbol member)
-    {
-        var job = CreateJob(Stage, member, jobAttribute);
+    //protected void CreateJob(Job2Attribute jobAttribute, ISymbol member)
+    //{
+    //    var job = CreateJob(Stage, member, jobAttribute);
 
-        Jobs.Add(job);
-    }
+    //    Jobs.Add(job);
+    //}
 
-    private static DeploymentJob CreateDeploymentJob(Stage stage, ISymbol member, DeploymentJobAttribute jobAttribute)
-    {
-        var name = !string.IsNullOrEmpty(jobAttribute.Name) ? jobAttribute.Name! : member.Name;
+    //private static DeploymentJob CreateDeploymentJob(Stage stage, ISymbol member, Deployment2JobAttribute jobAttribute)
+    //{
+    //    var name = !string.IsNullOrEmpty(jobAttribute.Name) ? jobAttribute.Name! : member.Name;
 
-        var job = new DeploymentJob(stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition, jobAttribute.Environment)
-        {
-            TimeoutInMinutes = jobAttribute.TimeoutInMinutes == default
-                ? null
-                : jobAttribute.TimeoutInMinutes
-        };
+    //    var job = new DeploymentJob(stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition, jobAttribute.Environment)
+    //    {
+    //        TimeoutInMinutes = jobAttribute.TimeoutInMinutes == default
+    //            ? null
+    //            : jobAttribute.TimeoutInMinutes
+    //    };
 
-        if(!member.HasCustomAttributes<StageAttribute>())
-        {
-            var poolAttribute = member.GetCustomAttributes<PoolAttribute>().FirstOrDefault(c => c.Target == name || c.Target == null);
+    //    if(!member.HasCustomAttributes<Stage2Attribute>())
+    //    {
+    //        var poolAttribute = member.GetCustomAttributes<PoolAttribute>().FirstOrDefault(c => c.Target == name || c.Target == null);
 
-            if (poolAttribute != null)
-            {
-                job.Pool = new Pool(poolAttribute.Name, poolAttribute.VmImage);
-            }
-        }
+    //        if (poolAttribute != null)
+    //        {
+    //            job.Pool = new Pool(poolAttribute.Name, poolAttribute.VmImage);
+    //        }
+    //    }
 
-        if (!string.IsNullOrEmpty(stage.TemplateName))
-        {
-            job.TemplateName = stage.TemplateName;
-        }
+    //    if (!string.IsNullOrEmpty(stage.TemplateName))
+    //    {
+    //        job.TemplateName = stage.TemplateName;
+    //    }
 
-        return job;
-    }
+    //    return job;
+    //}
 
-    private static Job CreateJob(Stage stage, ISymbol member, JobAttribute jobAttribute)
-    {
-        var name = !string.IsNullOrEmpty(jobAttribute.Name) ? jobAttribute.Name! : member.Name;
+    //private static Job CreateJob(Stage stage, ISymbol member, Job2Attribute jobAttribute)
+    //{
+    //    var name = !string.IsNullOrEmpty(jobAttribute.Name) ? jobAttribute.Name! : member.Name;
 
-        var job = new Job(stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition);
+    //    var job = new Job(stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition);
 
-        if (!member.HasCustomAttributes<StageAttribute>())
-        {
-            var poolAttribute = member.GetCustomAttributes<PoolAttribute>().FirstOrDefault(c => c.Target == name || c.Target == null);
+    //    if (!member.HasCustomAttributes<Stage2Attribute>())
+    //    {
+    //        var poolAttribute = member.GetCustomAttributes<PoolAttribute>().FirstOrDefault(c => c.Target == name || c.Target == null);
 
-            if (poolAttribute != null)
-            {
-                job.Pool = new Pool(poolAttribute.Name, poolAttribute.VmImage);
-            }
-        }
+    //        if (poolAttribute != null)
+    //        {
+    //            job.Pool = new Pool(poolAttribute.Name, poolAttribute.VmImage);
+    //        }
+    //    }
 
-        if (!string.IsNullOrEmpty(stage.TemplateName))
-        {
-            job.TemplateName = stage.TemplateName;
-        }
+    //    if (!string.IsNullOrEmpty(stage.TemplateName))
+    //    {
+    //        job.TemplateName = stage.TemplateName;
+    //    }
 
-        return job;
-    }
+    //    return job;
+    //}
 }
