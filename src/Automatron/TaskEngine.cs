@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Spectre.Console;
-using TopologicalSorting;
 
 namespace Automatron;
 
@@ -28,13 +27,13 @@ internal class TaskEngine : ITaskEngine
     {
         var assemblyName = Assembly.GetEntryAssembly()!.GetName().Name;
 
-        var tasksArray = tasks as string[] ?? tasks.ToArray();
+        var taskNames = tasks as string[] ?? tasks.ToArray();
 
-        if (!tasksArray.Any())
+        if (!taskNames.Any())
         {
-            tasksArray = _tasks.Where(c => c.Value.Default).Select(c => c.Key).ToArray();
+            taskNames = _tasks.Where(c => c.Value.Default).Select(c => c.Key).ToArray();
 
-            if (tasksArray.Length > 1)
+            if (taskNames.Length > 1)
             {
                 _console.MarkupLine($"[grey53]{assemblyName}:[/] [red]More then one default task defined[/]");
 
@@ -45,7 +44,7 @@ internal class TaskEngine : ITaskEngine
 
         var resolvedTasks = new Dictionary<string, Task>();
 
-        foreach (var task in tasksArray)
+        foreach (var task in taskNames)
         {
             var key = task.ToLowerInvariant();
 
@@ -59,16 +58,16 @@ internal class TaskEngine : ITaskEngine
             return 1;
         }
 
-        if (tasksArray.Length == 0)
+        if (taskNames.Length == 0)
         {
             _console.MarkupLine($"[grey53]{assemblyName}:[/] [red]No default task defined[/]");
 
             return 1;
         }
 
-        var tasksToSkip = BuildSkippedTasks(tasksArray, skip, skipAll);
+        var tasksNamesToSkip = BuildSkippedTasks(taskNames, skip, skipAll);
 
-        var taskGraph = BuildTaskGraph(tasksArray, tasksToSkip);
+        var tasksToRun = BuildTasks(taskNames);
 
         var resolvedTasksString = string.Join(" ", resolvedTasks.Values.Select(c => c.Name));
 
@@ -85,9 +84,10 @@ internal class TaskEngine : ITaskEngine
 
         var failed = false;
 
-        foreach (OrderedProcess graphItem in taskGraph.CalculateSort())
+        var sorted = TopologicalSort.Sort(tasksToRun, x => x.Dependencies).Where(c => !tasksNamesToSkip.Contains(c));
+
+        foreach (var task in sorted)
         {
-            var task = _tasks[graphItem.Name];
             var taskStopWatch = new Stopwatch();
             _console.MarkupLine($"[grey53]{assemblyName}:[/] [deepskyblue3_1]{task.Name}[/]: Starting...");
             taskStopWatch.Start();
@@ -131,7 +131,7 @@ internal class TaskEngine : ITaskEngine
         return failed ? 1 : 0;
     }
 
-    private string[] BuildSkippedTasks(IEnumerable<string> tasks, IEnumerable<string>? skip, bool skipAll)
+    private IEnumerable<Task> BuildSkippedTasks(IEnumerable<string> tasks, IEnumerable<string>? skip, bool skipAll)
     {
         var tasksToSkip = Array.Empty<string>();
 
@@ -140,7 +140,7 @@ internal class TaskEngine : ITaskEngine
             tasksToSkip = skip.Select(c => c.ToLowerInvariant()).ToArray();
         }
 
-        if (!skipAll) return tasksToSkip;
+        if (!skipAll) return tasksToSkip.Select(c => _tasks[c]);
         {
             var dependencies = new HashSet<string>();
             foreach (var task in tasks.Select(c => c.ToLowerInvariant()))
@@ -151,58 +151,35 @@ internal class TaskEngine : ITaskEngine
             tasksToSkip = dependencies.Select(c => c.ToLowerInvariant()).ToArray();
         }
 
-        return tasksToSkip;
+        return tasksToSkip.Select(c=> _tasks[c]);
     }
 
-    private void BuildTaskGraph(IEnumerable<string> tasks, DependencyGraph graph, IDictionary<string, OrderedProcess> lookup, string[] skip)
+    private void BuildTasks(IEnumerable<string> tasks, IDictionary<string, Task> lookup)
     {
-        foreach (var task in tasks.Select(c => c.ToLowerInvariant()))
+        foreach (var taskName in tasks.Select(c => c.ToLowerInvariant()))
         {
-            var taskCommand = _tasks[task];
+            var task = _tasks[taskName];
 
-            if (lookup.ContainsKey(task))
+            if (lookup.ContainsKey(taskName))
             {
                 continue;
             }
 
-            if (skip.Contains(task))
-            {
-                continue;
-            }
+    
+            lookup.Add(taskName, task);
 
-            var graphItem = new OrderedProcess(graph, task);
-            lookup.Add(task, graphItem);
 
-            BuildTaskGraph(taskCommand.Dependencies.Select(c => c.Name), graph, lookup, skip);
+            BuildTasks(task.Dependencies.Select(c => c.Name), lookup);
         }
     }
 
-    private DependencyGraph BuildTaskGraph(IEnumerable<string> tasks, string[] skip)
+    private IEnumerable<Task> BuildTasks(IEnumerable<string> tasks)
     {
-        var dependencyGraph = new DependencyGraph();
-        var nameLookup = new Dictionary<string, OrderedProcess>();
+        var nameLookup = new Dictionary<string, Task>();
 
+        BuildTasks(tasks, nameLookup);
 
-        BuildTaskGraph(tasks, dependencyGraph, nameLookup, skip);
-
-        foreach (var task in nameLookup)
-        {
-            var graphItem = task.Value;
-
-            var controllerTask = _tasks[task.Key];
-
-            foreach (var dependency in controllerTask.Dependencies.Select(c => c.Name.ToLowerInvariant()))
-            {
-                if (skip.Contains(dependency))
-                {
-                    continue;
-                }
-
-                nameLookup[dependency].Before(graphItem);
-            }
-        }
-
-        return dependencyGraph;
+        return nameLookup.Values;
     }
 }
 

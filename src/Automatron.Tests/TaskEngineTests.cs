@@ -24,7 +24,7 @@ public class TaskEngineTests
     {
         // Arrange
         var typeProvider = Substitute.For<ITypeProvider>();
-        typeProvider.GetTypes().Returns(new[] { typeof(TaskControllerA) });
+        typeProvider.Types.Returns(new[] { typeof(TaskControllerA) });
 
         var taskControllerA = Substitute.For<TaskControllerA>();
 
@@ -48,7 +48,7 @@ public class TaskEngineTests
     {
         // Arrange
         var typeProvider = Substitute.For<ITypeProvider>();
-        typeProvider.GetTypes().Returns(new[] { typeof(TaskControllerF1) });
+        typeProvider.Types.Returns(new[] { typeof(TaskControllerF1) });
 
         var taskControllerF = Substitute.For<TaskControllerF1>();
 
@@ -72,7 +72,7 @@ public class TaskEngineTests
     {
         // Arrange
         var typeProvider = Substitute.For<ITypeProvider>();
-        typeProvider.GetTypes().Returns(new[] { typeof(TaskControllerF1),typeof(TaskControllerF2), typeof(TaskControllerFBase.F2) });
+        typeProvider.Types.Returns(new[] { typeof(TaskControllerF1),typeof(TaskControllerF2), typeof(TaskControllerFBase.F2) });
 
         var taskControllerF1 = Substitute.For<TaskControllerF1>();
         var taskControllerF2 = Substitute.For<TaskControllerF1>();
@@ -100,7 +100,7 @@ public class TaskEngineTests
     {
         // Arrange
         var typeProvider = Substitute.For<ITypeProvider>();
-        typeProvider.GetTypes().Returns(new[] { typeof(TaskControllerD) });
+        typeProvider.Types.Returns(new[] { typeof(TaskControllerD) });
 
         var taskControllerD = Substitute.For<ITaskControllerD>();
 
@@ -124,7 +124,7 @@ public class TaskEngineTests
     {
         // Arrange
         var typeProvider = Substitute.For<ITypeProvider>();
-        typeProvider.GetTypes().Returns(new[] { typeof(TaskControllerA) });
+        typeProvider.Types.Returns(new[] { typeof(TaskControllerA) });
 
         var taskControllerA = Substitute.For<TaskControllerA>();
 
@@ -148,7 +148,7 @@ public class TaskEngineTests
     {
         // Arrange
         var typeProvider = Substitute.For<ITypeProvider>();
-        typeProvider.GetTypes().Returns(new[] { typeof(TaskControllerA) });
+        typeProvider.Types.Returns(new[] { typeof(TaskControllerA) });
 
         var taskControllerA = Substitute.For<TaskControllerA>();
 
@@ -172,7 +172,7 @@ public class TaskEngineTests
     {
         // Arrange
         var typeProvider = Substitute.For<ITypeProvider>();
-        typeProvider.GetTypes().Returns(new[] { typeof(TaskControllerA) });
+        typeProvider.Types.Returns(new[] { typeof(TaskControllerA) });
 
         var taskControllerA = Substitute.For<TaskControllerA>();
 
@@ -200,7 +200,7 @@ public class TaskEngineTests
     {
         // Arrange
         var typeProvider = Substitute.For<ITypeProvider>();
-        typeProvider.GetTypes().Returns(new[] { typeof(TaskControllerA) });
+        typeProvider.Types.Returns(new[] { typeof(TaskControllerA) });
 
         var taskControllerA = Substitute.For<TaskControllerA>();
 
@@ -224,7 +224,7 @@ public class TaskEngineTests
     {
         // Arrange
         var typeProvider = Substitute.For<ITypeProvider>();
-        typeProvider.GetTypes().Returns(new[] { typeof(TaskControllerA) });
+        typeProvider.Types.Returns(new[] { typeof(TaskControllerA) });
 
         var taskControllerA = Substitute.For<TaskControllerA>();
 
@@ -249,7 +249,7 @@ public class TaskEngineTests
     {
         // Arrange
         var typeProvider = Substitute.For<ITypeProvider>();
-        typeProvider.GetTypes().Returns(new[] { typeof(TaskControllerA), typeof(TaskControllerB), typeof(TaskControllerE) });
+        typeProvider.Types.Returns(new[] { typeof(TaskControllerA), typeof(TaskControllerB), typeof(TaskControllerE) });
 
         var taskControllerA = Substitute.For<TaskControllerA>();
         var taskControllerB = Substitute.For<TaskControllerB>();
@@ -277,7 +277,7 @@ public class TaskEngineTests
     {
         // Arrange
         var typeProvider = Substitute.For<ITypeProvider>();
-        typeProvider.GetTypes().Returns(new[] { typeof(TaskControllerE), typeof(TaskControllerB), typeof(TaskControllerA) });
+        typeProvider.Types.Returns(new[] { typeof(TaskControllerE), typeof(TaskControllerB), typeof(TaskControllerA) });
 
         var taskControllerE = Substitute.For<TaskControllerE>();
         var taskControllerB = Substitute.For<TaskControllerB>();
@@ -303,7 +303,7 @@ public class TaskEngineTests
     {
         // Arrange
         var typeProvider = Substitute.For<ITypeProvider>();
-        typeProvider.GetTypes().Returns(new[] { typeof(TaskControllerC.H.H2), typeof(TaskControllerC), typeof(TaskControllerC.H) });
+        typeProvider.Types.Returns(new[] { typeof(TaskControllerC.H.H2), typeof(TaskControllerC), typeof(TaskControllerC.H) });
 
         var taskControllerHh2 = Substitute.For<TaskControllerC.H.H2>();
 
@@ -327,7 +327,7 @@ public class TaskEngineTests
     {
         // Arrange
         var typeProvider = Substitute.For<ITypeProvider>();
-        typeProvider.GetTypes().Returns(new[] { typeof(TaskControllerC.H.H2),typeof(TaskControllerC.H), typeof(TaskControllerC) });
+        typeProvider.Types.Returns(new[] { typeof(TaskControllerC.H.H2),typeof(TaskControllerC.H), typeof(TaskControllerC) });
 
         var taskControllerH = Substitute.For<TaskControllerC.H>();
         var taskControllerHh2 = Substitute.For<TaskControllerC.H.H2>();

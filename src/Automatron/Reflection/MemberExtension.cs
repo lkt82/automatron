@@ -13,6 +13,9 @@ public static class MemberExtension
             case Type type:
                 type.Accept(visitor);
                 break;
+            case ConstructorInfo constructor:
+                constructor.Accept(visitor);
+                break;
             case MethodInfo method:
                 method.Accept(visitor);
                 break;

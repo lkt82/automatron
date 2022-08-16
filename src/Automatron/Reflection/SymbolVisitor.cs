@@ -32,6 +32,11 @@ namespace Automatron.Reflection
 
         }
 
+        public virtual void VisitConstructor(ConstructorInfo constructorInfo)
+        {
+
+        }
+
         public virtual void VisitProperty(PropertyInfo propertyInfo)
         {
 

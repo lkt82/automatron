@@ -1,6 +1,7 @@
 ﻿#if NET6_0
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Automatron.Reflection;
@@ -17,22 +18,35 @@ public static class AttributeExtension
         visitor.VisitAttributeData(attributeData);
     }
 
-    private static Dictionary<MemberInfo, Attribute> Cache { get; } = new();
+    private static Dictionary<MemberInfo, List<Attribute>> Cache { get; } = new();
 
     public static T? GetCachedAttribute<T>(this MemberInfo member, bool inherit = true) where T : Attribute
     {
-        if (Cache.TryGetValue(member, out var attribute))
+        List<Attribute> list;
+
+        if (!Cache.ContainsKey(member))
         {
-            return (T)attribute;
+            list = new List<Attribute>();
+            Cache.Add(member, list);
         }
 
-        var customAttribute = member.GetCustomAttribute<T>(inherit);
-        if (customAttribute != null)
+        list = Cache[member];
+
+        var attribute2 = list.OfType<T>().FirstOrDefault();
+
+        if (attribute2 != null)
         {
-            Cache.Add(member, customAttribute);
+            return attribute2;
         }
 
-        return customAttribute;
+    
+        var attributes = member.GetCustomAttributes<T>(inherit);
+        foreach (var attribute in attributes)
+        {
+            list.Add(attribute);
+        }
+
+        return list.OfType<T>().FirstOrDefault();
     }
 }
 #endif

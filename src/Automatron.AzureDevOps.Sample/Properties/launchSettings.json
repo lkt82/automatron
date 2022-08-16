@@ -2,7 +2,7 @@
   "profiles": {
     "Automatron.AzureDevOps.Sample": {
       "commandName": "Project",
-      "commandLineArgs": "--runperftests \"3\" DeployToTesting",
+      "commandLineArgs": "Int-Integration-Teardown",
       "environmentVariables": {
         "AZURE_CLIENT_SECRET": "hest"
       }

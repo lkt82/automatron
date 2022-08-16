@@ -28,37 +28,12 @@ public abstract class PulumiDeploymentJob
 
 public abstract class PulumiDeploymentStage
 {
-    [DeploymentJob]
+    [DeploymentJob("Deployment")]
     public class DeploymentJob : PulumiDeploymentJob
     {
 
     }
 }
-
-//[Pipeline("Ci")]
-//[CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
-//[Pool(VmImage = "ubuntu-latest")]
-//[VariableGroup("nuget")]
-//public interface IPulumiContinuousDeploymentPipeline
-//{
-//    [Stage2]
-//    [Environment("Testing")]
-//    public class DeployToTesting : PulumiDeploymentStage
-//    {
-//    }
-
-//    [Stage2(DependsOn = new[] { typeof(DeployToTesting) })]
-//    [Environment("Staging")]
-//    public class DeployToStaging : PulumiDeploymentStage
-//    {
-//    }
-
-//    [Stage2(DependsOn = new[] { typeof(DeployToStaging) })]
-//    [Environment("Production")]
-//    public class DeployToProduction : PulumiDeploymentStage
-//    {
-//    }
-//}
 
 [Pipeline("Ci")]
 [CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]

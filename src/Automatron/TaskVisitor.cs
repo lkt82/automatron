@@ -21,21 +21,25 @@ internal class TaskVisitor: SymbolVisitor
 
     public Dictionary<string, Parameter> Parameters { get; } = new();
 
-    private Dictionary<string, HashSet<ParameterDescriptor>> TypeParameters { get; } = new();
+    protected Dictionary<string, HashSet<ParameterDescriptor>> TypeParameters { get; } = new();
 
-    private Dictionary<string, HashSet<ParameterTypeDescriptor>> ParameterDependencies { get; } = new();
+    protected Dictionary<string, HashSet<ParameterTypeDescriptor>> ParameterDependencies { get; } = new();
 
     private readonly HashSet<object> _visited = new();
 
-    public Type? Type { get; set; }
+    protected Type? Type { get; set; }
 
-    private PropertyInfo? Property { get; set; }
+    protected PropertyInfo? Property { get; set; }
 
-    public Task? Task { get; set; }
+    protected MethodInfo? MethodInfo { get; set; }
 
-    public Type? OwnerType { get; set; }
+    protected Task? Task { get; set; }
 
-    public Task? ParentTask { get; set; }
+    protected Type? RootType { get; set; }
+
+    protected Task? ParentTask { get; set; }
+
+    private string? Path { get; set; }
 
     public override void VisitType(Type type)
     {
@@ -45,120 +49,125 @@ internal class TaskVisitor: SymbolVisitor
         }
 
         Type = type;
+        MethodInfo = null;
+        Property = null;
 
         if (!type.IsNested && !type.IsAbstract)
         {
-            OwnerType = type;
+            RootType = type;
             ParentTask = null;
         }
 
-        var id = GetId(type);
+        var path = GetPath(type);
 
-        if (_visited.Contains(id))
+        Path = path;
+
+        if (_visited.Contains(path))
         {
             return;
         }
 
-        _visited.Add(id);
+        _visited.Add(path);
 
         foreach (var constructor in type.GetConstructors())
         {
-            foreach (var parameter in constructor.GetParameters())
-            {
-                var currentOwner = OwnerType;
+            constructor.Accept(this);
 
-                OwnerType = null;
-
-                parameter.ParameterType.Accept(this);
-
-                var typeId = GetId(parameter.ParameterType);
-
-                var parameterTypeDescriptors = new HashSet<ParameterTypeDescriptor>();
-
-                var parameters = TypeParameters.TryGetValue(typeId, out var value) ? value : Enumerable.Empty<ParameterDescriptor>();
-
-                parameterTypeDescriptors.Add(new ParameterTypeDescriptor(parameter.ParameterType, parameters));
-
-                ParameterDependencies.Add(id, parameterTypeDescriptors);
-
-                OwnerType = currentOwner;
-            }
+            Type = type;
         }
 
-        var taskAttribute = type.GetCachedAttribute<TaskAttribute>();
-
-        if (taskAttribute != null)
-        {
-            Task task;
-
-            var parameters = new HashSet<ParameterTypeDescriptor>(ParameterDependencies.TryGetValue(GetId(type), out var value2) ? value2 : Enumerable.Empty<ParameterTypeDescriptor>())
-            {
-                new(type,
-                    TypeParameters.TryGetValue(GetId(type), out var value) ? value : Enumerable.Empty<ParameterDescriptor>())
-            };
-
-            if (taskAttribute.Action == null)
-            {
-                task = new Task(GetName(type, taskAttribute), new HashSet<Task>(), new EmptyActionDescriptor(type), parameters)
-                {
-                    Default = taskAttribute.Default
-                };
-            }
-            else
-            {
-                var methodInfo = type.GetMethod(taskAttribute.Action) ?? throw new InvalidOperationException();
-
-                task = new Task(GetName(type, taskAttribute), new HashSet<Task>(), new MethodActionDescriptor(methodInfo, type), parameters)
-                {
-                    Default = taskAttribute.Default
-                };
-            }
-
-            Tasks.Add(id, task);
-
-            Task = task;
-
-            Task = task;
-            ParentTask = task;
-        }
-
-        foreach (var attribute in type.GetCustomAttributes())
+        foreach (var attribute in GetAttributes(type))
         {
             attribute.Accept(this);
+
+            Type = type;
         }
 
         foreach (var property in type.GetProperties().Where(c => c.DeclaringType != typeof(object) && !c.IsSpecialName))
         {
             property.Accept(this);
+
+            Type = type;
         }
 
         foreach (var method in type.GetMethods().Where(c=> c.DeclaringType != typeof(object) && !c.IsSpecialName))
         {
             method.Accept(this);
+
+            Type = type;
         }
 
         foreach (var method in type.GetInterfaces().SelectMany(c => c.GetMethods()))
         {
             method.Accept(this);
+
+            Type = type;
         }
 
-        foreach (var nestedType in type.GetNestedTypes())
+        var nestedTypes = type.GetNestedTypes();
+
+
+        foreach (var nestedType in nestedTypes)
         {
+            var parentTask = ParentTask;
+   
             nestedType.Accept(this);
+
+            ParentTask = parentTask;
+            Path = path;
+            Type = type;
         }
 
         if (type.BaseType != null && type.BaseType != typeof(object))
         {
-            foreach (var nestedType in type.BaseType.GetNestedTypes())
+            var baseNestedTypes = type.BaseType.GetNestedTypes();
+
+            foreach (var nestedType in baseNestedTypes)
             {
+                var parentTask = ParentTask;
+       
                 nestedType.Accept(this);
+
+                ParentTask = parentTask;
+                Path = path;
+                Type = type;
             }
         }
     }
 
+    protected virtual IEnumerable<Attribute> GetAttributes(MemberInfo member)
+    {
+        var attributes = new List<Attribute>();
+
+        Attribute? attribute = member.GetCachedAttribute<TaskAttribute>();
+
+        if (attribute != null)
+        {
+            attributes.Add(attribute);
+        }
+
+        attribute = member.GetCachedAttribute<DependentOnAttribute>();
+
+        if (attribute != null)
+        {
+            attributes.Add(attribute);
+        }
+
+        attribute = member.GetCachedAttribute<DependentForAttribute>();
+
+        if (attribute != null)
+        {
+            attributes.Add(attribute);
+        }
+
+        return attributes;
+    }
+
     public override void VisitMethod(MethodInfo methodInfo)
     {
-        var id = GetId(methodInfo);
+        MethodInfo = methodInfo;
+
+        var id = GetPath(methodInfo);
 
         if (_visited.Contains(id))
         {
@@ -167,37 +176,15 @@ internal class TaskVisitor: SymbolVisitor
 
         _visited.Add(id);
 
-
-        var taskAttribute = methodInfo.GetCachedAttribute<TaskAttribute>();
-        if (taskAttribute == null)
-        {
-            return;
-        }
-
-        var type = methodInfo.ReflectedType!.IsInterface || methodInfo.ReflectedType!.IsAbstract ? Type! : methodInfo.ReflectedType;
-
-        var parameters = new HashSet<ParameterTypeDescriptor>(ParameterDependencies.TryGetValue(GetId(type), out var value2) ? value2 : Enumerable.Empty<ParameterTypeDescriptor>())
-        {
-            new(type,
-                TypeParameters.TryGetValue(GetId(type), out var value) ? value : Enumerable.Empty<ParameterDescriptor>())
-        };
-
-        var task = new Task(GetName(methodInfo, taskAttribute), new HashSet<Task>(), new MethodActionDescriptor(methodInfo, type), parameters)
-        {
-            Default = taskAttribute.Default
-        };
-
-        Tasks.Add(id, task);
-
-        Task = task;
-
-        foreach (var attribute in methodInfo.GetCustomAttributes())
+        foreach (var attribute in GetAttributes(methodInfo))
         {
             attribute.Accept(this);
+
+            MethodInfo = methodInfo;
         }
     }
 
-    public string GetName(MemberInfo member, TaskAttribute taskAttribute)
+    protected string GetName(MemberInfo member, string? name)
     {
         var tokens = new List<string>();
         if (ParentTask != null)
@@ -205,51 +192,110 @@ internal class TaskVisitor: SymbolVisitor
             tokens.Add(ParentTask.Name);
         }
 
-        tokens.Add(string.IsNullOrEmpty(taskAttribute.Name) ? member.Name : taskAttribute.Name);
+        tokens.Add(string.IsNullOrEmpty(name) ? member.Name : name);
 
         return string.Join('-', tokens);
     }
 
-
-
-    public string GetId(MemberInfo member)
+    public string GetPath(MemberInfo member)
     {
-        var tokens = new HashSet<string>();
+        var tokens = new List<string>();
         if (member is Type type)
         {
-            if (OwnerType != type)
+            var currentType = type;
+
+            while (currentType != null)
             {
-                tokens.Add(OwnerType!.FullName!);
-                tokens.Add(type.FullName!);
-            }
-            else
-            {
-                tokens.Add(type.FullName!);
+                if (currentType.IsAbstract)
+                {
+                    break;
+                }
+
+                var typeToken = "/" + currentType.Namespace + "/" + currentType.Name;
+
+                tokens.Add(typeToken);
+
+                if (currentType.ReflectedType is { IsAbstract: true } && Path != null && Path.EndsWith(typeToken))
+                {
+                    return Path;
+                }
+
+                if (RootType != null && currentType.IsNested && currentType.ReflectedType is { IsAbstract: true })
+                {
+                    tokens.Add("/" + RootType.Namespace + "/" + RootType.Name);
+                }
+
+                currentType = currentType.ReflectedType;
             }
         }
 
         if (member is not System.Type)
         {
-            if (OwnerType != member.ReflectedType)
+            tokens.Add("/" + member.Name);
+
+            var currentType = member.ReflectedType;
+
+            while (currentType != null)
             {
-                tokens.Add(OwnerType!.FullName!);
-                tokens.Add(member.ReflectedType!.FullName!);
-                tokens.Add(member.Name);
+                if (currentType.IsAbstract)
+                {
+                    break;
+                }
+
+                tokens.Add("/" + currentType.Namespace + "/" + currentType.Name);
+
+                if (RootType != null && currentType.IsNested && currentType.ReflectedType is { IsAbstract: true })
+                {
+                    tokens.Add("/" + RootType.Namespace + "/" + RootType.Name);
+                }
+
+                currentType = currentType.ReflectedType;
             }
-            else
-            {
-                tokens.Add(member.ReflectedType!.FullName!);
-            }
-            tokens.Add(member.Name);
         }
 
-        return string.Join('+',tokens);
-     }
+        tokens.Reverse();
+        return string.Concat(tokens);
+    }
+
+    public override void VisitConstructor(ConstructorInfo constructorInfo)
+    {
+        var type = Type!;
+
+        var id = GetPath(type);
+
+        foreach (var parameter in constructorInfo.GetParameters())
+        {
+            var currentOwner = RootType;
+
+            RootType = null;
+
+            var path = Path;
+
+            parameter.ParameterType.Accept(this);
+
+            var typeId = GetPath(parameter.ParameterType);
+
+            var parameterTypeDescriptors = new HashSet<ParameterTypeDescriptor>();
+
+            var parameters = TypeParameters.TryGetValue(typeId, out var value) ? value : Enumerable.Empty<ParameterDescriptor>();
+
+            parameterTypeDescriptors.Add(new ParameterTypeDescriptor(parameter.ParameterType, parameters));
+
+            ParameterDependencies.Add(id, parameterTypeDescriptors);
+
+            RootType = currentOwner;
+            Type = type;
+            Path = path;
+        }
+    }
 
     public override void VisitAttribute(Attribute attribute)
     {
         switch (attribute)
         {
+            case TaskAttribute taskAttribute:
+                VisitTaskAttribute(taskAttribute);
+                break;
             case DependentForAttribute dependentForAttribute:
                 VisitDependentForAttribute(dependentForAttribute);
                 break;
@@ -279,7 +325,7 @@ internal class TaskVisitor: SymbolVisitor
 
         var type = property.ReflectedType!.IsInterface || property.ReflectedType!.IsAbstract ? Type! : property.ReflectedType;
 
-        var typeId = GetId(type);
+        var typeId = GetPath(type);
 
         var parameter = new Parameter(name, parameterAttribute.Description, property.PropertyType);
 
@@ -292,12 +338,14 @@ internal class TaskVisitor: SymbolVisitor
 
         TypeParameters[typeId].Add(descriptor);
 
-        Parameters.Add(GetId(Property!), parameter);
+        var propertyId = GetPath(property);
+
+        Parameters.Add(propertyId, parameter);
     }
 
     public override void VisitProperty(PropertyInfo propertyInfo)
     {
-        var id = GetId(propertyInfo);
+        var id = GetPath(propertyInfo);
 
         if (_visited.Contains(id))
         {
@@ -317,6 +365,64 @@ internal class TaskVisitor: SymbolVisitor
         //propertyInfo.PropertyType.Accept(this);
     }
 
+    public virtual void VisitTaskAttribute(TaskAttribute taskAttribute)
+    {
+        if (MethodInfo != null)
+        {
+            var type = MethodInfo.ReflectedType!.IsInterface || MethodInfo.ReflectedType!.IsAbstract ? Type! : MethodInfo.ReflectedType;
+
+            var methodId = GetPath(MethodInfo);
+
+            var typeId = GetPath(type);
+
+            var parameters = GetParameterTypeDescriptors(typeId, type);
+
+            var task = new Task(GetName(MethodInfo, taskAttribute.Name), new HashSet<Task>(), new MethodActionDescriptor(MethodInfo, type), parameters)
+            {
+                Default = taskAttribute.Default
+            };
+
+            Tasks.Add(methodId, task);
+
+            Task = task;
+        }
+        else
+        {
+            var type = Type!;
+
+            var typeId = GetPath(type);
+
+            var parameters = GetParameterTypeDescriptors(typeId, type);
+
+            Task task;
+
+            if (taskAttribute.Action == null)
+            {
+                task = new Task(GetName(type, taskAttribute.Name), new HashSet<Task>(), new EmptyActionDescriptor(type),
+                    parameters)
+                {
+                    Default = taskAttribute.Default
+                };
+            }
+            else
+            {
+                var methodInfo = type.GetMethod(taskAttribute.Action) ?? throw new InvalidOperationException();
+
+                task = new Task(GetName(type, taskAttribute.Name), new HashSet<Task>(),
+                    new MethodActionDescriptor(methodInfo, type), parameters)
+                {
+                    Default = taskAttribute.Default
+                };
+            }
+
+            Tasks.Add(typeId, task);
+
+            Task = task;
+
+            ParentTask = task;
+        }
+    }
+
     public virtual void VisitDependentForAttribute(DependentForAttribute dependentForAttribute)
     {
         var currentType = Type!;
@@ -331,14 +437,20 @@ internal class TaskVisitor: SymbolVisitor
         }
         else
         {
+            var path = Path;
+
+            Path = "";
+
             dependentForAttribute.Type.Accept(this);
+
+            Path = path;
         }
 
         var dependentType = dependentForAttribute.Type ?? currentType;
 
         if (dependentForAttribute.Actions.Length == 0 && dependentForAttribute.Type != null)
         {
-            var dependentKey = GetId(dependentType);
+            var dependentKey = GetPath(dependentType);
 
             var task = Tasks[dependentKey];
 
@@ -347,7 +459,7 @@ internal class TaskVisitor: SymbolVisitor
 
         foreach (var methodName in dependentForAttribute.Actions)
         {
-            var dependentKey = GetId(dependentType.GetMethod(methodName) ?? throw new InvalidOperationException());
+            var dependentKey = GetPath(dependentType.GetMethod(methodName) ?? throw new InvalidOperationException());
 
             var task = Tasks[dependentKey];
 
@@ -369,14 +481,18 @@ internal class TaskVisitor: SymbolVisitor
         }
         else
         {
+            var path = Path;
+
             dependentOnAttribute.Type.Accept(this);
+
+            Path = path;
         }
 
         var dependentType = dependentOnAttribute.Type ?? currentType;
 
         if (dependentOnAttribute.Actions.Length == 0 && dependentOnAttribute.Type != null)
         {
-            var dependentKey = GetId(dependentType);
+            var dependentKey = GetPath(dependentType);
 
             var task = Tasks[dependentKey];
 
@@ -385,12 +501,32 @@ internal class TaskVisitor: SymbolVisitor
 
         foreach (var methodName in dependentOnAttribute.Actions)
         {
-            var dependentKey = GetId(dependentType.GetMethod(methodName) ?? throw new InvalidOperationException());
+            var dependentKey = GetPath(dependentType.GetMethod(methodName) ?? throw new InvalidOperationException());
 
             var task = Tasks[dependentKey];
 
             currentTask.Dependencies.Add(task);
         }
+    }
+
+    protected HashSet<ParameterTypeDescriptor> GetParameterTypeDescriptors(string id, Type type)
+    {
+        if (!TypeParameters.ContainsKey(id))
+        {
+            TypeParameters.Add(id, new HashSet<ParameterDescriptor>());
+        }
+
+        var parameters = new HashSet<ParameterTypeDescriptor>(
+            ParameterDependencies.TryGetValue(id, out var value2)
+                ? value2
+                : Enumerable.Empty<ParameterTypeDescriptor>())
+        {
+            new(type,
+                TypeParameters.TryGetValue(id, out var value)
+                    ? value
+                    : Enumerable.Empty<ParameterDescriptor>())
+        };
+        return parameters;
     }
 }
 #endif

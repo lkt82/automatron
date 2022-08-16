@@ -24,18 +24,10 @@ public sealed class TaskRunner : ITypeProvider
 {
     private readonly IDictionary<Parameter, Option> _optionLockUp = new Dictionary<Parameter, Option>();
 
-    private readonly IEnumerable<Type> _types = GetAssemblyTypes().ToArray();
-
     public TaskRunner()
     {
         Services.AddSingleton(typeof(TaskCommand));
         Services.AddSingleton<ITypeProvider>(this);
- 
-        foreach (var type in _types)
-        {
-            Services.AddScoped(type);
-        }
-
         Services.AddSingleton(_ => AnsiConsole.Console);
         Services.AddSingleton<IConsole, AnsiConsoleForwardingConsole>();
         Services.AddSingleton<IEnvironment>(_ => new SystemEnvironment());
@@ -168,8 +160,26 @@ public sealed class TaskRunner : ITypeProvider
         return this;
     }
 
+
+    public TaskRunner UsingTypes(IEnumerable<Type> types)
+    {
+        Types = types;
+
+        return this;
+    }
+
     private AppRunner Build()
     {
+        if (!Types.Any())
+        {
+            Types = GetAssemblyTypes();
+        }
+
+        foreach (var type in Types)
+        {
+            Services.AddScoped(type);
+        }
+
         return new AppRunner<TaskCommand>()
             .UseMicrosoftDependencyInjection(Services.BuildServiceProvider())
             .Configure(c =>
@@ -199,9 +209,6 @@ public sealed class TaskRunner : ITypeProvider
         return Build().Run(args);
     }
 
-    public IEnumerable<Type> GetTypes()
-    {
-       return _types;
-    }
+    public IEnumerable<Type> Types { get; private set; } = Enumerable.Empty<Type>();
 }
 #endif

@@ -6,6 +6,6 @@ namespace Automatron;
 
 internal interface ITypeProvider
 {
-    public IEnumerable<Type> GetTypes();
+    public IEnumerable<Type> Types { get;}
 }
 #endif

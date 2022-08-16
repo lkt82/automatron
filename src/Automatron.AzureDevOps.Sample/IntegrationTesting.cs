@@ -53,6 +53,9 @@ public class IntegrationTesting
         [DeploymentJob("Teardown", Environment = "Integration", DependsOn = new []{typeof(SetupJob) } )]
         public class TeardownJob
         {
+            [Environment]
+            public virtual string? Environment { get; set; }
+
             [Step]
             public virtual void Init()
             {

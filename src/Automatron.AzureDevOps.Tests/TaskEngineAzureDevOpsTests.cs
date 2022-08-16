@@ -23,7 +23,7 @@ public class TaskEngineAzureDevOpsTests
 
         serviceProvider.GetService(Arg.Any<Type>()).Returns(job);
 
-        var taskBuilder = new AzureDevOpsTaskModelFactoryDecorator(Substitute.For<ITaskModelFactory>(), serviceProvider, typeProvider);
+        var taskBuilder = new AzureDevOpsTaskModelFactory(Substitute.For<ITaskModelFactory>(), serviceProvider, typeProvider);
 
         var taskEngine = new TaskEngine(Substitute.For<IAnsiConsole>(), taskBuilder.Create());
 
@@ -46,7 +46,7 @@ public class TaskEngineAzureDevOpsTests
 
         var serviceProvider = Substitute.For<IServiceProvider>();
 
-        var taskBuilder = new AzureDevOpsTaskModelFactoryDecorator(Substitute.For<ITaskModelFactory>(), serviceProvider, typeProvider);
+        var taskBuilder = new AzureDevOpsTaskModelFactory(Substitute.For<ITaskModelFactory>(), serviceProvider, typeProvider);
 
         var taskEngine = new TaskEngine(Substitute.For<IAnsiConsole>(), taskBuilder.Create());
 
@@ -70,7 +70,7 @@ public class TaskEngineAzureDevOpsTests
 
         var serviceProvider = Substitute.For<IServiceProvider>();
 
-        var taskBuilder = new AzureDevOpsTaskModelFactoryDecorator(Substitute.For<ITaskModelFactory>(), serviceProvider, typeProvider);
+        var taskBuilder = new AzureDevOpsTaskModelFactory(Substitute.For<ITaskModelFactory>(), serviceProvider, typeProvider);
 
         var taskEngine = new TaskEngine(Substitute.For<IAnsiConsole>(), taskBuilder.Create());
 
@@ -96,7 +96,7 @@ public class TaskEngineAzureDevOpsTests
 
         var serviceProvider = Substitute.For<IServiceProvider>();
 
-        var taskBuilder = new AzureDevOpsTaskModelFactoryDecorator(Substitute.For<ITaskModelFactory>(), serviceProvider, typeProvider);
+        var taskBuilder = new AzureDevOpsTaskModelFactory(Substitute.For<ITaskModelFactory>(), serviceProvider, typeProvider);
 
         var taskEngine = new TaskEngine(Substitute.For<IAnsiConsole>(), taskBuilder.Create());
 
@@ -124,7 +124,7 @@ public class TaskEngineAzureDevOpsTests
 
         serviceProvider.GetService(Arg.Any<Type>()).Returns(job);
 
-        var taskBuilder = new AzureDevOpsTaskModelFactoryDecorator(Substitute.For<ITaskModelFactory>(), serviceProvider, typeProvider);
+        var taskBuilder = new AzureDevOpsTaskModelFactory(Substitute.For<ITaskModelFactory>(), serviceProvider, typeProvider);
 
         var taskEngine = new TaskEngine(Substitute.For<IAnsiConsole>(), taskBuilder.Create());
 
@@ -152,7 +152,7 @@ public class TaskEngineAzureDevOpsTests
 
         serviceProvider.GetService(Arg.Any<Type>()).Returns(job);
 
-        var taskBuilder = new AzureDevOpsTaskModelFactoryDecorator(Substitute.For<ITaskModelFactory>(), serviceProvider, typeProvider);
+        var taskBuilder = new AzureDevOpsTaskModelFactory(Substitute.For<ITaskModelFactory>(), serviceProvider, typeProvider);
 
         var taskEngine = new TaskEngine(Substitute.For<IAnsiConsole>(), taskBuilder.Create());
 
@@ -179,7 +179,7 @@ public class TaskEngineAzureDevOpsTests
 
         serviceProvider.GetService(Arg.Any<Type>()).Returns(job);
 
-        var taskBuilder = new AzureDevOpsTaskModelFactoryDecorator(Substitute.For<ITaskModelFactory>(), serviceProvider, typeProvider);
+        var taskBuilder = new AzureDevOpsTaskModelFactory(Substitute.For<ITaskModelFactory>(), serviceProvider, typeProvider);
 
         var taskEngine = new TaskEngine(Substitute.For<IAnsiConsole>(), taskBuilder.Create());
 

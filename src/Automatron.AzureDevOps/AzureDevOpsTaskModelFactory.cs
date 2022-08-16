@@ -4,29 +4,30 @@ using System.Collections.Generic;
 using System.Linq;
 using Automatron.Reflection;
 
-namespace Automatron;
+namespace Automatron.AzureDevOps;
 
-internal class TaskModelFactory : ITaskModelFactory
+internal class AzureDevOpsTaskModelFactory: ITaskModelFactory
 {
     private readonly IEnumerable<Type> _types;
 
-    public TaskModelFactory(ITypeProvider typeProvider)
+    public AzureDevOpsTaskModelFactory(ITypeProvider typeProvider)
     {
         _types = typeProvider.Types;
     }
 
     public TaskModel Create()
     {
-        var taskVisitor = new TaskVisitor(_types);
+        var pipelineVisitor = new PipelineVisitor(_types);
 
         var types = _types.Where(c => !c.IsNested);
 
         foreach (var taskType in types)
         {
-            taskType.Accept(taskVisitor);
+            taskType.Accept(pipelineVisitor);
         }
 
-        return new TaskModel(taskVisitor.Tasks.Values, taskVisitor.Parameters.Values);
+        return new TaskModel(pipelineVisitor.Tasks.Values, pipelineVisitor.Parameters.Values);
     }
 }
+
 #endif
