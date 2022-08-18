@@ -1,9 +1,9 @@
 ﻿using System.Text;
 using YamlDotNet.Serialization;
 
-namespace Automatron.AzureDevOps.Generators.Models;
+namespace Automatron.AzureDevOps.Models;
 
-public sealed class AutomatronTask : Script
+public sealed class AutomatronScript : Script
 {
     [YamlIgnore]
     public string[] Tasks { get; }
@@ -20,7 +20,7 @@ public sealed class AutomatronTask : Script
     [YamlIgnore]
     public string[]? Parameters { get; }
 
-    public AutomatronTask(IJob job, string[] tasks, string[]? skip, bool skipAll = false, bool parallel = false, string[]? parameters = null) : base(job, BuildCommand(tasks, skip, skipAll, parallel, parameters))
+    public AutomatronScript(IJob job, string[] tasks, string[]? skip, bool skipAll = false, bool parallel = false, string[]? parameters = null) : base(job, BuildCommand(tasks, skip, skipAll, parallel, parameters))
     {
         Tasks = tasks;
         Skip = skip;

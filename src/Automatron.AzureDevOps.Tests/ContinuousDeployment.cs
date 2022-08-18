@@ -1,4 +1,4 @@
-﻿using Automatron.AzureDevOps.Generators.Annotations;
+﻿using Automatron.AzureDevOps.Annotations;
 
 namespace Automatron.AzureDevOps.Tests;
 
@@ -36,7 +36,7 @@ public abstract class PulumiDeploymentStage
     }
 }
 
-[Pipeline]
+[Pipeline("Ci")]
 [CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
 [Pool(VmImage = "ubuntu-latest")]
 [VariableGroup("Nuget")]
@@ -48,13 +48,13 @@ public abstract class PulumiContinuousDeploymentPipeline
     {
     }
 
-    [Stage(DependsOn = new[] { typeof(DeployToTesting) })]
+    [Stage(DependsOn = new object[] { typeof(DeployToTesting) })]
     [Environment("Staging")]
     public class DeployToStaging : PulumiDeploymentStage
     {
     }
 
-    [Stage(DependsOn = new[] { typeof(DeployToStaging) })]
+    [Stage(DependsOn = new object[] { typeof(DeployToStaging) })]
     [Environment("Production")]
     public class DeployToProduction : PulumiDeploymentStage
     {
@@ -62,9 +62,5 @@ public abstract class PulumiContinuousDeploymentPipeline
 }
 
 public class ContinuousDeployment : PulumiContinuousDeploymentPipeline
-{
-}
-
-public class ContinuousDeployment2 : PulumiContinuousDeploymentPipeline
 {
 }

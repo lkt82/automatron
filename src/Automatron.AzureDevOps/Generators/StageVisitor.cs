@@ -1,89 +1,95 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Automatron.AzureDevOps.Generators.Annotations;
-using Automatron.AzureDevOps.Generators.Models;
+using Automatron.AzureDevOps.Annotations;
+using Automatron.AzureDevOps.CodeAnalysis;
+using Automatron.AzureDevOps.Models;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
 
-internal class StageVisitor : SymbolVisitor, IComparer<Stage>
+internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>, IComparer<Stage>
 {
     private readonly Pipeline _pipeline;
 
-    public List<Stage> Stages { get; } = new();
+    private Dictionary<string,Stage> Stages { get; } = new();
 
-    private readonly Dictionary<Stage, INamedTypeSymbol> _templates = new();
+    private INamedTypeSymbol? _root;
 
     public StageVisitor(Pipeline pipeline)
     {
         _pipeline = pipeline;
     }
 
-    public override void VisitNamedType(INamedTypeSymbol symbol)
+    public override IEnumerable<Stage> VisitNamedType(INamedTypeSymbol symbol)
     {
-        var methods = symbol.GetAllPublicMethods();
+        _root = symbol;
 
-        foreach (var method in methods)
+        VisitStageType(symbol);
+
+        foreach (var stage in Stages.Values)
         {
-            method.Accept(this);
+            stage.Jobs = symbol.Accept(new JobVisitor(stage));
         }
 
-        foreach (var stage in Stages)
-        {
-            JobVisitor jobVisitor;
+        var list = new List<Stage>(Stages.Values);
+        list.Sort(this);
 
-             if (_templates.ContainsKey(stage))
-            {
-                 jobVisitor = new TemplateJobVisitor(stage);
-                 _templates[stage].Accept(jobVisitor);
-            }
-            else
-            {
-                jobVisitor = new JobVisitor(stage);
-                symbol.Accept(jobVisitor);
-            }
+        return list;
+    }
+
+    private void VisitStageType(INamedTypeSymbol symbol)
+    {
+        if (Stages.ContainsKey(symbol.Name))
+        {
+            return;
         }
 
-        _pipeline.Stages.AddRange(Stages);
-        _pipeline.Stages.Sort(this);
+        var stageAttribute = symbol.GetAllAttributes().GetCustomAttribute<StageAttribute>();
+
+        if (stageAttribute != null)
+        {
+            if (stageAttribute.DependsOn != null)
+            {
+                foreach (var stageTypeSymbol in stageAttribute.DependsOn.Cast<INamedTypeSymbol>())
+                {
+                    VisitStageType(stageTypeSymbol);
+                }
+            }
+
+            var stage = CreateStage(stageAttribute, symbol);
+
+            Stages[symbol.Name] = stage;
+        }
+
+        foreach (var type in symbol.GetAllTypeMembers())
+        {
+            VisitStageType(type);
+        }
+
+
     }
 
-    public override void VisitMethod(IMethodSymbol symbol)
+    private Stage CreateStage(StageAttribute stageAttribute, ISymbol symbol)
     {
-        //foreach (var stageAttribute in symbol.GetCustomAttributes<StageAttribute>())
-        //{
-        //    if (stageAttribute.Pipeline != _pipeline.Name && stageAttribute.Pipeline != null)
-        //    {
-        //        continue;
-        //    }
+        var name = !string.IsNullOrEmpty(stageAttribute.Name) ? stageAttribute.Name! : symbol.Name;
 
-        //    var stage = CreateStage(stageAttribute, symbol);
+        var stage = new Stage(_pipeline, name, stageAttribute.DisplayName, stageAttribute.DependsOn?.Cast<ISymbol>().Select(c=> Stages[c.Name].Name).ToArray(), stageAttribute.Condition)
+            {
+                Pool = symbol.Accept(new PoolVisitor()),
+                Variables = symbol.Accept(new VariableVisitor())
+            };
 
-        //    Stages.Add(stage);
-        //}
+        if (SymbolEqualityComparer.Default.Equals(_root, symbol))
+        {
+            stage.Path = _pipeline.Path;
+        }
+        else
+        {
+            stage.Path = _pipeline.Path + "/" + stage.Name;
+        }
+
+        return stage;
     }
-
-    //private Stage CreateStage(StageAttribute stageAttribute, ISymbol member)
-    //{
-    //    var name = !string.IsNullOrEmpty(stageAttribute.Name) ? stageAttribute.Name! : member.Name;
-
-    //    var stage = new Stage(_pipeline, name, stageAttribute.DisplayName, stageAttribute.DependsOn, stageAttribute.Condition);
-
-    //    var poolAttribute = member.GetCustomAttributes<PoolAttribute>().FirstOrDefault(c => c.Target == name || c.Target == null);
-
-    //    if (poolAttribute != null)
-    //    {
-    //        stage.Pool = new Pool(poolAttribute.Name, poolAttribute.VmImage);
-    //    }
-
-    //    if (stageAttribute.TemplateSymbol != null)
-    //    {
-    //        stage.TemplateName = stageAttribute.TemplateSymbol.Name;
-    //        _templates[stage] = stageAttribute.TemplateSymbol;
-    //    }
-
-    //    return stage;
-    //}
 
     public int Compare(Stage? x, Stage? y)
     {

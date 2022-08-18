@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Automatron.AzureDevOps.Generators.Annotations;
+using Automatron.AzureDevOps.Annotations;
 using Automatron.Reflection;
 using CommandDotNet;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,7 +38,7 @@ public static class AzureDevOpsTaskRunnerExtensions
 
         return services
             .AddSingleton<AzureDevOpsTasks>()
-            .AddSingleton<ITaskModelFactory, AzureDevOpsTaskModelFactory>();
+            .AddTransient<TaskVisitor, PipelineTaskVisitor>();
     }
 
     private static IEnumerable<Type> GetAssemblyTypes()

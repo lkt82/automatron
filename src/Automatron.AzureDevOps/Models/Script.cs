@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using YamlDotNet.Serialization;
 
-namespace Automatron.AzureDevOps.Generators.Models;
+namespace Automatron.AzureDevOps.Models;
 
 public class Script : Step
 {

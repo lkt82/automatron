@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Automatron.AzureDevOps.Generators.Annotations
+namespace Automatron.AzureDevOps.Annotations
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface,AllowMultiple = true)]
     public class PipelineAttribute : Attribute

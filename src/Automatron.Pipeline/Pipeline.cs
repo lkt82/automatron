@@ -2,12 +2,12 @@
 using System.Reflection;
 using Automatron;
 using Automatron.AzureDevOps;
-using Automatron.AzureDevOps.Generators.Annotations;
+using Automatron.AzureDevOps.Annotations;
 using static SimpleExec.Command;
 
 await new TaskRunner().UseAzureDevOps().RunAsync(args);
 
-[Pipeline(YmlPath = RootPath,YmlName = "azure-pipelines")]
+[Pipeline("Ci",YmlPath = RootPath,YmlName = "azure-pipelines")]
 [CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
 [Pool(VmImage = "ubuntu-latest")]
 [VariableGroup("nuget")]
@@ -25,7 +25,7 @@ public class Pipeline
 
     private static string ArtifactsDir => $"{RootDir}.artifacts";
 
-    [SecretVariable]
+    [Variable]
     [Description("The nuget api key")]
     public Secret? NugetApiKey { get; set; }
 

@@ -3,13 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
-namespace Automatron.AzureDevOps.Generators;
+namespace Automatron.AzureDevOps.CodeAnalysis;
 
 public static class SymbolExtensions
 {
     public static IEnumerable<T> GetCustomAttributes<T>(this ISymbol symbol) where T : Attribute
     {
         return symbol.GetAttributes().Where(c => c.IsCustomAttribute<T>()).Select(c=> c.MapToCustomAttribute<T>());
+    }
+
+    public static T? GetCustomAttribute<T>(this ISymbol symbol) where T : Attribute
+    {
+        return symbol.GetAttributes().Where(c => c.IsCustomAttribute<T>()).Select(c => c.MapToCustomAttribute<T>()).FirstOrDefault();
     }
 
     public static bool HasCustomAttributes<T>(this ISymbol symbol) where T : Attribute
@@ -19,6 +24,11 @@ public static class SymbolExtensions
 
     public static IEnumerable<T> GetCustomAbstractAttributes<T>(this ISymbol symbol) where T : Attribute
     {
-        return symbol.GetAttributes().Where(c=> c.IsAssignableFrom<T>()).Select(c=> c.MapToCustomAttribute<T>(Type.GetType(c.AttributeClass + ", " + c.AttributeClass?.ContainingAssembly) ?? throw new InvalidOperationException()));
+        return symbol.GetAttributes().GetCustomAbstractAttributes<T>();
+    }
+
+    public static T? GetCustomAbstractAttribute<T>(this ISymbol symbol) where T : Attribute
+    {
+        return symbol.GetAttributes().GetCustomAbstractAttribute<T>();
     }
 }

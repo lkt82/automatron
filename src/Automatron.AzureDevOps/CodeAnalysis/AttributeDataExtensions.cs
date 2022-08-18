@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 
-namespace Automatron.AzureDevOps.Generators;
+namespace Automatron.AzureDevOps.CodeAnalysis;
 
 public static class AttributeDataExtensions
 {
@@ -65,6 +65,7 @@ public static class AttributeDataExtensions
             "DateTime[]" => typedConstant.Values.Select(a => a.Value).OfType<DateTime>().ToArray(),
             "bool[]" => typedConstant.Values.Select(a => a.Value).OfType<bool>().ToArray(),
             "object[]" => typedConstant.Values.Select(a => a.Value).OfType<object>().ToArray(),
+            "System.Type[]" => typedConstant.Values.Select(a => a.Value as INamedTypeSymbol).ToArray(),
             "string" => typedConstant.Value!,
             "bool" => typedConstant.Value!,
             "int" => typedConstant.Value!,
@@ -87,6 +88,21 @@ public static class AttributeDataExtensions
     public static IEnumerable<T> GetCustomAttributes<T>(this IEnumerable<AttributeData> attributeData) where T : Attribute
     {
         return attributeData.Where(c => c.IsCustomAttribute<T>()).Select(c => c.MapToCustomAttribute<T>());
+    }
+
+    public static IEnumerable<T> GetCustomAbstractAttributes<T>(this IEnumerable<AttributeData> attributeData) where T : Attribute
+    {
+        return attributeData.Where(c => c.IsAssignableFrom<T>()).Select(c => c.MapToCustomAttribute<T>(Type.GetType(c.AttributeClass + ", " + c.AttributeClass?.ContainingAssembly) ?? throw new InvalidOperationException()));
+    }
+
+    public static T? GetCustomAbstractAttribute<T>(this IEnumerable<AttributeData> attributeData) where T : Attribute
+    {
+        return attributeData.Where(c => c.IsAssignableFrom<T>()).Select(c => c.MapToCustomAttribute<T>(Type.GetType(c.AttributeClass + ", " + c.AttributeClass?.ContainingAssembly) ?? throw new InvalidOperationException())).FirstOrDefault();
+    }
+
+    public static T? GetCustomAttribute<T>(this IEnumerable<AttributeData> attributeData) where T : Attribute
+    {
+        return attributeData.Where(c => c.IsCustomAttribute<T>()).Select(c => c.MapToCustomAttribute<T>()).FirstOrDefault();
     }
 
     public static bool IsAssignableFrom<T>(this AttributeData attribute)

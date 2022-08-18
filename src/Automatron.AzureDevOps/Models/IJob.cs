@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Automatron.AzureDevOps.Generators.Models;
+namespace Automatron.AzureDevOps.Models;
 
 public interface IJob
 {
@@ -14,9 +14,13 @@ public interface IJob
 
     Pool? Pool { get; }
 
-    List<Step> Steps { get; }
+    IEnumerable<IVariable>? Variables { get; set; }
+
+    IEnumerable<string>? Parameters { get; set; }
+
+    IEnumerable<Step>? Steps { get; set; }
 
     Stage Stage { get; }
 
-    string? TemplateName { get; }
+    string Path { get; set; }
 }

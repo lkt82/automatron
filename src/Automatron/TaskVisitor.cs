@@ -12,9 +12,9 @@ internal class TaskVisitor: SymbolVisitor
 {
     private readonly IEnumerable<Type> _allowTypes;
 
-    public TaskVisitor(IEnumerable<Type> allowTypes)
+    public TaskVisitor(ITypeProvider allowTypes)
     {
-        _allowTypes = allowTypes;
+        _allowTypes = allowTypes.Types;
     }
 
     public Dictionary<string,Task> Tasks { get; } = new();
@@ -310,24 +310,36 @@ internal class TaskVisitor: SymbolVisitor
 
     private void VisitParameterAttribute(ParameterAttribute parameterAttribute)
     {
-        var property = Property!;
+        var property = Property;
 
-        var tokens = new HashSet<string>();
-
-        if (ParentTask != null)
+        if (property == null)
         {
-            tokens.Add(ParentTask.Name);
+            return;
         }
 
-        tokens.Add(!string.IsNullOrEmpty(parameterAttribute.Name) ? parameterAttribute.Name : property.Name);
+        // Enable nested parameters
+        //var tokens = new HashSet<string>();
 
-        var name = string.Join('-', tokens);
+        //if (ParentTask != null)
+        //{
+        //    tokens.Add(ParentTask.Name);
+        //}
 
+        //tokens.Add(!string.IsNullOrEmpty(parameterAttribute.Name) ? parameterAttribute.Name : property.Name);
+
+        //var name = string.Join('-', tokens);
+        var name = !string.IsNullOrEmpty(parameterAttribute.Name) ? parameterAttribute.Name : property.Name;
+
+        AddParameter(name, parameterAttribute.Description, property);
+    }
+
+    protected void AddParameter(string name,string? description, PropertyInfo property)
+    {
         var type = property.ReflectedType!.IsInterface || property.ReflectedType!.IsAbstract ? Type! : property.ReflectedType;
 
         var typeId = GetPath(type);
 
-        var parameter = new Parameter(name, parameterAttribute.Description, property.PropertyType);
+        var parameter = new Parameter(name, description, property.PropertyType);
 
         var descriptor = new ParameterDescriptor(parameter, property);
 

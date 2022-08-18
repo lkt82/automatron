@@ -1,15 +1,17 @@
 ﻿#if NET6_0
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
-using Automatron.AzureDevOps.Generators.Annotations;
+using Automatron.AzureDevOps.Annotations;
 using Automatron.Reflection;
 
 namespace Automatron.AzureDevOps
 {
-    internal class PipelineVisitor : TaskVisitor
+    internal class PipelineTaskVisitor : TaskVisitor
     {
-        public PipelineVisitor(IEnumerable<Type> allowTypes) : base(allowTypes)
+        public PipelineTaskVisitor(ITypeProvider allowTypes) : base(allowTypes)
         {
         }
 
@@ -130,7 +132,7 @@ namespace Automatron.AzureDevOps
 
             if (jobAttribute.DependsOn != null)
             {
-                foreach (var dependentJob in jobAttribute.DependsOn)
+                foreach (var dependentJob in jobAttribute.DependsOn.Cast<Type>())
                 {
                     var dependentKey = GetPath(dependentJob ?? throw new InvalidOperationException());
 
@@ -162,7 +164,7 @@ namespace Automatron.AzureDevOps
 
             if (stageAttribute.DependsOn != null)
             {
-                foreach (var dependentStage in stageAttribute.DependsOn)
+                foreach (var dependentStage in stageAttribute.DependsOn.Cast<Type>())
                 {
                     var dependentKey = GetPath(dependentStage ?? throw new InvalidOperationException());
 
@@ -208,35 +210,43 @@ namespace Automatron.AzureDevOps
                 return;
             }
 
-            var tokens = new HashSet<string>();
+            //var tokens = new HashSet<string>();
 
-            if (ParentTask != null)
-            {
-                tokens.Add(ParentTask.Name);
-            }
+            //if (ParentTask != null)
+            //{
+            //    tokens.Add(ParentTask.Name);
+            //}
 
-            tokens.Add(!string.IsNullOrEmpty(variableAttribute.Name) ? variableAttribute.Name : property.Name);
+            //tokens.Add(!string.IsNullOrEmpty(variableAttribute.Name) ? variableAttribute.Name : property.Name);
 
-            var name = string.Join('-', tokens);
+            //var name = string.Join('-', tokens);
 
-            var type = property.ReflectedType!.IsInterface || property.ReflectedType!.IsAbstract ? Type! : property.ReflectedType;
+            var descriptionAttribute = property.GetCachedAttribute<DescriptionAttribute>();
 
-            var typeId = GetPath(type);
+            var name = !string.IsNullOrEmpty(variableAttribute.Name) ? variableAttribute.Name : property.Name;
 
-            var parameter = new Parameter(name,string.Empty, property.PropertyType);
+            AddParameter(name, descriptionAttribute?.Description, property);
 
-            var descriptor = new ParameterDescriptor(parameter, property);
+            //var type = property.ReflectedType!.IsInterface || property.ReflectedType!.IsAbstract ? Type! : property.ReflectedType;
 
-            if (!TypeParameters.ContainsKey(typeId))
-            {
-                TypeParameters.Add(typeId, new HashSet<ParameterDescriptor>());
-            }
+            //var descriptionAttribute = property.GetCachedAttribute<DescriptionAttribute>();
 
-            TypeParameters[typeId].Add(descriptor);
+            //var typeId = GetPath(type);
 
-            var propertyId = GetPath(property);
+            //var parameter = new Parameter(name, descriptionAttribute?.Description, property.PropertyType);
 
-            Parameters.Add(propertyId, parameter);
+            //var descriptor = new ParameterDescriptor(parameter, property);
+
+            //if (!TypeParameters.ContainsKey(typeId))
+            //{
+            //    TypeParameters.Add(typeId, new HashSet<ParameterDescriptor>());
+            //}
+
+            //TypeParameters[typeId].Add(descriptor);
+
+            //var propertyId = GetPath(property);
+
+            //Parameters.Add(propertyId, parameter);
         }
     }
 }

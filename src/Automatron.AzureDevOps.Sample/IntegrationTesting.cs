@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-using Automatron.AzureDevOps.Generators.Annotations;
+using Automatron.AzureDevOps.Annotations;
 
 namespace Automatron.AzureDevOps.Sample;
 
@@ -50,7 +50,7 @@ public class IntegrationTesting
             }
         }
 
-        [DeploymentJob("Teardown", Environment = "Integration", DependsOn = new []{typeof(SetupJob) } )]
+        [DeploymentJob("Teardown", Environment = "Integration", DependsOn = new object[]{typeof(SetupJob) } )]
         public class TeardownJob
         {
             [Environment]

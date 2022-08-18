@@ -1,4 +1,4 @@
-﻿namespace Automatron.AzureDevOps.Generators.Models;
+﻿namespace Automatron.AzureDevOps.Models;
 
 public interface IVariable
 {

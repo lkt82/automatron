@@ -1,8 +1,6 @@
 ﻿using System;
-using Automatron.AzureDevOps.Generators.Models;
-using Microsoft.CodeAnalysis;
 
-namespace Automatron.AzureDevOps.Generators.Annotations
+namespace Automatron.AzureDevOps.Annotations
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class CheckoutAttribute : NodeAttribute

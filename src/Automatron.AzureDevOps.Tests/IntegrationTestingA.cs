@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-using Automatron.AzureDevOps.Generators.Annotations;
+using Automatron.AzureDevOps.Annotations;
 
 namespace Automatron.AzureDevOps.Tests;
 

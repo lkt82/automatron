@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Automatron.AzureDevOps.Generators.Annotations
+namespace Automatron.AzureDevOps.Annotations
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property, AllowMultiple = true)]
     public class VariableAttribute : Attribute
@@ -15,6 +15,12 @@ namespace Automatron.AzureDevOps.Generators.Annotations
         {
             Name = name;
             Value = value;
+        }
+
+        [UsedImplicitly]
+        public VariableAttribute(string name)
+        {
+            Name = name;
         }
 
         [UsedImplicitly]

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Automatron.Collections;
 using Spectre.Console;
 
 namespace Automatron;
@@ -84,7 +85,7 @@ internal class TaskEngine : ITaskEngine
 
         var failed = false;
 
-        var sorted = TopologicalSort.Sort(tasksToRun, x => x.Dependencies).Where(c => !tasksNamesToSkip.Contains(c));
+        var sorted = tasksToRun.TopologicalSort(x => x.Dependencies).Where(c => !tasksNamesToSkip.Contains(c));
 
         foreach (var task in sorted)
         {
@@ -93,7 +94,7 @@ internal class TaskEngine : ITaskEngine
             taskStopWatch.Start();
             try
             {
-                await _actionRunner.Run(new TaskContext(task.ActionDescriptor, task.ParameterDescriptors));
+                await _actionRunner.Run(new TaskContext(task.Action, task.Parameters));
 
                 taskStopWatch.Stop();
                 _console.MarkupLine($"[grey53]{assemblyName}:[/] [deepskyblue3_1]{task.Name}[/]: [green]Succeeded[/]: [purple]({taskStopWatch.ElapsedMilliseconds} ms)[/]");

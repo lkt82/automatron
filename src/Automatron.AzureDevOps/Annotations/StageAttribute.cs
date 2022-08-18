@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Automatron.AzureDevOps.Generators.Annotations
+namespace Automatron.AzureDevOps.Annotations
 {
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
@@ -15,7 +15,8 @@ namespace Automatron.AzureDevOps.Generators.Annotations
             Name = name;
         }
 
-        public Type[]? DependsOn { get; set; }
+        public object[]? DependsOn { get; set; }
+
     }
 }
 

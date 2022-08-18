@@ -5,10 +5,10 @@ namespace Automatron;
 
 internal class Task
 {
-    public Task(string name, ISet<Task> dependencies, ActionDescriptor actionDescriptor, IEnumerable<ParameterTypeDescriptor> parameterDescriptors)
+    public Task(string name, ISet<Task> dependencies, ActionDescriptor action, IEnumerable<ParameterTypeDescriptor> parameters)
     {
-        ActionDescriptor = actionDescriptor;
-        ParameterDescriptors = parameterDescriptors;
+        Action = action;
+        Parameters = parameters;
         Name = name;
         Dependencies = dependencies;
     }
@@ -19,8 +19,8 @@ internal class Task
 
     public ISet<Task> Dependencies { get; }
 
-    public ActionDescriptor ActionDescriptor { get; }
+    public ActionDescriptor Action { get; }
 
-    public IEnumerable<ParameterTypeDescriptor> ParameterDescriptors { get; set; }
+    public IEnumerable<ParameterTypeDescriptor> Parameters { get; set; }
 }
 #endif

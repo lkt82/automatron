@@ -1,57 +1,184 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using Automatron.AzureDevOps.Generators.Annotations;
-using Automatron.AzureDevOps.Generators.Models;
+using System.Text;
+using Automatron.AzureDevOps.Annotations;
+using Automatron.AzureDevOps.CodeAnalysis;
+using Automatron.AzureDevOps.Models;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
 
-internal class StepVisitor : Microsoft.CodeAnalysis.SymbolVisitor, IComparer<Step>
+internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
 {
     private readonly IJob _job;
-    public List<Step> Steps { get; } = new();
+
+    public Dictionary<string,Step> Steps { get; } = new();
 
     public StepVisitor(IJob job)
     {
         _job = job;
     }
 
-    public override void VisitNamedType(INamedTypeSymbol symbol)
+    public override IEnumerable<Step> VisitNamedType(INamedTypeSymbol symbol)
     {
-        var methods = symbol.GetAllPublicMethods();
+        var steps = VisitStepType(symbol);
+
+        var list = new List<Step>(steps);
+        list.Sort(this);
+
+        return list;
+    }
+
+    public override IEnumerable<Step> VisitMethod(IMethodSymbol symbol)
+    {
+        return Steps.ContainsKey(symbol.Name) ? Enumerable.Empty<Step>() : VisitStepType(symbol);
+    }
+
+    private IEnumerable<Step> VisitStepType(INamedTypeSymbol symbol)
+    {
+        var methods = symbol.GetAllMethods();
 
         foreach (var method in methods)
         {
-            method.Accept(this);
+            var steps = method.Accept(this);
+
+            if (steps == null)
+            {
+                continue;
+            }
+
+            foreach (var step in steps)
+            {
+                yield return step;
+            }
         }
 
-        _job.Steps.AddRange(Steps);
-        _job.Steps.Sort(this);
+        foreach (var type in symbol.GetAllTypeMembers())
+        {
+            foreach (var step in VisitStepType(type))
+            {
+                yield return step;
+            }
+        }
     }
 
-    public override void VisitMethod(IMethodSymbol symbol)
+    private IEnumerable<Step> VisitStepType(IMethodSymbol symbol)
     {
-        //foreach (var attribute in symbol.GetCustomAbstractAttributes<NodeAttribute>())
-        //{
-        //    var jobName = !string.IsNullOrEmpty(attribute.Job) ? attribute.Job! : symbol.Name;
+        foreach (var nodeAttribute in symbol.GetCustomAbstractAttributes<NodeAttribute>())
+        {
+            var step = CreateStep(nodeAttribute, symbol);
 
-        //    if (jobName != _job.Name && string.IsNullOrEmpty(_job.TemplateName))
-        //    {
-        //        continue;
-        //    }
+            Steps[symbol.Name] = step;
 
-        //    var step = CreateStep(attribute, symbol);
-
-        //    Steps.Add(step);
-        //}
+            yield return step;
+        }
     }
 
-    //private Step CreateStep(NodeAttribute stepAttribute, ISymbol member)
-    //{
-    //    var step = stepAttribute.Create(member, _job);
+    private Step CreateStep(NodeAttribute nodeAttribute, IMethodSymbol member)
+    {
+        return nodeAttribute switch
+        {
+            CheckoutAttribute checkoutAttribute => CreateCheckoutTask(member, checkoutAttribute),
+            StepAttribute stepAttribute => CreateAutomatronScript(member, stepAttribute),
+            _ => throw new NotSupportedException()
+        };
+    }
 
-    //    return step;
-    //}
+    private Step CreateAutomatronScript(IMethodSymbol member, StepAttribute stepAttribute)
+    {
+        var stepName = string.IsNullOrEmpty(stepAttribute.Name) ? member.Name : stepAttribute.Name;
+
+        #pragma warning disable CS8604
+        var taskName = GetTaskName(stepName);
+        #pragma warning restore CS8604
+
+        var displayName = string.IsNullOrEmpty(stepAttribute.Emoji) ? stepAttribute.DisplayName : $"{stepAttribute.Emoji} {stepName}";
+
+        var dependsOn = stepAttribute.DependsOn == null ? Array.Empty<string>() : stepAttribute.DependsOn.Select(c => Steps[c].Name!).ToArray();
+
+        var skip = dependsOn.Select(GetTaskName).ToArray();
+
+        //_job.Stage.Pipeline.Parameters.Select(c => c.Name).ToArray()
+
+        return new AutomatronScript(_job, new[] { taskName }, skip, false, true, Array.Empty<string>())
+        {
+            Name = stepName,
+            DisplayName = displayName,
+            Condition = stepAttribute.Condition,
+            DependsOn = dependsOn,
+            WorkingDirectory = stepAttribute.WorkingDirectory ?? GetWorkingDirectory(),
+            //Env = _job.Stage.Pipeline.Secrets.ToDictionary(GetEnvVarName, c => (object)$"$({c})")
+            Env = _job.Parameters?.ToDictionary(GetEnvVarName, c => (object)$"$({c})")
+        };
+    }
+
+    private Step CreateCheckoutTask(IMethodSymbol member, CheckoutAttribute checkoutAttribute)
+    {
+        var stepName = checkoutAttribute.Name;
+        var displayName = string.IsNullOrEmpty(checkoutAttribute.Emoji) ? checkoutAttribute.DisplayName : $"{checkoutAttribute.Emoji} {stepName}";
+
+        return new CheckoutTask(_job, checkoutAttribute.Source)
+        {
+            Name = stepName,
+            DisplayName = displayName,
+            Condition = checkoutAttribute.Condition
+        };
+    }
+
+    private string GetTaskName(string stepName)
+    {
+       var tokens = new List<string> { _job.Stage.Pipeline.Name };
+
+       if (_job.Stage.Path != _job.Stage.Pipeline.Path)
+       {
+           tokens.Add(_job.Stage.Name);
+       }
+
+       if (_job.Path != _job.Stage.Path)
+       {
+           tokens.Add(_job.Name);
+       }
+
+       tokens.Add(stepName);
+        
+       return string.Join("-", tokens);
+    }
+
+    private string GetWorkingDirectory()
+    {
+        var fullRoot = PathExtensions.GetUnixPath(Path.GetFullPath(_job.Stage.Pipeline.RootPath)) + "/";
+
+        var path = PathExtensions.GetUnixPath(PathExtensions.GetRelativePath(fullRoot, _job.Stage.Pipeline.ProjectDirectory));
+
+        return path;
+    }
+
+    private static string GetEnvVarName(string name)
+    {
+        var envVarName = new StringBuilder();
+
+        for (var index = 0; index < name.Length; index++)
+        {
+            var n = name[index];
+            if (index > 0 && char.IsLower(name[index - 1]) && char.IsUpper(n))
+            {
+                envVarName.Append('_');
+                envVarName.Append(n);
+            }
+            else if (char.IsLower(n))
+            {
+                envVarName.Append(char.ToUpper(n));
+            }
+            else
+            {
+                envVarName.Append(n);
+            }
+        }
+
+        return envVarName.ToString();
+    }
 
     public int Compare(Step? x, Step? y)
     {

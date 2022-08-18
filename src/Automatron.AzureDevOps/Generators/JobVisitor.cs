@@ -1,20 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Automatron.AzureDevOps.Generators.Annotations;
-using Automatron.AzureDevOps.Generators.Models;
+using Automatron.AzureDevOps.Annotations;
+using Automatron.AzureDevOps.CodeAnalysis;
+using Automatron.AzureDevOps.Models;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
 
-internal class JobVisitor : SymbolVisitor, IComparer<IJob>
+internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>, IComparer<IJob>
 {
-    protected readonly Stage Stage;
- 
-    public List<IJob> Jobs { get; } = new();
+    private readonly Stage _stage;
+
+    private Dictionary<string, IJob> Jobs { get; } = new();
+
+    private INamedTypeSymbol? _root;
 
     public JobVisitor(Stage stage)
     {
-        Stage = stage;
+        _stage = stage;
     }
 
     public int Compare(IJob? x, IJob? y)
@@ -42,111 +46,94 @@ internal class JobVisitor : SymbolVisitor, IComparer<IJob>
         return 0;
     }
 
-    public override void VisitNamedType(INamedTypeSymbol symbol)
+    public override IEnumerable<IJob> VisitNamedType(INamedTypeSymbol symbol)
     {
-        var methods = symbol.GetAllPublicMethods();
+        _root = symbol;
 
-        foreach (var method in methods)
-        {
-            method.Accept(this);
-        }
+        VisitJobType(symbol);
 
-        foreach (var job in Jobs)
-        {
-            var stepVisitor = new StepVisitor(job);
-            symbol.Accept(stepVisitor);
-        }
+        var list = new List<IJob>(Jobs.Values);
+        list.Sort(this);
 
-        Stage.Jobs.AddRange(Jobs);
-        Stage.Jobs.Sort(this);
+        return list;
     }
 
-    public override void VisitMethod(IMethodSymbol symbol)
+    private void VisitJobType(INamedTypeSymbol symbol)
     {
-        //foreach (var attribute in symbol.GetCustomAbstractAttributes<JobAttribute>())
-        //{
-        //    var stageName = !string.IsNullOrEmpty(attribute.Stage) ? attribute.Stage! : symbol.Name;
+        if (Jobs.ContainsKey(symbol.Name))
+        {
+            return;
+        }
 
-        //    if (stageName != Stage.Name)
-        //    {
-        //        continue;
-        //    }
+        var jobAttribute = symbol.GetAllAttributes().GetCustomAbstractAttribute<JobAttribute>();
 
-        //    if (attribute is DeploymentJobAttribute deploymentJobAttribute)
-        //    {
-        //        CreateDeploymentJob(deploymentJobAttribute, symbol);
-        //    }
-        //    else
-        //    {
-        //        CreateJob(attribute, symbol);
-        //    }
-        //}
+        if (jobAttribute != null)
+        {
+            if (jobAttribute.DependsOn != null)
+            {
+                foreach (var jobTypeSymbol in jobAttribute.DependsOn.Cast<INamedTypeSymbol>())
+                {
+                    VisitJobType(jobTypeSymbol);
+                }
+            }
+
+            IJob job;
+
+            if (jobAttribute is DeploymentJobAttribute deploymentJobAttribute)
+            {
+                job = CreateDeploymentJob(deploymentJobAttribute, symbol);
+            }
+            else
+            {
+                job = CreateJob(jobAttribute, symbol);
+            }
+
+            job.Parameters = symbol.Accept(new VariableParameterVisitor());
+
+            if (SymbolEqualityComparer.Default.Equals(_root, symbol))
+            {
+                job.Path = _stage.Path;
+            }
+            else
+            {
+                job.Path = _stage.Path + "/" + job.Name;
+            }
+
+            job.Steps = symbol.Accept(new StepVisitor(job));
+
+            Jobs[symbol.Name] = job;
+        }
+
+        foreach (var type in symbol.GetAllTypeMembers())
+        {
+            VisitJobType(type);
+        }
     }
 
-    //protected void CreateDeploymentJob(DeploymentJobAttribute jobAttribute, ISymbol member)
-    //{
-    //    var job = CreateDeploymentJob(Stage, member, jobAttribute);
+    private Job CreateJob(JobAttribute jobAttribute, ISymbol symbol)
+    {
+        var name = !string.IsNullOrEmpty(jobAttribute.Name) ? jobAttribute.Name! : symbol.Name;
 
-    //    Jobs.Add(job);
-    //}
+        var job = new Job(_stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn?.Cast<ISymbol>().Select(c => Jobs[c.Name].Name).ToArray(), jobAttribute.Condition)
+            {
+                Pool = symbol.Accept(new PoolVisitor()),
+                Variables = symbol.Accept(new VariableVisitor())
+            };
 
-    //protected void CreateJob(Job2Attribute jobAttribute, ISymbol member)
-    //{
-    //    var job = CreateJob(Stage, member, jobAttribute);
+        return job;
+    }
 
-    //    Jobs.Add(job);
-    //}
+    private DeploymentJob CreateDeploymentJob(DeploymentJobAttribute jobAttribute, ISymbol symbol)
+    {
+        var name = !string.IsNullOrEmpty(jobAttribute.Name) ? jobAttribute.Name! : symbol.Name;
 
-    //private static DeploymentJob CreateDeploymentJob(Stage stage, ISymbol member, Deployment2JobAttribute jobAttribute)
-    //{
-    //    var name = !string.IsNullOrEmpty(jobAttribute.Name) ? jobAttribute.Name! : member.Name;
+        var job = new DeploymentJob(_stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn?.Cast<ISymbol>().Select(c => Jobs[c.Name].Name).ToArray(), jobAttribute.Condition, jobAttribute.Environment)
+        {
+            TimeoutInMinutes = jobAttribute.Timeout == null ? null : Convert.ToInt32(TimeSpan.Parse(jobAttribute.Timeout).TotalMinutes),
+            Pool = symbol.Accept(new PoolVisitor()),
+            Variables = symbol.Accept(new VariableVisitor())
+        };
 
-    //    var job = new DeploymentJob(stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition, jobAttribute.Environment)
-    //    {
-    //        TimeoutInMinutes = jobAttribute.TimeoutInMinutes == default
-    //            ? null
-    //            : jobAttribute.TimeoutInMinutes
-    //    };
-
-    //    if(!member.HasCustomAttributes<Stage2Attribute>())
-    //    {
-    //        var poolAttribute = member.GetCustomAttributes<PoolAttribute>().FirstOrDefault(c => c.Target == name || c.Target == null);
-
-    //        if (poolAttribute != null)
-    //        {
-    //            job.Pool = new Pool(poolAttribute.Name, poolAttribute.VmImage);
-    //        }
-    //    }
-
-    //    if (!string.IsNullOrEmpty(stage.TemplateName))
-    //    {
-    //        job.TemplateName = stage.TemplateName;
-    //    }
-
-    //    return job;
-    //}
-
-    //private static Job CreateJob(Stage stage, ISymbol member, Job2Attribute jobAttribute)
-    //{
-    //    var name = !string.IsNullOrEmpty(jobAttribute.Name) ? jobAttribute.Name! : member.Name;
-
-    //    var job = new Job(stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition);
-
-    //    if (!member.HasCustomAttributes<Stage2Attribute>())
-    //    {
-    //        var poolAttribute = member.GetCustomAttributes<PoolAttribute>().FirstOrDefault(c => c.Target == name || c.Target == null);
-
-    //        if (poolAttribute != null)
-    //        {
-    //            job.Pool = new Pool(poolAttribute.Name, poolAttribute.VmImage);
-    //        }
-    //    }
-
-    //    if (!string.IsNullOrEmpty(stage.TemplateName))
-    //    {
-    //        job.TemplateName = stage.TemplateName;
-    //    }
-
-    //    return job;
-    //}
+        return job;
+    }
 }

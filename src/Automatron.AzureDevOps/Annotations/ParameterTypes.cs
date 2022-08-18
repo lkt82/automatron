@@ -1,4 +1,4 @@
-﻿namespace Automatron.AzureDevOps.Generators.Annotations;
+﻿namespace Automatron.AzureDevOps.Annotations;
 
 public static class ParameterTypes
 {

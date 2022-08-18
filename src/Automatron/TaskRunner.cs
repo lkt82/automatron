@@ -33,7 +33,8 @@ public sealed class TaskRunner : ITypeProvider
         Services.AddSingleton<IEnvironment>(_ => new SystemEnvironment());
 
         Services.AddSingleton<IActionRunner, ActionRunner>();
-        Services.AddSingleton<TaskVisitor>();
+        Services.AddTransient<TaskVisitor>();
+        Services.AddSingleton<Func<TaskVisitor>>(c=> c.GetRequiredService<TaskVisitor>);
         Services.AddSingleton<TaskModelFactory>();
         Services.AddSingleton<ITaskModelFactory, TaskModelFactory>();
         Services.AddSingleton<ITaskEngine, TaskEngine>();

@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using YamlDotNet.Serialization;
 
-namespace Automatron.AzureDevOps.Generators.Models;
+namespace Automatron.AzureDevOps.Models;
 
 public sealed class Pipeline
 {
     public Pipeline(string name, string ymlName, string ymlPath, string rootPath,string projectDirectory)
     {
         Name = name;
-        YmlName = string.IsNullOrEmpty(new FileInfo(ymlName).Extension) ? ymlName + ".yml" : ymlName;
+        YmlName = ymlName;
         YmlPath = ymlPath;
         RootPath = rootPath;
         ProjectDirectory = projectDirectory;
+
+        Path = "/" + Name;
     }
 
     [YamlIgnore]
@@ -33,16 +34,18 @@ public sealed class Pipeline
     [YamlIgnore]
     public List<string> Secrets { get; set; } = new();
 
-    public List<Parameter> Parameters { get; set; } = new();
+    public List<Parameter>? Parameters { get; set; } = new();
 
     [YamlMember(Alias = "trigger")]
     public ICiTrigger? CiTrigger { get; set; }
 
-    public List<ScheduledTrigger> Schedules { get; set; } = new();
+    public IEnumerable<ScheduledTrigger>? Schedules { get; set; }
 
-    public List<IVariable> Variables { get; set; } = new();
+    public IEnumerable<IVariable>? Variables { get; set; }
 
     public Pool? Pool { get; set; }
 
-    public List<Stage> Stages { get; set; } = new();
+    public IEnumerable<Stage>? Stages { get; set; }
+
+    [YamlIgnore] public string Path { get; set; }
 }

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using YamlDotNet.Serialization;
 
-namespace Automatron.AzureDevOps.Generators.Models;
+namespace Automatron.AzureDevOps.Models;
 
 public sealed class DeploymentJob : IJob
 {
@@ -13,6 +13,8 @@ public sealed class DeploymentJob : IJob
         Condition = condition;
         Environment = environment;
         Stage = stage;
+
+        Path = Stage.Path + "/" + Name;
     }
 
     [YamlMember(Alias = "deployment")]
@@ -26,17 +28,24 @@ public sealed class DeploymentJob : IJob
 
     public Pool? Pool { get; set; }
 
+    public IEnumerable<IVariable>? Variables { get; set; }
+
+    [YamlIgnore] public IEnumerable<string>? Parameters { get; set; }
+
     public int? TimeoutInMinutes { get; set; }
 
     public string Environment { get; }
 
     public IDeploymentStrategy Strategy { get; set; } = new RunOnceDeploymentStrategy();
 
-    [YamlIgnore] public List<Step> Steps => Strategy.Steps;
+    [YamlIgnore] public IEnumerable<Step>? Steps
+    {
+        get => Strategy.Steps;
+        set => Strategy.Steps = value;
+    }
 
     [YamlIgnore]
     public Stage Stage { get; }
 
-    [YamlIgnore]
-    public string? TemplateName { get; set; }
+    [YamlIgnore] public string Path { get; set; }
 }

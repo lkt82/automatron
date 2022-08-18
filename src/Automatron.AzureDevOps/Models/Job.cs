@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using YamlDotNet.Serialization;
 
-namespace Automatron.AzureDevOps.Generators.Models;
+namespace Automatron.AzureDevOps.Models;
 
 public sealed class Job: IJob
 {
@@ -12,6 +12,8 @@ public sealed class Job: IJob
         DependsOn = dependsOn;
         Condition = condition;
         Stage = stage;
+
+        Path = Stage.Path + "/" + Name;
     }
 
     [YamlMember(Alias = "job")]
@@ -25,11 +27,15 @@ public sealed class Job: IJob
 
     public Pool? Pool { get; set; }
 
-    public List<Step> Steps { get; set; } = new();
+    public IEnumerable<IVariable>? Variables { get; set; }
+
+    [YamlIgnore] public IEnumerable<string>? Parameters { get; set; }
+
+    public IEnumerable<Step>? Steps { get; set; }
 
     [YamlIgnore]
     public Stage Stage { get; }
 
-    [YamlIgnore]
-    public string? TemplateName { get; set; }
+    [YamlIgnore] 
+    public string Path { get; set; }
 }

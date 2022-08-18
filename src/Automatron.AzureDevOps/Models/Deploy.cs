@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Automatron.AzureDevOps.Generators.Models;
+namespace Automatron.AzureDevOps.Models;
 
 public sealed class Deploy
 {
-    public List<Step> Steps { get; set; } = new();
+    public IEnumerable<Step>? Steps { get; set; }
 }

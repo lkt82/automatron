@@ -1,10 +1,19 @@
 ﻿using System;
 
-namespace Automatron.AzureDevOps.Generators.Annotations
+namespace Automatron.AzureDevOps.Annotations
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public class JobAttribute : Attribute
     {
+        public JobAttribute()
+        {
+        }
+
+        public JobAttribute(string name)
+        {
+            Name = name;
+        }
+
         public string? Name { get; set; }
 
         public string? DisplayName { get; set; }
@@ -13,7 +22,7 @@ namespace Automatron.AzureDevOps.Generators.Annotations
 
         public string? Emoji { get; set; }
 
-        public Type[]? DependsOn { get; set; }
+        public object[]? DependsOn { get; set; }
     }
 
 }

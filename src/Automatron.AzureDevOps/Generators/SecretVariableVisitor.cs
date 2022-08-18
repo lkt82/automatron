@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using Automatron.AzureDevOps.Generators.Annotations;
-using Automatron.AzureDevOps.Generators.Models;
+using Automatron.AzureDevOps.CodeAnalysis;
+using Automatron.AzureDevOps.Models;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
@@ -19,7 +18,7 @@ internal class SecretVariableVisitor : SymbolVisitor
 
     public override void VisitNamedType(INamedTypeSymbol symbol)
     {
-        var properties = symbol.GetAllPublicProperties();
+        var properties = symbol.GetAllProperties();
 
         foreach (var property in properties)
         {

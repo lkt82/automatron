@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Automatron.AzureDevOps.Generators.Models;
+namespace Automatron.AzureDevOps.Models;
 
 public interface IDeploymentStrategy
 {
-    List<Step> Steps { get; }
+    IEnumerable<Step>? Steps { get; set; }
 }

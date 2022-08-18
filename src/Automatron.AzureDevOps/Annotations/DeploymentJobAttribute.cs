@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Automatron.AzureDevOps.Generators.Annotations
+namespace Automatron.AzureDevOps.Annotations
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public class DeploymentJobAttribute : JobAttribute
@@ -13,9 +13,8 @@ namespace Automatron.AzureDevOps.Generators.Annotations
         {
         }
 
-        public DeploymentJobAttribute(string name)
+        public DeploymentJobAttribute(string name) :base(name)
         {
-            Name = name;
         }
     }
 }

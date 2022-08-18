@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Automatron
+namespace Automatron.Collections
 {
-    internal class GenericEqualityComparer<TItem,TKey> : EqualityComparer<TItem>
+    internal class GenericEqualityComparer<TItem, TKey> : EqualityComparer<TItem> where TKey : notnull
     {
-        private readonly Func<TItem, TKey> getKey;
-        private readonly EqualityComparer<TKey> keyComparer;
+        private readonly Func<TItem, TKey> _getKey;
+        private readonly EqualityComparer<TKey> _keyComparer;
 
         public GenericEqualityComparer(Func<TItem, TKey> getKey)
         {
-            this.getKey = getKey;
-            keyComparer = EqualityComparer<TKey>.Default;
+            _getKey = getKey;
+            _keyComparer = EqualityComparer<TKey>.Default;
         }
 
-        public override bool Equals(TItem x, TItem y)
+        public override bool Equals(TItem? x, TItem? y)
         {
             if (x == null && y == null)
             {
@@ -24,7 +24,7 @@ namespace Automatron
             {
                 return false;
             }
-            return keyComparer.Equals(getKey(x), getKey(y));
+            return _keyComparer.Equals(_getKey(x), _getKey(y));
         }
 
         public override int GetHashCode(TItem obj)
@@ -33,7 +33,7 @@ namespace Automatron
             {
                 return 0;
             }
-            return keyComparer.GetHashCode(getKey(obj));
+            return _keyComparer.GetHashCode(_getKey(obj));
         }
     }
 }

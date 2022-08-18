@@ -5,14 +5,14 @@ namespace Automatron;
 
 internal class TaskContext
 {
-    public TaskContext(ActionDescriptor actionDescriptor, IEnumerable<ParameterTypeDescriptor> parameterTypeDescriptors)
+    public TaskContext(ActionDescriptor action, IEnumerable<ParameterTypeDescriptor> parameters)
     {
-        ActionDescriptor = actionDescriptor;
-        ParameterTypeDescriptors = parameterTypeDescriptors;
+        Action = action;
+        Parameters = parameters;
     }
 
-    public IEnumerable<ParameterTypeDescriptor> ParameterTypeDescriptors { get; set; }
+    public IEnumerable<ParameterTypeDescriptor> Parameters { get; set; }
 
-    public ActionDescriptor ActionDescriptor { get; set; }
+    public ActionDescriptor Action { get; set; }
 }
 #endif

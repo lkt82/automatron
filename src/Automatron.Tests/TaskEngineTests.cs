@@ -16,6 +16,8 @@ public class TaskEngineTests
         _serviceCollection.AddSingleton<IActionRunner,ActionRunner>();
         _serviceCollection.AddSingleton<ITaskModelFactory, TaskModelFactory>();
         _serviceCollection.AddSingleton<TaskEngine>();
+        _serviceCollection.AddTransient<TaskVisitor>();
+        _serviceCollection.AddSingleton<Func<TaskVisitor>>(c => c.GetRequiredService<TaskVisitor>);
         _serviceCollection.AddSingleton(c => c.GetRequiredService<ITaskModelFactory>().Create());
     }
 

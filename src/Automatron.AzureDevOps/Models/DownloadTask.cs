@@ -1,6 +1,6 @@
 ﻿using YamlDotNet.Serialization;
 
-namespace Automatron.AzureDevOps.Generators.Models;
+namespace Automatron.AzureDevOps.Models;
 
 public sealed class DownloadTask : Step
 {

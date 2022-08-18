@@ -1,6 +1,6 @@
 ﻿using YamlDotNet.Serialization;
 
-namespace Automatron.AzureDevOps.Generators.Models;
+namespace Automatron.AzureDevOps.Models;
 
 public abstract class Task<T> : Step
 {

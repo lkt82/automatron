@@ -1,10 +1,10 @@
 ﻿using System;
-using Automatron.AzureDevOps.Generators.Models;
+using Automatron.AzureDevOps.Models;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 
-namespace Automatron.AzureDevOps.Generators.Converters
+namespace Automatron.AzureDevOps.Converters
 {
     internal sealed class DisabledCiTriggerConverter : IYamlTypeConverter
     {

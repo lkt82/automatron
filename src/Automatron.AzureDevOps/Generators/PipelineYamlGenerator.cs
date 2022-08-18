@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Automatron.AzureDevOps.Generators.Converters;
-using Automatron.AzureDevOps.Generators.Models;
+using Automatron.AzureDevOps.Converters;
+using Automatron.AzureDevOps.Models;
 using Microsoft.CodeAnalysis;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -11,11 +11,11 @@ using YamlDotNet.Serialization.NamingConventions;
 namespace Automatron.AzureDevOps.Generators;
 
 [Generator]
-internal class YamlPipelineGenerator : ISourceGenerator
+internal class PipelineYamlGenerator : ISourceGenerator
 {
     private readonly ISerializer _serializer;
 
-    public YamlPipelineGenerator()
+    public PipelineYamlGenerator()
     {
         _serializer = CreateYamlSerializer();
     }
@@ -44,7 +44,7 @@ internal class YamlPipelineGenerator : ISourceGenerator
             return;
         }
 
-        Debug.WriteLine($"Execute {nameof(YamlPipelineGenerator)}");
+        Debug.WriteLine($"Execute {nameof(PipelineYamlGenerator)}");
 
         if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.AzureDevOpsPipelineProjectDirectory",
                 out var projectDirectory))
@@ -77,13 +77,13 @@ internal class YamlPipelineGenerator : ISourceGenerator
 
         foreach (var pipeline in pipelineVisitor.Pipelines)
         {
-            //SavePipeline(pipeline);
+            SavePipeline(pipeline);
         }
 
         Pipelines = pipelineVisitor.Pipelines;
     }
 
-    public List<Pipeline>? Pipelines { get; set; }
+    public List<Pipeline> Pipelines { get; set; } = new();
 
     private static ISerializer CreateYamlSerializer()
     {
@@ -121,6 +121,6 @@ internal class YamlPipelineGenerator : ISourceGenerator
         //    Debugger.Launch();
         //}
 #endif
-        Debug.WriteLine($"Initialize {nameof(YamlPipelineGenerator)}");
+        Debug.WriteLine($"Initialize {nameof(PipelineYamlGenerator)}");
     }
 }
