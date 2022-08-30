@@ -61,7 +61,7 @@ internal class PipelineVisitor : SymbolVisitor
 
         pipeline.Schedules = symbol.Accept(new ScheduledTriggerVisitor());
 
-        pipeline.Parameters = symbol.Accept(new ParameterVisitor());
+        pipeline.Parameters = symbol.Accept(new PipelineParameterVisitor());
 
         pipeline.Variables = symbol.Accept(new VariableVisitor());
 
@@ -79,27 +79,9 @@ internal class PipelineVisitor : SymbolVisitor
         var yamlName = !string.IsNullOrEmpty(pipelineAttribute.YmlName) ? pipelineAttribute.YmlName : name;
 
         #pragma warning disable CS8604
-        var pipeline = new Pipeline(name, yamlName + ".yml", pipelineAttribute.YmlPath, pipelineAttribute.RootPath ?? _vscRoot, projectDirectory);
-        #pragma warning restore CS8604
+        var pipeline = new Pipeline(name, yamlName + ".yml", pipelineAttribute.YmlPath, pipelineAttribute.RootPath ?? _vscRoot, projectDirectory, symbol);
+#pragma warning restore CS8604
 
         return pipeline;
-    }
-
-    private static void CreateVariables(AttributeData[] attributes, Pipeline pipeline)
-    {
-        //var variableGroupAttributes = attributes.GetCustomAttributes<VariableGroupAttribute>();
-        //var variableAttributes = attributes.GetCustomAttributes<VariableAttribute>();
-
-        //foreach (var variableGroupAttribute in variableGroupAttributes.Where(c =>
-        //             c.Pipeline == pipeline.Name || c.Pipeline == null))
-        //{
-        //    pipeline.Variables.Add(new VariableGroup(variableGroupAttribute.Name));
-        //}
-
-        //foreach (var variableAttribute in variableAttributes.Where(c =>
-        //             c.Pipeline == pipeline.Name || c.Pipeline == null))
-        //{
-        //    pipeline.Variables.Add(new Variable(variableAttribute.Name, variableAttribute.Value));
-        //}
     }
 }

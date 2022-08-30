@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Automatron.AzureDevOps.Annotations;
 using Automatron.AzureDevOps.CodeAnalysis;
 using Automatron.AzureDevOps.Models;
@@ -87,8 +88,8 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>, IComparer<IJob>
             {
                 job = CreateJob(jobAttribute, symbol);
             }
-
-            job.Parameters = symbol.Accept(new VariableParameterVisitor());
+         
+            job.Parameters = symbol.Accept(new TemplateParameterVisitor());
 
             if (SymbolEqualityComparer.Default.Equals(_root, symbol))
             {
@@ -114,7 +115,7 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>, IComparer<IJob>
     {
         var name = !string.IsNullOrEmpty(jobAttribute.Name) ? jobAttribute.Name! : symbol.Name;
 
-        var job = new Job(_stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn?.Cast<ISymbol>().Select(c => Jobs[c.Name].Name).ToArray(), jobAttribute.Condition)
+        var job = new Job(_stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn?.Cast<ISymbol>().Select(c => Jobs[c.Name].Name).ToArray(), jobAttribute.Condition, symbol)
             {
                 Pool = symbol.Accept(new PoolVisitor()),
                 Variables = symbol.Accept(new VariableVisitor())
@@ -127,12 +128,24 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>, IComparer<IJob>
     {
         var name = !string.IsNullOrEmpty(jobAttribute.Name) ? jobAttribute.Name! : symbol.Name;
 
-        var job = new DeploymentJob(_stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn?.Cast<ISymbol>().Select(c => Jobs[c.Name].Name).ToArray(), jobAttribute.Condition, jobAttribute.Environment)
+        var environment = jobAttribute.Environment;
+
+        if (!string.IsNullOrEmpty(environment) && _stage.TemplateParameters != null)
+        {
+            var match = Regex.Match(environment, "^\\$\\{\\{(?<name>.+)\\}\\}");
+            if (match.Success)
+            {
+                environment = (string)_stage.TemplateParameters[match.Groups["name"].Value];
+            }
+        }
+
+        var job = new DeploymentJob(_stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn?.Cast<ISymbol>().Select(c => Jobs[c.Name].Name).ToArray(), jobAttribute.Condition, environment ?? throw new InvalidOperationException(),symbol)
         {
             TimeoutInMinutes = jobAttribute.Timeout == null ? null : Convert.ToInt32(TimeSpan.Parse(jobAttribute.Timeout).TotalMinutes),
             Pool = symbol.Accept(new PoolVisitor()),
             Variables = symbol.Accept(new VariableVisitor())
         };
+
 
         return job;
     }

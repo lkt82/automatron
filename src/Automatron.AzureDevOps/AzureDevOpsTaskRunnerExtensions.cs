@@ -47,13 +47,13 @@ public static class AzureDevOpsTaskRunnerExtensions
             .Where(c => !c.IsAbstract && !c.IsInterface && c.IsVisible)
             .Where(c =>
             {
-                var isTypePipeline = c.GetCachedAttribute<PipelineAttribute>() != null;
-                var isTypeStage = c.GetCachedAttribute<StageAttribute>() != null;
-                var isTypeJob = c.GetCachedAttribute<JobAttribute>() != null;
-                var hasMethodSteps = c.GetMethods().Any(m => m.GetCachedAttribute<StepAttribute>() != null);
-                var hasInterfacesMethodSteps = c.GetInterfaces().SelectMany(t => t.GetMethods()).Any(m => m.GetCachedAttribute<StepAttribute>() != null);
-                var hasVariables = c.GetProperties().Any(m => m.GetCachedAttribute<VariableAttribute>() != null);
-                var hasInterfacesVariables = c.GetInterfaces().SelectMany(t => t.GetProperties()).Any(m => m.GetCachedAttribute<ParameterAttribute>() != null);
+                var isTypePipeline = c.GetCachedCustomAttribute<PipelineAttribute>() != null;
+                var isTypeStage = c.GetCachedCustomAttribute<StageAttribute>() != null;
+                var isTypeJob = c.GetCachedCustomAttribute<JobAttribute>() != null;
+                var hasMethodSteps = c.GetMethods().Any(m => m.GetCachedCustomAttribute<StepAttribute>() != null);
+                var hasInterfacesMethodSteps = c.GetInterfaces().SelectMany(t => t.GetMethods()).Any(m => m.GetCachedCustomAttribute<StepAttribute>() != null);
+                var hasVariables = c.GetProperties().Any(m => m.GetCachedCustomAttribute<VariableAttribute>() != null);
+                var hasInterfacesVariables = c.GetInterfaces().SelectMany(t => t.GetProperties()).Any(m => m.GetCachedCustomAttribute<ParameterAttribute>() != null);
 
                 return isTypePipeline || isTypeStage || isTypeJob || hasMethodSteps || hasVariables || hasInterfacesMethodSteps || hasVariables || hasInterfacesVariables;
             });

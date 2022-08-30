@@ -21,9 +21,9 @@ internal class TaskVisitor: SymbolVisitor
 
     public Dictionary<string, Parameter> Parameters { get; } = new();
 
-    protected Dictionary<string, HashSet<ParameterDescriptor>> TypeParameters { get; } = new();
+    protected Dictionary<string, HashSet<ParameterProperty>> TypeParameters { get; } = new();
 
-    protected Dictionary<string, HashSet<ParameterTypeDescriptor>> ParameterDependencies { get; } = new();
+    protected Dictionary<string, HashSet<ParameterType>> ParameterDependencies { get; } = new();
 
     private readonly HashSet<object> _visited = new();
 
@@ -36,6 +36,8 @@ internal class TaskVisitor: SymbolVisitor
     protected Task? Task { get; set; }
 
     protected Type? RootType { get; set; }
+
+    protected Type? ParentType { get; set; }
 
     protected Task? ParentTask { get; set; }
 
@@ -56,6 +58,7 @@ internal class TaskVisitor: SymbolVisitor
         {
             RootType = type;
             ParentTask = null;
+            ParentType = null;
         }
 
         var path = GetPath(type);
@@ -76,7 +79,7 @@ internal class TaskVisitor: SymbolVisitor
             Type = type;
         }
 
-        foreach (var attribute in GetAttributes(type))
+        foreach (var attribute in GetCustomAttributes(type))
         {
             attribute.Accept(this);
 
@@ -110,12 +113,14 @@ internal class TaskVisitor: SymbolVisitor
         foreach (var nestedType in nestedTypes)
         {
             var parentTask = ParentTask;
-   
+            ParentType = type;
+
             nestedType.Accept(this);
 
             ParentTask = parentTask;
             Path = path;
             Type = type;
+            ParentType = null;
         }
 
         if (type.BaseType != null && type.BaseType != typeof(object))
@@ -125,35 +130,37 @@ internal class TaskVisitor: SymbolVisitor
             foreach (var nestedType in baseNestedTypes)
             {
                 var parentTask = ParentTask;
-       
+                ParentType = type;
+
                 nestedType.Accept(this);
 
                 ParentTask = parentTask;
                 Path = path;
                 Type = type;
+                ParentType = null;
             }
         }
     }
 
-    protected virtual IEnumerable<Attribute> GetAttributes(MemberInfo member)
+    protected virtual IEnumerable<Attribute> GetCustomAttributes(MemberInfo member)
     {
         var attributes = new List<Attribute>();
 
-        Attribute? attribute = member.GetCachedAttribute<TaskAttribute>();
+        Attribute? attribute = member.GetCachedCustomAttribute<TaskAttribute>();
 
         if (attribute != null)
         {
             attributes.Add(attribute);
         }
 
-        attribute = member.GetCachedAttribute<DependentOnAttribute>();
+        attribute = member.GetCachedCustomAttribute<DependentOnAttribute>();
 
         if (attribute != null)
         {
             attributes.Add(attribute);
         }
 
-        attribute = member.GetCachedAttribute<DependentForAttribute>();
+        attribute = member.GetCachedCustomAttribute<DependentForAttribute>();
 
         if (attribute != null)
         {
@@ -176,7 +183,7 @@ internal class TaskVisitor: SymbolVisitor
 
         _visited.Add(id);
 
-        foreach (var attribute in GetAttributes(methodInfo))
+        foreach (var attribute in GetCustomAttributes(methodInfo))
         {
             attribute.Accept(this);
 
@@ -275,11 +282,11 @@ internal class TaskVisitor: SymbolVisitor
 
             var typeId = GetPath(parameter.ParameterType);
 
-            var parameterTypeDescriptors = new HashSet<ParameterTypeDescriptor>();
+            var parameterTypeDescriptors = new HashSet<ParameterType>();
 
-            var parameters = TypeParameters.TryGetValue(typeId, out var value) ? value : Enumerable.Empty<ParameterDescriptor>();
+            var parameters = TypeParameters.TryGetValue(typeId, out var value) ? value : Enumerable.Empty<ParameterProperty>();
 
-            parameterTypeDescriptors.Add(new ParameterTypeDescriptor(parameter.ParameterType, parameters));
+            parameterTypeDescriptors.Add(new ParameterType(parameter.ParameterType, parameters));
 
             ParameterDependencies.Add(id, parameterTypeDescriptors);
 
@@ -318,34 +325,32 @@ internal class TaskVisitor: SymbolVisitor
         }
 
         // Enable nested parameters
-        //var tokens = new HashSet<string>();
+        var tokens = new HashSet<string>();
 
-        //if (ParentTask != null)
-        //{
-        //    tokens.Add(ParentTask.Name);
-        //}
+        if (ParentTask != null)
+        {
+            tokens.Add(ParentTask.Name);
+        }
 
-        //tokens.Add(!string.IsNullOrEmpty(parameterAttribute.Name) ? parameterAttribute.Name : property.Name);
+        tokens.Add(!string.IsNullOrEmpty(parameterAttribute.Name) ? parameterAttribute.Name : property.Name);
 
-        //var name = string.Join('-', tokens);
-        var name = !string.IsNullOrEmpty(parameterAttribute.Name) ? parameterAttribute.Name : property.Name;
+        var name = string.Join('-', tokens);
+        //var name = !string.IsNullOrEmpty(parameterAttribute.Name) ? parameterAttribute.Name : property.Name;
 
-        AddParameter(name, parameterAttribute.Description, property);
+        AddParameter(new RuntimeParameter(name, parameterAttribute.Description, property.PropertyType), property);
     }
 
-    protected void AddParameter(string name,string? description, PropertyInfo property)
+    protected void AddParameter(Parameter parameter, PropertyInfo property)
     {
         var type = property.ReflectedType!.IsInterface || property.ReflectedType!.IsAbstract ? Type! : property.ReflectedType;
 
         var typeId = GetPath(type);
 
-        var parameter = new Parameter(name, description, property.PropertyType);
-
-        var descriptor = new ParameterDescriptor(parameter, property);
+        var descriptor = new ParameterProperty(parameter, property);
 
         if (!TypeParameters.ContainsKey(typeId))
         {
-            TypeParameters.Add(typeId, new HashSet<ParameterDescriptor>());
+            TypeParameters.Add(typeId, new HashSet<ParameterProperty>());
         }
 
         TypeParameters[typeId].Add(descriptor);
@@ -389,7 +394,7 @@ internal class TaskVisitor: SymbolVisitor
 
             var parameters = GetParameterTypeDescriptors(typeId, type);
 
-            var task = new Task(GetName(MethodInfo, taskAttribute.Name), new HashSet<Task>(), new MethodActionDescriptor(MethodInfo, type), parameters)
+            var task = new Task(GetName(MethodInfo, taskAttribute.Name), new HashSet<Task>(), new MethodAction(MethodInfo, type), parameters)
             {
                 Default = taskAttribute.Default
             };
@@ -410,7 +415,7 @@ internal class TaskVisitor: SymbolVisitor
 
             if (taskAttribute.Action == null)
             {
-                task = new Task(GetName(type, taskAttribute.Name), new HashSet<Task>(), new EmptyActionDescriptor(type),
+                task = new Task(GetName(type, taskAttribute.Name), new HashSet<Task>(), new EmptyAction(type),
                     parameters)
                 {
                     Default = taskAttribute.Default
@@ -421,7 +426,7 @@ internal class TaskVisitor: SymbolVisitor
                 var methodInfo = type.GetMethod(taskAttribute.Action) ?? throw new InvalidOperationException();
 
                 task = new Task(GetName(type, taskAttribute.Name), new HashSet<Task>(),
-                    new MethodActionDescriptor(methodInfo, type), parameters)
+                    new MethodAction(methodInfo, type), parameters)
                 {
                     Default = taskAttribute.Default
                 };
@@ -521,22 +526,22 @@ internal class TaskVisitor: SymbolVisitor
         }
     }
 
-    protected HashSet<ParameterTypeDescriptor> GetParameterTypeDescriptors(string id, Type type)
+    protected HashSet<ParameterType> GetParameterTypeDescriptors(string id, Type type)
     {
         if (!TypeParameters.ContainsKey(id))
         {
-            TypeParameters.Add(id, new HashSet<ParameterDescriptor>());
+            TypeParameters.Add(id, new HashSet<ParameterProperty>());
         }
 
-        var parameters = new HashSet<ParameterTypeDescriptor>(
+        var parameters = new HashSet<ParameterType>(
             ParameterDependencies.TryGetValue(id, out var value2)
                 ? value2
-                : Enumerable.Empty<ParameterTypeDescriptor>())
+                : Enumerable.Empty<ParameterType>())
         {
             new(type,
                 TypeParameters.TryGetValue(id, out var value)
                     ? value
-                    : Enumerable.Empty<ParameterDescriptor>())
+                    : Enumerable.Empty<ParameterProperty>())
         };
         return parameters;
     }

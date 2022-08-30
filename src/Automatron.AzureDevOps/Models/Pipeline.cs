@@ -1,17 +1,19 @@
 ﻿using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 using YamlDotNet.Serialization;
 
 namespace Automatron.AzureDevOps.Models;
 
 public sealed class Pipeline
 {
-    public Pipeline(string name, string ymlName, string ymlPath, string rootPath,string projectDirectory)
+    public Pipeline(string name, string ymlName, string ymlPath, string rootPath,string projectDirectory, ISymbol symbol)
     {
         Name = name;
         YmlName = ymlName;
         YmlPath = ymlPath;
         RootPath = rootPath;
         ProjectDirectory = projectDirectory;
+        Symbol = symbol;
 
         Path = "/" + Name;
     }
@@ -32,9 +34,9 @@ public sealed class Pipeline
     public string ProjectDirectory { get; }
 
     [YamlIgnore]
-    public List<string> Secrets { get; set; } = new();
+    public ISymbol Symbol { get; set; }
 
-    public List<Parameter>? Parameters { get; set; } = new();
+    public IEnumerable<Parameter>? Parameters { get; set; }
 
     [YamlMember(Alias = "trigger")]
     public ICiTrigger? CiTrigger { get; set; }

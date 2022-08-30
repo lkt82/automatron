@@ -3,8 +3,9 @@ using System;
 
 namespace Automatron;
 
-internal record Parameter(string Name, string? Description,Type Type)
+internal abstract record Parameter(string Name, Type Type, object? Value)
 {
-    public object? Value { get; set; }
+    public object? Value { get; set; } = Value;
 }
+
 #endif

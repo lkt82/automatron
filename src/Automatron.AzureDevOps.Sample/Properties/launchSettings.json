@@ -2,7 +2,7 @@
   "profiles": {
     "Automatron.AzureDevOps.Sample": {
       "commandName": "Project",
-      "commandLineArgs": "Int-Integration-Teardown",
+      "commandLineArgs": "Int-Integration-Setup  --Int-Integration-AzureClientId 11 --Int-RunTests Yes",
       "environmentVariables": {
         "AZURE_CLIENT_SECRET": "hest"
       }

@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
 
-internal class VariableParameterVisitor : SymbolVisitor<IEnumerable<string>>
+internal class VariableReferenceVisitor : SymbolVisitor<IEnumerable<string>>
 {
     public override IEnumerable<string>? VisitNamedType(INamedTypeSymbol symbol)
     {
@@ -49,10 +49,14 @@ internal class VariableParameterVisitor : SymbolVisitor<IEnumerable<string>>
     public override IEnumerable<string>? VisitProperty(IPropertySymbol symbol)
     {
         var variableAttribute = symbol.GetCustomAttribute<VariableAttribute>();
-
+   
         if (variableAttribute != null)
         {
-            yield return !string.IsNullOrEmpty(variableAttribute.Name) ? variableAttribute.Name : symbol.Name;
+        #pragma warning disable CS8603
+        #pragma warning disable CS8602
+        yield return !string.IsNullOrEmpty(variableAttribute.Name) ? variableAttribute.Name : symbol.Name;
+        #pragma warning restore CS8602
+        #pragma warning restore CS8603
         }
     }
 }

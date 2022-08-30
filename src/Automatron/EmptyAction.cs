@@ -3,7 +3,7 @@
 namespace Automatron;
 
 #if NET6_0
-internal record EmptyActionDescriptor(Type Type) : ActionDescriptor(Type)
+internal record EmptyAction(Type Type) : Action(Type)
 {
     public override object? Invoke(object service)
     {

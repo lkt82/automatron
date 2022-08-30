@@ -28,7 +28,7 @@ internal class TaskModelFactory : ITaskModelFactory
             taskType.Accept(taskVisitor);
         }
 
-        return new TaskModel(taskVisitor.Tasks.Values, taskVisitor.Parameters.Values);
+        return new TaskModel(taskVisitor.Tasks.Values, taskVisitor.Parameters.Values.OfType<RuntimeParameter>());
     }
 }
 #endif

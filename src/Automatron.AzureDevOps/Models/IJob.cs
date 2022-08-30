@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Models;
 
@@ -16,11 +17,13 @@ public interface IJob
 
     IEnumerable<IVariable>? Variables { get; set; }
 
-    IEnumerable<string>? Parameters { get; set; }
+    IDictionary<string, object>? Parameters { get; set; }
 
     IEnumerable<Step>? Steps { get; set; }
 
     Stage Stage { get; }
 
     string Path { get; set; }
+
+    ISymbol Symbol { get; set; }
 }

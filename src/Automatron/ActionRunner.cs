@@ -15,7 +15,7 @@ internal class ActionRunner : IActionRunner
         _serviceProvider = serviceProvider;
     }
 
-    private static void Bind(object service, IEnumerable<ParameterDescriptor> parameters)
+    private static void Bind(object service, IEnumerable<ParameterProperty> parameters)
     {
         foreach (var parameterDescriptor in parameters)
         {

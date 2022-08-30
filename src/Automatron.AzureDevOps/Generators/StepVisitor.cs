@@ -14,7 +14,12 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
 {
     private readonly IJob _job;
 
-    public Dictionary<string,Step> Steps { get; } = new();
+    private Dictionary<string,Step> Steps { get; } = new();
+
+    private IEnumerable<string>? VariableReferences { get; set; }
+
+    private IDictionary<string, object>? EnvVariable { get; set; }
+
 
     public StepVisitor(IJob job)
     {
@@ -38,6 +43,9 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
 
     private IEnumerable<Step> VisitStepType(INamedTypeSymbol symbol)
     {
+        //VariableReferences = symbol.Accept(new VariableReferenceVisitor());
+        EnvVariable = symbol.Accept(new EnvVariableVisitor(_job));
+
         var methods = symbol.GetAllMethods();
 
         foreach (var method in methods)
@@ -100,8 +108,6 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
 
         var skip = dependsOn.Select(GetTaskName).ToArray();
 
-        //_job.Stage.Pipeline.Parameters.Select(c => c.Name).ToArray()
-
         return new AutomatronScript(_job, new[] { taskName }, skip, false, true, Array.Empty<string>())
         {
             Name = stepName,
@@ -109,8 +115,7 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
             Condition = stepAttribute.Condition,
             DependsOn = dependsOn,
             WorkingDirectory = stepAttribute.WorkingDirectory ?? GetWorkingDirectory(),
-            //Env = _job.Stage.Pipeline.Secrets.ToDictionary(GetEnvVarName, c => (object)$"$({c})")
-            Env = _job.Parameters?.ToDictionary(GetEnvVarName, c => (object)$"$({c})")
+            Env = EnvVariable //VariableReferences?.ToDictionary(GetEnvVarName, c => (object)$"$({c})")
         };
     }
 

@@ -1,3 +1,10 @@
+parameters:
+- name: RunTests
+  displayName: Run Tests
+  type: string
+  values:
+  - Yes
+  - No
 trigger: none
 schedules:
 - cron: 2 0 * * *
@@ -33,9 +40,15 @@ stages:
           steps:
           - script: dotnet run -- -p -t Int-Integration-Setup-Init
             workingDirectory: src/Automatron.AzureDevOps.Sample
+            env: &o0
+              INT_INTEGRATION_AZURE_CLIENT_ID: $(AzureClientId)
+              INT_NUGET_API_KEY: $(NugetApiKey)
+              INT_AZURE_CLIENT_ID: $(AzureClientId)
+              INT_INTEGRATION_SETUP_AZURE_CLIENT_ID: $(AzureClientId)
             name: Init
           - script: dotnet run -- -s Int-Integration-Setup-Init -p -t Int-Integration-Setup-Update
             workingDirectory: src/Automatron.AzureDevOps.Sample
+            env: *o0
             name: Update
   - deployment: Teardown
     dependsOn:

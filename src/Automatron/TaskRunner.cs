@@ -47,11 +47,11 @@ public sealed class TaskRunner : ITypeProvider
             .Where(c=> !c.IsAbstract && !c.IsInterface && c.IsVisible)
             .Where(c =>
             {
-                var isTypeTask = c.GetCachedAttribute<TaskAttribute>() != null;
-                var hasMethodTasks = c.GetMethods().Any(m => m.GetCachedAttribute<TaskAttribute>() != null);
-                var hasInterfacesMethodTasks = c.GetInterfaces().SelectMany(t=> t.GetMethods()).Any(m => m.GetCachedAttribute<TaskAttribute>() != null);
-                var hasParameters = c.GetProperties().Any(m => m.GetCachedAttribute<ParameterAttribute>() != null);
-                var hasInterfacesParameters = c.GetInterfaces().SelectMany(t => t.GetProperties()).Any(m => m.GetCachedAttribute<ParameterAttribute>() != null);
+                var isTypeTask = c.GetCachedCustomAttribute<TaskAttribute>() != null;
+                var hasMethodTasks = c.GetMethods().Any(m => m.GetCachedCustomAttribute<TaskAttribute>() != null);
+                var hasInterfacesMethodTasks = c.GetInterfaces().SelectMany(t=> t.GetMethods()).Any(m => m.GetCachedCustomAttribute<TaskAttribute>() != null);
+                var hasParameters = c.GetProperties().Any(m => m.GetCachedCustomAttribute<ParameterAttribute>() != null);
+                var hasInterfacesParameters = c.GetInterfaces().SelectMany(t => t.GetProperties()).Any(m => m.GetCachedCustomAttribute<ParameterAttribute>() != null);
 
                 return isTypeTask || hasMethodTasks || hasParameters || hasInterfacesMethodTasks || hasParameters|| hasInterfacesParameters;
             });

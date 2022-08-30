@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Automatron.AzureDevOps.Annotations;
 using Automatron.Reflection;
 
@@ -11,30 +12,24 @@ namespace Automatron.AzureDevOps
 {
     internal class PipelineTaskVisitor : TaskVisitor
     {
+        private readonly IDictionary<string, IDictionary<string, object?>> _templateParameters = new Dictionary<string, IDictionary<string, object?>>();
+
         public PipelineTaskVisitor(ITypeProvider allowTypes) : base(allowTypes)
         {
         }
 
-        protected override IEnumerable<Attribute> GetAttributes(MemberInfo member)
+        protected override IEnumerable<Attribute> GetCustomAttributes(MemberInfo member)
         {
             var attributes = new List<Attribute>();
 
-            Attribute? attribute = member.GetCachedAttribute<VariableAttribute>();
+            Attribute? attribute = member.GetCachedCustomAttribute<VariableAttribute>();
 
             if (attribute != null)
             {
                 attributes.Add(attribute);
             }
 
-            attribute = member.GetCachedAttribute<PipelineAttribute>();
-
-            if (attribute != null)
-            {
-                attributes.Add(attribute);
-                return attributes;
-            }
-
-            attribute = member.GetCachedAttribute<StageAttribute>();
+            attribute = member.GetCachedCustomAttribute<PipelineAttribute>();
 
             if (attribute != null)
             {
@@ -42,7 +37,7 @@ namespace Automatron.AzureDevOps
                 return attributes;
             }
 
-            attribute = member.GetCachedAttribute<JobAttribute>();
+            attribute = member.GetCachedCustomAttribute<StageAttribute>();
 
             if (attribute != null)
             {
@@ -50,7 +45,15 @@ namespace Automatron.AzureDevOps
                 return attributes;
             }
 
-            attribute = member.GetCachedAttribute<StepAttribute>();
+            attribute = member.GetCachedCustomAttribute<JobAttribute>();
+
+            if (attribute != null)
+            {
+                attributes.Add(attribute);
+                return attributes;
+            }
+
+            attribute = member.GetCachedCustomAttribute<StepAttribute>();
 
             if (attribute != null)
             {
@@ -71,6 +74,9 @@ namespace Automatron.AzureDevOps
                 case StageAttribute stageAttribute:
                     VisitStageAttribute(stageAttribute);
                     break;
+                case DeploymentJobAttribute jobAttribute:
+                    VisitDeploymentJobAttribute(jobAttribute);
+                    break;
                 case JobAttribute jobAttribute:
                     VisitJobAttribute(jobAttribute);
                     break;
@@ -79,6 +85,9 @@ namespace Automatron.AzureDevOps
                     break;
                 case VariableAttribute variableAttribute:
                     VisitVariableAttribute(variableAttribute);
+                    break;
+                case ParameterAttribute parameterAttribute:
+                    VisitParameterAttribute(parameterAttribute);
                     break;
             }
         }
@@ -94,7 +103,7 @@ namespace Automatron.AzureDevOps
 
             var parameters = GetParameterTypeDescriptors(typeId, type);
 
-            var task = new Task(GetName(methodInfo, stepAttribute.Name), new HashSet<Task>(), new MethodActionDescriptor(methodInfo, type), parameters)
+            var task = new Task(GetName(methodInfo, stepAttribute.Name), new HashSet<Task>(), new MethodAction(methodInfo, type), parameters)
             {
                 Default = false
             };
@@ -125,7 +134,7 @@ namespace Automatron.AzureDevOps
 
             var parameters = GetParameterTypeDescriptors(typeId, type);
 
-            var task = new Task(GetName(type, jobAttribute.Name), new HashSet<Task>(), new EmptyActionDescriptor(type), parameters)
+            var task = new Task(GetName(type, jobAttribute.Name), new HashSet<Task>(), new EmptyAction(type), parameters)
             {
                 Default = false
             };
@@ -142,6 +151,48 @@ namespace Automatron.AzureDevOps
                 }
             }
 
+            AddTemplateParameterValues(typeId,type);
+
+            Tasks.Add(typeId, task);
+            ParentTask?.Dependencies.Add(task);
+
+            Task = task;
+            ParentTask = task;
+        }
+
+        private void VisitDeploymentJobAttribute(DeploymentJobAttribute jobAttribute)
+        {
+            var type = Type!;
+
+            var typeId = GetPath(type);
+
+            var parameters = GetParameterTypeDescriptors(typeId, type);
+
+            var task = new Task(GetName(type, jobAttribute.Name), new HashSet<Task>(), new EmptyAction(type), parameters)
+            {
+                Default = false
+            };
+
+            if (jobAttribute.DependsOn != null)
+            {
+                foreach (var dependentJob in jobAttribute.DependsOn.Cast<Type>())
+                {
+                    var dependentKey = GetPath(dependentJob ?? throw new InvalidOperationException());
+
+                    var dependency = Tasks[dependentKey];
+
+                    task.Dependencies.Add(dependency);
+                }
+            }
+
+            var runtimeParameters = new Dictionary<string, object?>();
+            if (!string.IsNullOrEmpty(jobAttribute.Name))
+            {
+                runtimeParameters.Add(nameof(jobAttribute.Environment), jobAttribute.Environment);
+            }
+         
+            AddTemplateParameterValues(typeId,type, runtimeParameters);
+
             Tasks.Add(typeId, task);
             ParentTask?.Dependencies.Add(task);
 
@@ -157,7 +208,7 @@ namespace Automatron.AzureDevOps
 
             var parameters = GetParameterTypeDescriptors(typeId, type);
 
-            var task = new Task(GetName(type, stageAttribute.Name), new HashSet<Task>(), new EmptyActionDescriptor(type), parameters)
+            var task = new Task(GetName(type, stageAttribute.Name), new HashSet<Task>(), new EmptyAction(type), parameters)
             {
                 Default = false
             };
@@ -174,11 +225,53 @@ namespace Automatron.AzureDevOps
                 }
             }
 
+            AddTemplateParameterValues(typeId,type);
+
             Tasks.Add(typeId, task);
             ParentTask?.Dependencies.Add(task);
 
             Task = task;
             ParentTask = task;
+        }
+
+        private void AddTemplateParameterValues(string id, MemberInfo type)
+        {
+            AddTemplateParameterValues(id, type, new Dictionary<string, object?>());
+        }
+
+        private void AddTemplateParameterValues(string id, MemberInfo type, Dictionary<string, object?> runtimeParameters)
+        {
+            var parameterAttributes = type.GetCachedCustomAttributes<ParameterAttribute>();
+
+            foreach (var parameterAttribute in parameterAttributes)
+            {
+                if (string.IsNullOrEmpty(parameterAttribute.Name))
+                {
+                    continue;
+                }
+
+                runtimeParameters[parameterAttribute.Name] = parameterAttribute.Value;
+            }
+
+            foreach (var runtimeParameter in runtimeParameters)
+            {
+                if (ParentType != null && runtimeParameter.Value is string strValue)
+                {
+                    var match = Regex.Match(strValue, "^\\$\\{\\{(?<name>.+)\\}\\}");
+                    if (match.Success)
+                    {
+                        if (_templateParameters.TryGetValue(GetPath(ParentType), out var parameters))
+                        {
+                            runtimeParameters[runtimeParameter.Key] = parameters[match.Groups["name"].Value];
+                        }
+                    }
+                }
+            }
+
+            if (runtimeParameters.Any())
+            {
+                _templateParameters.Add(id, runtimeParameters);
+            }
         }
 
         private void VisitPipelineAttribute(PipelineAttribute pipelineAttribute)
@@ -189,7 +282,7 @@ namespace Automatron.AzureDevOps
 
             var parameters = GetParameterTypeDescriptors(typeId, type);
 
-            var task = new Task(GetName(type, pipelineAttribute.Name), new HashSet<Task>(), new EmptyActionDescriptor(type), parameters)
+            var task = new Task(GetName(type, pipelineAttribute.Name), new HashSet<Task>(), new EmptyAction(type), parameters)
                 {
                     Default = false
                 };
@@ -210,43 +303,65 @@ namespace Automatron.AzureDevOps
                 return;
             }
 
-            //var tokens = new HashSet<string>();
+            var descriptionAttribute = property.GetCachedCustomAttribute<DescriptionAttribute>();
 
-            //if (ParentTask != null)
-            //{
-            //    tokens.Add(ParentTask.Name);
-            //}
+            //var name = !string.IsNullOrEmpty(variableAttribute.Name) ? variableAttribute.Name : property.Name;
+            var tokens = new HashSet<string>();
 
-            //tokens.Add(!string.IsNullOrEmpty(variableAttribute.Name) ? variableAttribute.Name : property.Name);
+            if (ParentTask != null)
+            {
+                tokens.Add(ParentTask.Name);
+            }
 
-            //var name = string.Join('-', tokens);
+            tokens.Add(!string.IsNullOrEmpty(variableAttribute.Name) ? variableAttribute.Name : property.Name);
 
-            var descriptionAttribute = property.GetCachedAttribute<DescriptionAttribute>();
+            var name = string.Join('-', tokens);
 
-            var name = !string.IsNullOrEmpty(variableAttribute.Name) ? variableAttribute.Name : property.Name;
+            AddParameter(new RuntimeParameter(name, descriptionAttribute?.Description, property.PropertyType), property);
+        }
 
-            AddParameter(name, descriptionAttribute?.Description, property);
+        private void VisitParameterAttribute(ParameterAttribute parameterAttribute)
+        {
+            var property = Property;
+            var type = Type!;
 
-            //var type = property.ReflectedType!.IsInterface || property.ReflectedType!.IsAbstract ? Type! : property.ReflectedType;
+            if (property == null)
+            {
+                return;
+            }
 
-            //var descriptionAttribute = property.GetCachedAttribute<DescriptionAttribute>();
+            var name = !string.IsNullOrEmpty(parameterAttribute.Name) ? parameterAttribute.Name : property.Name;
 
-            //var typeId = GetPath(type);
+            var tokens = new HashSet<string>();
 
-            //var parameter = new Parameter(name, descriptionAttribute?.Description, property.PropertyType);
+            if (ParentTask != null)
+            {
+                tokens.Add(ParentTask.Name);
+            }
 
-            //var descriptor = new ParameterDescriptor(parameter, property);
+            tokens.Add(name);
 
-            //if (!TypeParameters.ContainsKey(typeId))
-            //{
-            //    TypeParameters.Add(typeId, new HashSet<ParameterDescriptor>());
-            //}
+            var parameterName = string.Join('-', tokens);
 
-            //TypeParameters[typeId].Add(descriptor);
+            var typeId = GetPath(type);
 
-            //var propertyId = GetPath(property);
+            if (!type.IsNested)
+            {
+                AddParameter(new RuntimeParameter(parameterName, parameterAttribute.DisplayName, property.PropertyType), property);
+                return;
+            }
 
-            //Parameters.Add(propertyId, parameter);
+            if (!_templateParameters.TryGetValue(typeId, out var parameters))
+            {
+                return;
+            }
+
+            if (!parameters.TryGetValue(name, out var value))
+            {
+                return;
+            }
+
+            AddParameter(new ComputedParameter(parameterName, property.PropertyType, value), property);
         }
     }
 }

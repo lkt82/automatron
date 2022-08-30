@@ -4,7 +4,7 @@ using System.Reflection;
 namespace Automatron;
 
 #if NET6_0
-internal record MethodActionDescriptor(MethodInfo Method, Type Type) : ActionDescriptor(Type)
+internal record MethodAction(MethodInfo Method, Type Type) : Action(Type)
 {
     public override object? Invoke(object service)
     {

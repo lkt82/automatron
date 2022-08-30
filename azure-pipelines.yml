@@ -25,37 +25,32 @@ stages:
     steps:
     - script: dotnet run -- -p -t Ci-Version
       workingDirectory: src/Automatron.Pipeline
-      env:
-        NUGET_API_KEY: $(NugetApiKey)
+      env: &o0
+        CI_NUGET_API_KEY: $(NugetApiKey)
       name: Version
       displayName: "\U0001F522 Version"
     - script: dotnet run -- -p -t Ci-Clean
       workingDirectory: src/Automatron.Pipeline
-      env:
-        NUGET_API_KEY: $(NugetApiKey)
+      env: *o0
       name: Clean
       displayName: "\U0001F9F9 Clean"
     - script: dotnet run -- -s Ci-Version,Ci-Clean -p -t Ci-Build
       workingDirectory: src/Automatron.Pipeline
-      env:
-        NUGET_API_KEY: $(NugetApiKey)
+      env: *o0
       name: Build
       displayName: "\U0001F3D7 Build"
     - script: dotnet run -- -s Ci-Build,Ci-Clean -p -t Ci-Test
       workingDirectory: src/Automatron.Pipeline
-      env:
-        NUGET_API_KEY: $(NugetApiKey)
+      env: *o0
       name: Test
       displayName: "\U0001F9EA Test"
     - script: dotnet run -- -s Ci-Build,Ci-Clean -p -t Ci-Pack
       workingDirectory: src/Automatron.Pipeline
-      env:
-        NUGET_API_KEY: $(NugetApiKey)
+      env: *o0
       name: Pack
       displayName: "\U0001F4E6 Pack"
     - script: dotnet run -- -s Ci-Pack -p -t Ci-Publish
       workingDirectory: src/Automatron.Pipeline
-      env:
-        NUGET_API_KEY: $(NugetApiKey)
+      env: *o0
       name: Publish
       displayName: "\U0001F680 Publish"

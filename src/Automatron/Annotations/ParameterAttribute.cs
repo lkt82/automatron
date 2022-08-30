@@ -9,8 +9,3 @@ public sealed class ParameterAttribute : Attribute
 
     public string? Description { get; set; }
 }
-
-[AttributeUsage(AttributeTargets.Property)]
-public sealed class ParameterTypeAttribute : Attribute
-{
-}

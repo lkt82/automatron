@@ -73,10 +73,11 @@ internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>, IComparer<Stage
     {
         var name = !string.IsNullOrEmpty(stageAttribute.Name) ? stageAttribute.Name! : symbol.Name;
 
-        var stage = new Stage(_pipeline, name, stageAttribute.DisplayName, stageAttribute.DependsOn?.Cast<ISymbol>().Select(c=> Stages[c.Name].Name).ToArray(), stageAttribute.Condition)
+        var stage = new Stage(_pipeline, name, stageAttribute.DisplayName, stageAttribute.DependsOn?.Cast<ISymbol>().Select(c=> Stages[c.Name].Name).ToArray(), stageAttribute.Condition, symbol)
             {
                 Pool = symbol.Accept(new PoolVisitor()),
-                Variables = symbol.Accept(new VariableVisitor())
+                Variables = symbol.Accept(new VariableVisitor()),
+                TemplateParameters = symbol.Accept(new TemplateParameterVisitor())
             };
 
         if (SymbolEqualityComparer.Default.Equals(_root, symbol))

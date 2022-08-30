@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using Automatron.AzureDevOps.Annotations;
 using Automatron.AzureDevOps.Generators;
 using Automatron.AzureDevOps.Models;
 using FluentAssertions;
@@ -32,7 +31,7 @@ public class PipelineYamlGeneratorTests
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Pipeline(YmlName = """ + nameof(Should_be_able_to_map_pipeline) + @""")]
@@ -59,7 +58,7 @@ public class Pipeline
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Pipeline(YmlName = """ + nameof(Should_be_able_to_map_pipeline_ci_trigger) + @""")]
@@ -92,7 +91,7 @@ public class Pipeline
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Pipeline(YmlName = """ + nameof(Should_be_able_to_map_pipeline_scheduled_trigger) + @""")]
@@ -124,7 +123,7 @@ public class Pipeline
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Pipeline(YmlName = """ + nameof(Should_be_able_to_map_pipeline_stage) + @""")]
@@ -153,7 +152,7 @@ public class Pipeline
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Pipeline(YmlName = """ + nameof(Should_be_able_to_map_pipeline_stage_job) + @""")]
@@ -184,7 +183,7 @@ public class Pipeline
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Pipeline(YmlName = """ + nameof(Should_be_able_to_map_pipeline_stage_deployment_job) + @""")]
@@ -217,7 +216,7 @@ public class Pipeline
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Pipeline(YmlName = """ + nameof(Should_be_able_to_map_pipeline_stage_job_step) + @""")]
@@ -255,7 +254,7 @@ public class Pipeline
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Pipeline(YmlName = """ + nameof(Should_be_able_to_map_pipeline_nested_stage) + @""")]
@@ -287,7 +286,7 @@ public class Pipeline
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Pipeline(YmlName = """ + nameof(Should_be_able_to_map_pipeline_nested_stage_nested_job) + @""")]
@@ -324,7 +323,7 @@ public class Pipeline
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Pipeline(YmlName = """ + nameof(Should_be_able_to_map_pipeline_nested_stage_nested_job_step) + @""")]
@@ -361,26 +360,161 @@ public class Pipeline
             .Subject.Steps.Should().NotBeNull().And.ContainSingle();
     }
 
+//    [Fact]
+//    public void Should_be_able_to_map_automatron_task_parameters()
+//    {
+//        // Arrange
+//        const string code = @"
+//
+//using Automatron.AzureDevOps.Generators.Annotations;
+//using ParameterAttribute = Automatron.AzureDevOps.Generators.Annotations.ParameterAttribute;
+
+//[Pipeline(YmlName = """ + nameof(Should_be_able_to_map_automatron_task_parameters) + @""")]
+//public class Pipeline
+//{
+//    [Parameter(Default = false, Values = new object[] { true, false })]
+//    public bool RunPerfTests { get; set; }
+
+//    [Stage]
+//    [Job]
+//    [Task(Parameters = new[] { nameof(RunPerfTests) })]
+//    public void Default()
+//    {
+//    }
+
+//    public static void Main(string[] args)
+//    {
+//    }
+//}
+//";
+//        var generator = new PipelineYamlGenerator();
+//        var compilation = CreateCompilation(code, "Pipeline");
+
+//        // Act
+//        RunGenerator(compilation, new Dictionary<string, string>
+//        {
+//            {"build_property.AzureDevOpsPipelineProjectDirectory", ProjectPath}
+//        }, generator);
+
+//        // Assert
+//        generator.Pipelines!.First().Stages.First().Jobs.First().Steps.First().As<AutomatronScript>().Content
+//            .Should()
+//            .Contain("--runperftests \"${{ parameters.RunPerfTests }}\"");
+//    }
+
+//    [Fact]
+//    public void Should_be_able_to_map_boolean_pipeline_parameter()
+//    {
+//        // Arrange
+//        const string code = @"
+//
+//using Automatron.AzureDevOps.Generators.Annotations;
+//using ParameterAttribute = Automatron.AzureDevOps.Generators.Annotations.ParameterAttribute;
+
+//[Pipeline(YmlName = """ + nameof(Should_be_able_to_map_boolean_pipeline_parameter) + @""")]
+//public class Pipeline
+//{
+//    [Parameter(Default = false, Values = new object[] { true, false })]
+//    public bool RunPerfTests { get; set; }
+
+//    [Stage]
+//    [Job]
+//    [Task(Parameters = new[] { nameof(RunPerfTests) })]
+//    public void Default()
+//    {
+//    }
+
+//    public static void Main(string[] args)
+//    {
+//    }
+//}
+//";
+//        var generator = new PipelineYamlGenerator();
+//        var compilation = CreateCompilation(code, "Pipeline");
+
+//        // Act
+//        RunGenerator(compilation, new Dictionary<string, string>
+//        {
+//            {"build_property.AzureDevOpsPipelineProjectDirectory", ProjectPath}
+//        }, generator);
+
+//        // Assert
+//        generator.Pipelines!.First().Parameters
+//            .Should()
+//            .Satisfy(c =>
+//                c.Name == "RunPerfTests" &&
+//                c.Type == ParameterTypes.Boolean &&
+//                (bool)c.Value! == false &&
+//                c.Values!.Length == 2
+//            );
+//    }
+
+//    [Fact]
+//    public void Should_be_able_to_map_multiple_pipeline_parameters()
+//    {
+//        // Arrange
+//        const string code = @"
+//
+//using Automatron.AzureDevOps.Generators.Annotations;
+//using ParameterAttribute = Automatron.AzureDevOps.Generators.Annotations.ParameterAttribute;
+
+//[Pipeline(YmlName = """+nameof(Should_be_able_to_map_multiple_pipeline_parameters)+ @""")]
+//public class Pipeline
+//{
+//    [Parameter]
+//    public bool RunPerfTests1 { get; set; }
+
+//    [Parameter]
+//    public bool RunPerfTests2 { get; set; }
+
+//    [Stage]
+//    [Job]
+//    [Task]
+//    public void Default()
+//    {
+//    }
+
+//    public static void Main(string[] args)
+//    {
+//    }
+//}
+//";
+//        var generator = new PipelineYamlGenerator();
+//        var compilation = CreateCompilation(code, "Pipeline");
+
+//        // Act
+//        RunGenerator(compilation,new Dictionary<string, string>
+//        {
+//            {"build_property.AzureDevOpsPipelineProjectDirectory", ProjectPath}
+//        }, generator);
+
+//        // Assert
+//        generator.Pipelines!.First().Parameters
+//            .Should()
+//            .HaveCount(2);
+//    }
+
     [Fact]
-    public void Should_be_able_to_map_automatron_task_parameters()
+    public void Should_be_able_to_map_pipeline_nested_stage_environment_parameter_to_nested_deployment_job()
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
-using Automatron.AzureDevOps.Generators.Annotations;
-using ParameterAttribute = Automatron.AzureDevOps.Generators.Annotations.ParameterAttribute;
+using Automatron.AzureDevOps.Annotations;
 
-[Pipeline(YmlName = """ + nameof(Should_be_able_to_map_automatron_task_parameters) + @""")]
+[Pipeline(YmlName = """ + nameof(Should_be_able_to_map_pipeline_nested_stage_environment_parameter_to_nested_deployment_job) + @""")]
 public class Pipeline
 {
-    [Parameter(Default = false, Values = new object[] { true, false })]
-    public bool RunPerfTests { get; set; }
-
     [Stage]
-    [Job]
-    [Task(Parameters = new[] { nameof(RunPerfTests) })]
-    public void Default()
+    [Environment(""Testing"")]
+    public class DeployToTesting
     {
+        [Environment]
+        public virtual string? Environment { get; set; }
+
+        [DeploymentJob(Environment = ""${{Environment}}"")]
+        public class Deployment
+        {
+        }
     }
 
     public static void Main(string[] args)
@@ -392,107 +526,13 @@ public class Pipeline
         var compilation = CreateCompilation(code, "Pipeline");
 
         // Act
-        RunGenerator(compilation, new Dictionary<string, string>
-        {
-            {"build_property.AzureDevOpsPipelineProjectDirectory", ProjectPath}
-        }, generator);
+        RunGenerator(compilation, _options, generator);
 
         // Assert
-        generator.Pipelines!.First().Stages.First().Jobs.First().Steps.First().As<AutomatronScript>().Content
-            .Should()
-            .Contain("--runperftests \"${{ parameters.RunPerfTests }}\"");
-    }
-
-    [Fact]
-    public void Should_be_able_to_map_boolean_pipeline_parameter()
-    {
-        // Arrange
-        const string code = @"
-using Automatron.Annotations;
-using Automatron.AzureDevOps.Generators.Annotations;
-using ParameterAttribute = Automatron.AzureDevOps.Generators.Annotations.ParameterAttribute;
-
-[Pipeline(YmlName = """ + nameof(Should_be_able_to_map_boolean_pipeline_parameter) + @""")]
-public class Pipeline
-{
-    [Parameter(Default = false, Values = new object[] { true, false })]
-    public bool RunPerfTests { get; set; }
-
-    [Stage]
-    [Job]
-    [Task(Parameters = new[] { nameof(RunPerfTests) })]
-    public void Default()
-    {
-    }
-
-    public static void Main(string[] args)
-    {
-    }
-}
-";
-        var generator = new PipelineYamlGenerator();
-        var compilation = CreateCompilation(code, "Pipeline");
-
-        // Act
-        RunGenerator(compilation, new Dictionary<string, string>
-        {
-            {"build_property.AzureDevOpsPipelineProjectDirectory", ProjectPath}
-        }, generator);
-
-        // Assert
-        generator.Pipelines!.First().Parameters
-            .Should()
-            .Satisfy(c =>
-                c.Name == "RunPerfTests" &&
-                c.Type == ParameterTypes.Boolean &&
-                (bool)c.Value! == false &&
-                c.Values!.Length == 2
-            );
-    }
-
-    [Fact]
-    public void Should_be_able_to_map_multiple_pipeline_parameters()
-    {
-        // Arrange
-        const string code = @"
-using Automatron.Annotations;
-using Automatron.AzureDevOps.Generators.Annotations;
-using ParameterAttribute = Automatron.AzureDevOps.Generators.Annotations.ParameterAttribute;
-
-[Pipeline(YmlName = """+nameof(Should_be_able_to_map_multiple_pipeline_parameters)+ @""")]
-public class Pipeline
-{
-    [Parameter]
-    public bool RunPerfTests1 { get; set; }
-
-    [Parameter]
-    public bool RunPerfTests2 { get; set; }
-
-    [Stage]
-    [Job]
-    [Task]
-    public void Default()
-    {
-    }
-
-    public static void Main(string[] args)
-    {
-    }
-}
-";
-        var generator = new PipelineYamlGenerator();
-        var compilation = CreateCompilation(code, "Pipeline");
-
-        // Act
-        RunGenerator(compilation,new Dictionary<string, string>
-        {
-            {"build_property.AzureDevOpsPipelineProjectDirectory", ProjectPath}
-        }, generator);
-
-        // Assert
-        generator.Pipelines!.First().Parameters
-            .Should()
-            .HaveCount(2);
+        generator.Pipelines.Should().NotBeNull().And.ContainSingle()
+            .Subject.Stages.Should().NotBeNull().And.ContainSingle()
+            .Subject.Jobs.Should().NotBeNull().And.ContainSingle()
+            .Subject.As<DeploymentJob>().Environment.Should().Be("Testing");
     }
 
     [Fact]
@@ -500,7 +540,7 @@ public class Pipeline
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Pipeline(YmlName = """ + nameof(Should_be_able_to_map_pipeline_variable) + @""")]
@@ -530,7 +570,7 @@ public class Pipeline
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Pipeline(YmlName = """ + nameof(Should_be_able_to_map_pipeline_stage_job_variable_env) + @""")]
@@ -571,7 +611,7 @@ public class Pipeline
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Pipeline(YmlName = """ + nameof(Should_be_able_to_map_pipeline_nested_stage_nested_job_variable_env) + @""")]
@@ -614,14 +654,70 @@ public class Pipeline
     }
 
     [Fact]
-    public void Should_be_able_to_map_variables_group()
+    public void Should_be_able_to_map_pipeline_nested_stage_nested_job_variable_env2()
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
-[Pipeline(YmlName = """ + nameof(Should_be_able_to_map_variables_group) + @""")]
+[Pipeline(YmlName = """ + nameof(Should_be_able_to_map_pipeline_nested_stage_nested_job_variable_env2) + @""")]
+public class Pipeline
+{
+    [Variable]
+    public string? Var1 { get; set; }
+
+    [Stage]
+    public class DeployToTesting
+    {
+        [Variable]
+        public string? Var1 { get; set; }
+
+        [Job]
+        public class Deployment
+        {
+            public Deployment(DeployToTesting stage, Pipeline pipeline)
+            {
+            }
+
+            [Variable]
+            public string? Var1 { get; set; }
+
+            [Step]
+            public void Default()
+            {
+            }
+        }
+    }
+
+    public static void Main(string[] args)
+    {
+    }
+}
+";
+        var generator = new PipelineYamlGenerator();
+        var compilation = CreateCompilation(code, "Pipeline");
+
+        // Act
+        RunGenerator(compilation, _options, generator);
+
+        // Assert
+        generator.Pipelines.Should().NotBeNull().And.ContainSingle()
+            .Subject.Stages.Should().NotBeNull().And.ContainSingle()
+            .Subject.Jobs.Should().NotBeNull().And.ContainSingle()
+            .Subject.Steps.Should().NotBeNull().And.ContainSingle()
+            .Subject.Should().BeOfType<AutomatronScript>()
+            .Subject.Env.Should().ContainKey("VAR1");
+    }
+
+    [Fact]
+    public void Should_be_able_to_map_pipeline_variables_group()
+    {
+        // Arrange
+        const string code = @"
+using Automatron.AzureDevOps.Annotations;
+
+[Pipeline(YmlName = """ + nameof(Should_be_able_to_map_pipeline_variables_group) + @""")]
 [VariableGroup(""nuget"")]
 public class Pipeline
 {
@@ -637,8 +733,42 @@ public class Pipeline
         RunGenerator(compilation, _options, generator);
 
         // Assert
-        generator.Pipelines.First().Variables.Should().HaveCount(1);
-        generator.Pipelines.First().Variables!.First().As<VariableGroup>().Name.Should().Be("nuget");
+        generator.Pipelines.Should().NotBeNull()
+            .And.Subject.Should().ContainSingle()
+            .Subject.Variables.Should().NotBeNull().And.ContainSingle()
+            .Subject.As<VariableGroup>().Name.Should().Be("nuget");
+    }
+
+    [Fact]
+    public void Should_be_able_to_map_pipeline_parameter()
+    {
+        // Arrange
+        const string code = @"
+using Automatron.AzureDevOps.Annotations;
+
+[Pipeline(YmlName = """ + nameof(Should_be_able_to_map_pipeline_parameter) + @""")]
+[Parameter(""Tests"", DisplayName = ""Run Tests"", Values = new object[]{ ""Yes"",""No"" })]
+public class Pipeline
+{
+    public static void Main(string[] args)
+    {
+    }
+}
+";
+        var generator = new PipelineYamlGenerator();
+        var compilation = CreateCompilation(code, "Pipeline");
+
+        // Act
+        RunGenerator(compilation, _options, generator);
+
+        // Assert
+        var parameter = generator.Pipelines.Should().NotBeNull()
+            .And.Subject.Should().ContainSingle()
+            .Subject.Parameters.Should().NotBeNull().And.ContainSingle()
+            .Subject;
+        parameter.Name.Should().Be("Tests");
+        parameter.DisplayName.Should().Be("Run Tests");
+        parameter.Values.Should().BeEquivalentTo(new[] { "Yes", "No" });
     }
 
     [Fact]
@@ -646,7 +776,7 @@ public class Pipeline
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Pipeline(YmlName = """ + nameof(Should_be_able_to_map_inherited_pipeline) + @""")]
@@ -677,7 +807,7 @@ public class Pipeline :PipelineBase
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Pipeline(YmlName = """ + nameof(Should_be_able_to_map_inherited_pipeline_nested_stage) + @""")]
@@ -712,7 +842,7 @@ public class Pipeline :PipelineBase
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Stage]
@@ -751,7 +881,7 @@ public class Pipeline :PipelineBase
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Job]
@@ -800,7 +930,7 @@ public class Pipeline :PipelineBase
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Job]
@@ -854,7 +984,7 @@ public class Pipeline :PipelineBase
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Pipeline(YmlName = """ + nameof(Should_be_able_to_map_inherited_pipeline_nested_stage_nested_job) + @""")]
@@ -894,7 +1024,7 @@ public class Pipeline :PipelineBase
     {
         // Arrange
         const string code = @"
-using Automatron.Annotations;
+
 using Automatron.AzureDevOps.Annotations;
 
 [Pipeline(YmlName = """ + nameof(Should_be_able_to_map_inherited_pipeline_nested_stage_nested_job_step) + @""")]

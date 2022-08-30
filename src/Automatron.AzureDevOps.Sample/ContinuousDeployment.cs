@@ -31,7 +31,7 @@ public abstract class PulumiDeploymentJob
 
 public abstract class PulumiDeploymentStage
 {
-    [DeploymentJob("Deployment")]
+    [DeploymentJob("Deployment", Environment = "${{Environment}}")]
     public class DeploymentJob : PulumiDeploymentJob
     {
     }
