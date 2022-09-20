@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Automatron.AzureDevOps.Annotations;
-using Automatron.AzureDevOps.CodeAnalysis;
-using Automatron.AzureDevOps.Models;
+using Automatron.AzureDevOps.Generators.Models;
+using Automatron.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
@@ -16,9 +16,7 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
 
     private Dictionary<string,Step> Steps { get; } = new();
 
-    private IEnumerable<string>? VariableReferences { get; set; }
-
-    private IDictionary<string, object>? EnvVariable { get; set; }
+    private Dictionary<string, object>? EnvVariable { get; set; }
 
 
     public StepVisitor(IJob job)
@@ -43,8 +41,7 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
 
     private IEnumerable<Step> VisitStepType(INamedTypeSymbol symbol)
     {
-        //VariableReferences = symbol.Accept(new VariableReferenceVisitor());
-        EnvVariable = symbol.Accept(new EnvVariableVisitor(_job));
+        EnvVariable = symbol.Accept(new EnvVariableVisitor());
 
         var methods = symbol.GetAllMethods();
 
@@ -94,28 +91,23 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
         };
     }
 
-    private Step CreateAutomatronScript(IMethodSymbol member, StepAttribute stepAttribute)
+    private Step CreateAutomatronScript(ISymbol member, StepAttribute stepAttribute)
     {
         var stepName = string.IsNullOrEmpty(stepAttribute.Name) ? member.Name : stepAttribute.Name;
-
-        #pragma warning disable CS8604
-        var taskName = GetTaskName(stepName);
-        #pragma warning restore CS8604
 
         var displayName = string.IsNullOrEmpty(stepAttribute.Emoji) ? stepAttribute.DisplayName : $"{stepAttribute.Emoji} {stepName}";
 
         var dependsOn = stepAttribute.DependsOn == null ? Array.Empty<string>() : stepAttribute.DependsOn.Select(c => Steps[c].Name!).ToArray();
 
-        var skip = dependsOn.Select(GetTaskName).ToArray();
-
-        return new AutomatronScript(_job, new[] { taskName }, skip, false, true, Array.Empty<string>())
+        // ReSharper disable once RedundantSuppressNullableWarningExpression
+        return new AutomatronScript(_job, stepName!)
         {
             Name = stepName,
             DisplayName = displayName,
             Condition = stepAttribute.Condition,
             DependsOn = dependsOn,
             WorkingDirectory = stepAttribute.WorkingDirectory ?? GetWorkingDirectory(),
-            Env = EnvVariable //VariableReferences?.ToDictionary(GetEnvVarName, c => (object)$"$({c})")
+            Env = EnvVariable
         };
     }
 
@@ -130,25 +122,6 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
             DisplayName = displayName,
             Condition = checkoutAttribute.Condition
         };
-    }
-
-    private string GetTaskName(string stepName)
-    {
-       var tokens = new List<string> { _job.Stage.Pipeline.Name };
-
-       if (_job.Stage.Path != _job.Stage.Pipeline.Path)
-       {
-           tokens.Add(_job.Stage.Name);
-       }
-
-       if (_job.Path != _job.Stage.Path)
-       {
-           tokens.Add(_job.Name);
-       }
-
-       tokens.Add(stepName);
-        
-       return string.Join("-", tokens);
     }
 
     private string GetWorkingDirectory()

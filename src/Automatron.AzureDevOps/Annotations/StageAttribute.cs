@@ -15,7 +15,7 @@ namespace Automatron.AzureDevOps.Annotations
             Name = name;
         }
 
-        public object[]? DependsOn { get; set; }
+        public string[]? DependsOn { get; set; }
 
     }
 }

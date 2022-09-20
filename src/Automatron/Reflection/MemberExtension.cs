@@ -1,12 +1,13 @@
 ﻿#if NET6_0
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Automatron.Reflection;
 
 public static class MemberExtension
 {
-    public static void Accept(this MemberInfo memberInfo, SymbolVisitor visitor)
+    public static void Accept(this MemberInfo memberInfo, MemberVisitor visitor)
     {
         switch (memberInfo)
         {
@@ -23,6 +24,27 @@ public static class MemberExtension
                 property.Accept(visitor);
                 break;
         }
+    }
+
+
+    public static IEnumerable<T> GetAllCustomAttributes<T>(this MemberInfo memberInfo) where T : Attribute
+    {
+        if (memberInfo is Type type)
+        {
+            return type.GetAllCustomAttributes<T>();
+        }
+
+        return memberInfo.GetCustomAttributes<T>();
+    }
+
+    public static T? GetAllCustomAttribute<T>(this MemberInfo memberInfo) where T : Attribute
+    {
+        if (memberInfo is Type type)
+        {
+            return type.GetAllCustomAttribute<T>();
+        }
+
+        return memberInfo.GetCustomAttribute<T>();
     }
 }
 #endif

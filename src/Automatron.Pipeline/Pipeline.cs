@@ -1,11 +1,11 @@
-﻿using System.ComponentModel;
-using System.Reflection;
-using Automatron;
+﻿using System.Reflection;
 using Automatron.AzureDevOps;
 using Automatron.AzureDevOps.Annotations;
+using Automatron.AzureDevOps.Tasks;
+using Automatron.Models;
 using static SimpleExec.Command;
 
-await new TaskRunner().UseAzureDevOps().RunAsync(args);
+await AzureDevOpsCli.New().RunAsync(args);
 
 [Pipeline("Ci",YmlPath = RootPath,YmlName = "azure-pipelines")]
 [CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
@@ -15,7 +15,7 @@ await new TaskRunner().UseAzureDevOps().RunAsync(args);
 [Job]
 public class Pipeline
 {
-    private readonly AzureDevOpsTasks _azureDevOpsTasks;
+    private readonly LoggingCommands _loggingCommands;
 
     private const string RootPath = "../../";
 
@@ -25,13 +25,12 @@ public class Pipeline
 
     private static string ArtifactsDir => $"{RootDir}.artifacts";
 
-    [Variable]
-    [Description("The nuget api key")]
+    [Variable(Description = "The nuget api key")]
     public Secret? NugetApiKey { get; set; }
 
-    public Pipeline(AzureDevOpsTasks azureDevOpsTasks)
+    public Pipeline(LoggingCommands loggingCommands)
     {
-        _azureDevOpsTasks = azureDevOpsTasks;
+        _loggingCommands = loggingCommands;
     }
 
     private static void CleanDirectory(string dir)
@@ -63,7 +62,7 @@ public class Pipeline
             return;
         }
 
-        await _azureDevOpsTasks.UpdateBuildNumberAsync(version);
+        await _loggingCommands.UpdateBuildNumberAsync(version);
     }
 
     [Step(Emoji = "🧹")]
@@ -101,7 +100,7 @@ public class Pipeline
             return true;
         });
 
-        await _azureDevOpsTasks.PublishTestResultsAsync("XUnit", Directory.EnumerateFiles(ArtifactsDir, "*.Tests.xml"), "Tests", true);
+        await _loggingCommands.PublishTestResultsAsync("XUnit", Directory.EnumerateFiles(ArtifactsDir, "*.Tests.xml"), "Tests", true);
 
         if (failedTests)
         {

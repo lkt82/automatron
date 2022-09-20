@@ -22,7 +22,7 @@ namespace Automatron.AzureDevOps.Annotations
 
         public string? Emoji { get; set; }
 
-        public object[]? DependsOn { get; set; }
+        public string[]? DependsOn { get; set; }
     }
 
 }

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Automatron.AzureDevOps.Annotations;
-using Automatron.AzureDevOps.CodeAnalysis;
-using Automatron.AzureDevOps.Models;
+using Automatron.AzureDevOps.Generators.Models;
+using Automatron.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
@@ -13,8 +13,6 @@ internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>, IComparer<Stage
 
     private Dictionary<string,Stage> Stages { get; } = new();
 
-    private INamedTypeSymbol? _root;
-
     public StageVisitor(Pipeline pipeline)
     {
         _pipeline = pipeline;
@@ -22,8 +20,6 @@ internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>, IComparer<Stage
 
     public override IEnumerable<Stage> VisitNamedType(INamedTypeSymbol symbol)
     {
-        _root = symbol;
-
         VisitStageType(symbol);
 
         foreach (var stage in Stages.Values)
@@ -48,13 +44,13 @@ internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>, IComparer<Stage
 
         if (stageAttribute != null)
         {
-            if (stageAttribute.DependsOn != null)
-            {
-                foreach (var stageTypeSymbol in stageAttribute.DependsOn.Cast<INamedTypeSymbol>())
-                {
-                    VisitStageType(stageTypeSymbol);
-                }
-            }
+            //if (stageAttribute.DependsOn != null)
+            //{
+            //    foreach (var stageTypeSymbol in stageAttribute.DependsOn.Cast<INamedTypeSymbol>())
+            //    {
+            //        VisitStageType(stageTypeSymbol);
+            //    }
+            //}
 
             var stage = CreateStage(stageAttribute, symbol);
 
@@ -73,21 +69,12 @@ internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>, IComparer<Stage
     {
         var name = !string.IsNullOrEmpty(stageAttribute.Name) ? stageAttribute.Name! : symbol.Name;
 
-        var stage = new Stage(_pipeline, name, stageAttribute.DisplayName, stageAttribute.DependsOn?.Cast<ISymbol>().Select(c=> Stages[c.Name].Name).ToArray(), stageAttribute.Condition, symbol)
+        var stage = new Stage(_pipeline, name, stageAttribute.DisplayName, stageAttribute.DependsOn, stageAttribute.Condition, symbol)
             {
                 Pool = symbol.Accept(new PoolVisitor()),
                 Variables = symbol.Accept(new VariableVisitor()),
                 TemplateParameters = symbol.Accept(new TemplateParameterVisitor())
             };
-
-        if (SymbolEqualityComparer.Default.Equals(_root, symbol))
-        {
-            stage.Path = _pipeline.Path;
-        }
-        else
-        {
-            stage.Path = _pipeline.Path + "/" + stage.Name;
-        }
 
         return stage;
     }

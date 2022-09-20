@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Automatron.AzureDevOps.Annotations;
-using Automatron.AzureDevOps.CodeAnalysis;
-using Automatron.AzureDevOps.Models;
+using Automatron.AzureDevOps.Generators.Models;
+using Automatron.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;

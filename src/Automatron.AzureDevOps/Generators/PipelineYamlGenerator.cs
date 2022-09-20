@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Automatron.AzureDevOps.Converters;
-using Automatron.AzureDevOps.Models;
+using Automatron.AzureDevOps.Generators.Converters;
+using Automatron.AzureDevOps.Generators.Models;
 using Microsoft.CodeAnalysis;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -72,15 +72,28 @@ internal class PipelineYamlGenerator : ISourceGenerator
             return;
         }
 
-        var pipelineVisitor = new PipelineVisitor(vscRoot, PathExtensions.GetUnixPath(projectDirectory));
-        pipelineVisitor.Visit(mainMethod.ContainingAssembly.GlobalNamespace);
-
-        foreach (var pipeline in pipelineVisitor.Pipelines)
+        try
         {
-            SavePipeline(pipeline);
-        }
+            var pipelineVisitor = new PipelineVisitor(vscRoot, PathExtensions.GetUnixPath(projectDirectory));
+            pipelineVisitor.Visit(mainMethod.ContainingAssembly.GlobalNamespace);
 
-        Pipelines = pipelineVisitor.Pipelines;
+            foreach (var pipeline in pipelineVisitor.Pipelines)
+            {
+                SavePipeline(pipeline);
+            }
+
+            Pipelines = pipelineVisitor.Pipelines;
+        }
+#pragma warning disable CS0168
+        catch (Exception e)
+#pragma warning restore CS0168
+        {
+            if (!Debugger.IsAttached)
+            {
+                Debugger.Launch();
+            }
+            throw;
+        }
     }
 
     public List<Pipeline> Pipelines { get; set; } = new();
@@ -92,6 +105,7 @@ internal class PipelineYamlGenerator : ISourceGenerator
 
         var serializer = serializerBuilder.WithTypeConverter(disabledCiTriggerConverter)
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .DisableAliases()
             .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitNull | DefaultValuesHandling.OmitEmptyCollections)
             .Build();
         return serializer;

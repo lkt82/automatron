@@ -1,46 +1,71 @@
-﻿using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
-using YamlDotNet.Serialization;
+﻿#if NET6_0
+using System;
+using System.Collections.Generic;
 
 namespace Automatron.AzureDevOps.Models;
 
-public sealed class Stage
+public class Stage : IComparer<Job>, IEqualityComparer<Stage>
 {
-    public Stage(Pipeline pipeline, string name, string? displayName, string[]? dependsOn, string? condition, ISymbol symbol)
+    public Stage(string name,Pipeline pipeline, IEnumerable<Job> jobs, Type type)
     {
         Name = name;
-        DisplayName = displayName;
-        DependsOn = dependsOn;
-        Condition = condition;
-        Symbol = symbol;
         Pipeline = pipeline;
-
-        Path = pipeline.Path + "/" + Name;
+        Type = type;
+        Jobs = new SortedSet<Job>(jobs, this);
     }
 
-    [YamlMember(Alias = "stage")]
-    public string Name { get; set; }
+    public Stage(string name, Pipeline pipeline, Func<Stage,IEnumerable<Job>> jobs, Type type)
+    {
+        Name = name;
+        Pipeline = pipeline;
+        Type = type;
+        Jobs = new SortedSet<Job>(jobs(this), this);
+    }
 
-    public string? DisplayName { get; set; }
+    public string Name { get; }
 
-    public string[]? DependsOn { get; set; }
-
-    public string? Condition { get; set; }
-
-    public Pool? Pool { get; set; }
-
-    [YamlIgnore]
-    public ISymbol Symbol { get; set; }
-
-    [YamlIgnore]
-    public IDictionary<string,object>? TemplateParameters { get; set; }
-
-    public IEnumerable<IVariable>? Variables { get; set; }
-
-    public IEnumerable<IJob>? Jobs { get; set; }
-
-    [YamlIgnore]
     public Pipeline Pipeline { get; }
 
-    [YamlIgnore] public string Path { get; set; }
+    public Type Type { get; }
+
+    public ISet<Job> Jobs { get; }
+
+    public ISet<Stage> DependsOn { get; } = new HashSet<Stage>();
+
+    public ISet<Variable> Variables { get; } = new HashSet<Variable>();
+
+    public int Compare(Job? x, Job? y)
+    {
+        if (x == null || y == null)
+        {
+            return 0;
+        }
+
+        if (x.DependsOn.Contains(y))
+        {
+            return 1;
+        }
+
+        if (y.DependsOn.Contains(x))
+        {
+            return -1;
+        }
+
+        return -1;
+    }
+
+    public bool Equals(Stage? x, Stage? y)
+    {
+        if (ReferenceEquals(x, y)) return true;
+        if (ReferenceEquals(x, null)) return false;
+        if (ReferenceEquals(y, null)) return false;
+        if (x.GetType() != y.GetType()) return false;
+        return x.Name == y.Name && x.Pipeline.Equals(y.Pipeline);
+    }
+
+    public int GetHashCode(Stage obj)
+    {
+        return HashCode.Combine(obj.Name, obj.Pipeline);
+    }
 }
+#endif

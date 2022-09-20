@@ -9,16 +9,6 @@ namespace Automatron.Reflection;
 
 public static class AttributeExtension
 {
-    public static void Accept(this Attribute attribute, SymbolVisitor visitor)
-    {
-        visitor.VisitAttribute(attribute);
-    }
-
-    public static void Accept(this CustomAttributeData attributeData, SymbolVisitor visitor)
-    {
-        visitor.VisitAttributeData(attributeData);
-    }
-
     public static IEnumerable<T> GetCachedCustomAttributes<T>(this MemberInfo member)
         where T : Attribute => Cache
         .GetOrAdd(member, t => t.GetCustomAttributes(true).OfType<Attribute>().ToArray())
@@ -28,5 +18,6 @@ public static class AttributeExtension
         where T : Attribute => member.GetCachedCustomAttributes<T>().FirstOrDefault();
 
     private static ConcurrentDictionary<MemberInfo, Attribute[]> Cache { get; } = new();
+
 }
 #endif

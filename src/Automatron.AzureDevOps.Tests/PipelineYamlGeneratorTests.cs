@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 using Automatron.AzureDevOps.Generators;
-using Automatron.AzureDevOps.Models;
+using Automatron.AzureDevOps.Generators.Models;
 using FluentAssertions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Automatron.AzureDevOps.Annotations;
-using Automatron.AzureDevOps.CodeAnalysis;
+using Automatron.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
@@ -11,7 +11,7 @@ internal class TemplateParameterVisitor : SymbolVisitor<IDictionary<string, obje
     {
         var parameters = new Dictionary<string, object>();
 
-        var parameterAttributes = symbol.GetAllAttributes().GetCustomAbstractAttributes<ParameterAttribute>();
+        var parameterAttributes = symbol.GetAllAttributes().GetCustomAbstractAttributes<TemplateParameterAttribute>();
         foreach (var variableAttribute in parameterAttributes)
         {
             if (variableAttribute.Name == null || variableAttribute.Value == null)

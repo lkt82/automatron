@@ -1,53 +1,85 @@
-﻿using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
-using YamlDotNet.Serialization;
+﻿#if NET6_0
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace Automatron.AzureDevOps.Models;
-
-public sealed class Pipeline
+namespace Automatron.AzureDevOps.Models
 {
-    public Pipeline(string name, string ymlName, string ymlPath, string rootPath,string projectDirectory, ISymbol symbol)
+    public class Pipeline :IComparer<Stage>, IEqualityComparer<Pipeline>
     {
-        Name = name;
-        YmlName = ymlName;
-        YmlPath = ymlPath;
-        RootPath = rootPath;
-        ProjectDirectory = projectDirectory;
-        Symbol = symbol;
+        public Pipeline(string name, IEnumerable<Stage> stages, Type type)
+        {
+            Name = name;
+            Type = type;
+            Stages = CreateStages(stages.ToArray());
+        }
 
-        Path = "/" + Name;
+        public Pipeline(string name, Func<Pipeline,IEnumerable<Stage>> stagesFunc,Type type)
+        {
+            Name = name;
+            Type = type;
+
+            Stages = CreateStages(stagesFunc(this).ToArray());
+        }
+
+        private ISet<Stage> CreateStages(IReadOnlyList<Stage> stages)
+        {
+            for (var i = 1; i < stages.Count; i++)
+            {
+                if (stages[i].DependsOn.Any())
+                {
+                    continue;
+                }
+
+                stages[i].DependsOn.Add(stages[i - 1]);
+            }
+
+            return new SortedSet<Stage>(stages, this);
+        }
+
+        public string Name { get; }
+
+        public Type Type { get; }
+
+        public ISet<Stage> Stages { get; }
+
+        public ISet<Variable> Variables { get; } = new HashSet<Variable>();
+
+        public ISet<Parameter> Parameters { get; } = new HashSet<Parameter>();
+
+        public int Compare(Stage? x, Stage? y)
+        {
+            if (x == null || y == null)
+            {
+                return 0;
+            }
+
+            if (x.DependsOn.Contains(y))
+            {
+                return 1;
+            }
+
+            if (y.DependsOn.Contains(x))
+            {
+                return -1;
+            }
+
+            return -1;
+        }
+
+        public bool Equals(Pipeline? x, Pipeline? y)
+        {
+            if (ReferenceEquals(x, y)) return true;
+            if (ReferenceEquals(x, null)) return false;
+            if (ReferenceEquals(y, null)) return false;
+            if (x.GetType() != y.GetType()) return false;
+            return x.Name == y.Name;
+        }
+
+        public int GetHashCode(Pipeline obj)
+        {
+            return obj.Name.GetHashCode();
+        }
     }
-
-    [YamlIgnore]
-    public string Name { get; }
-
-    [YamlIgnore]
-    public string YmlName { get; }
-
-    [YamlIgnore]
-    public string YmlPath { get; }
-
-    [YamlIgnore]
-    public string RootPath { get; }
-
-    [YamlIgnore]
-    public string ProjectDirectory { get; }
-
-    [YamlIgnore]
-    public ISymbol Symbol { get; set; }
-
-    public IEnumerable<Parameter>? Parameters { get; set; }
-
-    [YamlMember(Alias = "trigger")]
-    public ICiTrigger? CiTrigger { get; set; }
-
-    public IEnumerable<ScheduledTrigger>? Schedules { get; set; }
-
-    public IEnumerable<IVariable>? Variables { get; set; }
-
-    public Pool? Pool { get; set; }
-
-    public IEnumerable<Stage>? Stages { get; set; }
-
-    [YamlIgnore] public string Path { get; set; }
 }
+#endif

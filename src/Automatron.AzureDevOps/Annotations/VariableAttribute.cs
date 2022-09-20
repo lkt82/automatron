@@ -10,6 +10,8 @@ namespace Automatron.AzureDevOps.Annotations
 
         public object? Value { get; set; }
 
+        public string? Description { get; set; }
+
         [UsedImplicitly]
         public VariableAttribute(string name, object value)
         {

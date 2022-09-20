@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Automatron.AzureDevOps.Annotations;
-using Automatron.AzureDevOps.CodeAnalysis;
-using Automatron.AzureDevOps.Models;
+using Automatron.AzureDevOps.Generators.Models;
+using Automatron.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
@@ -61,7 +61,7 @@ internal class PipelineVisitor : SymbolVisitor
 
         pipeline.Schedules = symbol.Accept(new ScheduledTriggerVisitor());
 
-        pipeline.Parameters = symbol.Accept(new PipelineParameterVisitor());
+        pipeline.Parameters = symbol.Accept(new ParameterVisitor());
 
         pipeline.Variables = symbol.Accept(new VariableVisitor());
 

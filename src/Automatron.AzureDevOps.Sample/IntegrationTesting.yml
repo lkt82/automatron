@@ -38,17 +38,19 @@ stages:
       runOnce:
         deploy:
           steps:
-          - script: dotnet run -- -p -t Int-Integration-Setup-Init
+          - script: dotnet run -- run Int -s Integration -j Setup -t Init
             workingDirectory: src/Automatron.AzureDevOps.Sample
-            env: &o0
-              INT_INTEGRATION_AZURE_CLIENT_ID: $(AzureClientId)
-              INT_NUGET_API_KEY: $(NugetApiKey)
-              INT_AZURE_CLIENT_ID: $(AzureClientId)
-              INT_INTEGRATION_SETUP_AZURE_CLIENT_ID: $(AzureClientId)
+            env:
+              RUN_TESTS: ${{ parameters.RunTests }}
+              NUGET_API_KEY: $(NugetApiKey)
+              AZURE_CLIENT_ID: $(AzureClientId)
             name: Init
-          - script: dotnet run -- -s Int-Integration-Setup-Init -p -t Int-Integration-Setup-Update
+          - script: dotnet run -- run Int -s Integration -j Setup -t Update
             workingDirectory: src/Automatron.AzureDevOps.Sample
-            env: *o0
+            env:
+              RUN_TESTS: ${{ parameters.RunTests }}
+              NUGET_API_KEY: $(NugetApiKey)
+              AZURE_CLIENT_ID: $(AzureClientId)
             name: Update
   - deployment: Teardown
     dependsOn:
@@ -58,9 +60,9 @@ stages:
       runOnce:
         deploy:
           steps:
-          - script: dotnet run -- -p -t Int-Integration-Teardown-Init
+          - script: dotnet run -- run Int -s Integration -j Teardown -t Init
             workingDirectory: src/Automatron.AzureDevOps.Sample
             name: Init
-          - script: dotnet run -- -s Int-Integration-Teardown-Init -p -t Int-Integration-Teardown-Destroy
+          - script: dotnet run -- run Int -s Integration -j Teardown -t Destroy
             workingDirectory: src/Automatron.AzureDevOps.Sample
             name: Destroy

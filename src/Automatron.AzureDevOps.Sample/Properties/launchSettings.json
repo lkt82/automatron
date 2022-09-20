@@ -2,7 +2,7 @@
   "profiles": {
     "Automatron.AzureDevOps.Sample": {
       "commandName": "Project",
-      "commandLineArgs": "Int-Integration-Setup  --Int-Integration-AzureClientId 11 --Int-RunTests Yes",
+      "commandLineArgs": "azuredevops run -v PulumiApiKey:hest ci PulumiApiKey:hest AzureClientId:hest",
       "environmentVariables": {
         "AZURE_CLIENT_SECRET": "hest"
       }

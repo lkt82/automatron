@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Automatron.Collections
 {
-    internal static class TopologicalEnumerableExtension
+    public static class TopologicalEnumerableExtension
     {
         private static Func<T, IEnumerable<T>> RemapDependencies<T, TKey>(IEnumerable<T> source, Func<T, IEnumerable<TKey>> getDependencies, Func<T, TKey> getKey) where TKey : notnull
         {
@@ -69,7 +69,7 @@ namespace Automatron.Collections
 
         public static IList<ICollection<T>> Group<T, TKey>(IEnumerable<T> source, Func<T, IEnumerable<TKey>> getDependencies, Func<T, TKey> getKey, bool ignoreCycles = true) where T : notnull where TKey : notnull
         {
-            var source2 = source as ICollection<T> ?? source.ToArray();
+            var source2 = source as ICollection<T> ?? source.ToList();
             return Group<T>(source2, RemapDependencies(source2, getDependencies, getKey), null, ignoreCycles);
         }
 

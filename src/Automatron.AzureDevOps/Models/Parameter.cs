@@ -1,23 +1,11 @@
-﻿namespace Automatron.AzureDevOps.Models;
+﻿using System.Reflection;
+using Automatron.Models;
 
-public sealed class Parameter
+namespace Automatron.AzureDevOps.Models;
+
+#if NET6_0
+public record Parameter(string Name, string? Description, PropertyInfo Property) : IPropertyValue
 {
-    public Parameter(string name, string? displayName, string type, object? value, object[]? values)
-    {
-        Name = name;
-        DisplayName = displayName;
-        Type = type;
-        Value = value;
-        Values = values;
-    }
-
-    public string Name { get; }
-
-    public string? DisplayName { get; set; }
-
-    public string Type { get; }
-
     public object? Value { get; set; }
-
-    public object[]? Values { get; set; }
 }
+#endif

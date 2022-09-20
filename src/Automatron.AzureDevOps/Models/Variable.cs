@@ -1,13 +1,12 @@
-﻿namespace Automatron.AzureDevOps.Models;
+﻿#if NET6_0
+using System.Reflection;
+using Automatron.Models;
 
-public sealed class Variable : IVariable
+namespace Automatron.AzureDevOps.Models;
+
+public record Variable(string Name, string? Description, PropertyInfo Property) : IPropertyValue
 {
-    public Variable(string name, object value)
-    {
-        Name = name;
-        Value = value;
-    }
-
-    public string Name { get; set; }
-    public object Value { get; set; }
+    public object? Value { get; set; }
 }
+
+#endif

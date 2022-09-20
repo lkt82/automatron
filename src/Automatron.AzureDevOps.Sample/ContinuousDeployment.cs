@@ -1,7 +1,9 @@
 ﻿using Automatron.AzureDevOps.Annotations;
+using Automatron.Models;
 
 namespace Automatron.AzureDevOps.Sample;
 
+[DeploymentJob("Deployment", Environment = "${{Environment}}")]
 public abstract class PulumiDeploymentJob
 {
     [Environment]
@@ -13,7 +15,7 @@ public abstract class PulumiDeploymentJob
     [Step]
     public virtual void Init()
     {
-
+       //throw new Exception(":/:/:/");
     }
 
     [Step(DependsOn = new[] { nameof(Init) })]
@@ -29,13 +31,14 @@ public abstract class PulumiDeploymentJob
     }
 }
 
+[Stage]
 public abstract class PulumiDeploymentStage
 {
-    [DeploymentJob("Deployment", Environment = "${{Environment}}")]
     public class DeploymentJob : PulumiDeploymentJob
     {
     }
 }
+
 
 [Pipeline("Ci")]
 [CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
@@ -43,19 +46,22 @@ public abstract class PulumiDeploymentStage
 [VariableGroup("Nuget")]
 public abstract class PulumiContinuousDeploymentPipeline
 {
+    [Variable]
+    public Secret? PulumiApiKey { get; set; }
+
     [Stage]
     [Environment("Testing")]
     public class DeployToTesting : PulumiDeploymentStage
     {
     }
 
-    [Stage(DependsOn = new object[] { typeof(DeployToTesting) })]
+    [Stage(DependsOn = new [] { nameof(DeployToTesting) })]
     [Environment("Staging")]
     public class DeployToStaging : PulumiDeploymentStage
     {
     }
 
-    [Stage(DependsOn = new object[] { typeof(DeployToStaging) })]
+    [Stage(DependsOn = new [] { nameof(DeployToStaging) })]
     [Environment("Production")]
     public class DeployToProduction : PulumiDeploymentStage
     {

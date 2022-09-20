@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Automatron.AzureDevOps.Annotations;
-using Automatron.AzureDevOps.CodeAnalysis;
-using Automatron.AzureDevOps.Models;
+using Automatron.AzureDevOps.Generators.Models;
+using Automatron.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
@@ -70,13 +70,13 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>, IComparer<IJob>
 
         if (jobAttribute != null)
         {
-            if (jobAttribute.DependsOn != null)
-            {
-                foreach (var jobTypeSymbol in jobAttribute.DependsOn.Cast<INamedTypeSymbol>())
-                {
-                    VisitJobType(jobTypeSymbol);
-                }
-            }
+            //if (jobAttribute.DependsOn != null)
+            //{
+            //    foreach (var jobTypeSymbol in jobAttribute.DependsOn.Cast<INamedTypeSymbol>())
+            //    {
+            //        VisitJobType(jobTypeSymbol);
+            //    }
+            //}
 
             IJob job;
 
@@ -90,15 +90,6 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>, IComparer<IJob>
             }
          
             job.Parameters = symbol.Accept(new TemplateParameterVisitor());
-
-            if (SymbolEqualityComparer.Default.Equals(_root, symbol))
-            {
-                job.Path = _stage.Path;
-            }
-            else
-            {
-                job.Path = _stage.Path + "/" + job.Name;
-            }
 
             job.Steps = symbol.Accept(new StepVisitor(job));
 
@@ -115,7 +106,7 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>, IComparer<IJob>
     {
         var name = !string.IsNullOrEmpty(jobAttribute.Name) ? jobAttribute.Name! : symbol.Name;
 
-        var job = new Job(_stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn?.Cast<ISymbol>().Select(c => Jobs[c.Name].Name).ToArray(), jobAttribute.Condition, symbol)
+        var job = new Job(_stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition, symbol)
             {
                 Pool = symbol.Accept(new PoolVisitor()),
                 Variables = symbol.Accept(new VariableVisitor())
@@ -139,7 +130,7 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>, IComparer<IJob>
             }
         }
 
-        var job = new DeploymentJob(_stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn?.Cast<ISymbol>().Select(c => Jobs[c.Name].Name).ToArray(), jobAttribute.Condition, environment ?? throw new InvalidOperationException(),symbol)
+        var job = new DeploymentJob(_stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition, environment ?? throw new InvalidOperationException(),symbol)
         {
             TimeoutInMinutes = jobAttribute.Timeout == null ? null : Convert.ToInt32(TimeSpan.Parse(jobAttribute.Timeout).TotalMinutes),
             Pool = symbol.Accept(new PoolVisitor()),

@@ -1,28 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using Automatron.AzureDevOps.Annotations;
-using Automatron.AzureDevOps.CodeAnalysis;
-using Automatron.AzureDevOps.Models;
+using Automatron.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
 
-internal class EnvVariableVisitor : SymbolVisitor<IDictionary<string, object>>
+internal class EnvVariableVisitor : SymbolVisitor<Dictionary<string, object>>
 {
-    private readonly IJob _job;
-
-    private ISymbol Type { get; set; }
-
-    public EnvVariableVisitor(IJob job)
+    public override Dictionary<string, object>? VisitNamedType(INamedTypeSymbol symbol)
     {
-        _job = job;
-        Type = job.Symbol;
-    }
-
-    public override IDictionary<string, object>? VisitNamedType(INamedTypeSymbol symbol)
-    {
-        Type = symbol;
-
         var variables = new Dictionary<string, object>();
 
         foreach (var constructor in symbol.Constructors)
@@ -38,13 +25,15 @@ internal class EnvVariableVisitor : SymbolVisitor<IDictionary<string, object>>
 
                 foreach (var variable in constructorVariables)
                 {
+                    if (variables.ContainsKey(variable.Key))
+                    {
+                        continue;
+                    }
                     variables.Add(variable.Key, variable.Value);
                 }
 
             }
         }
-
-        Type = symbol;
 
         var properties = symbol.GetAllProperties();
 
@@ -59,14 +48,18 @@ internal class EnvVariableVisitor : SymbolVisitor<IDictionary<string, object>>
 
             foreach (var variable in propertyVariables)
             {
+                if (variables.ContainsKey(variable.Key))
+                {
+                    continue;
+                }
                 variables.Add(variable.Key, variable.Value);
             }
         }
 
-        return variables;
+        return variables.Count == 0 ? null : variables;
     }
 
-    public override IDictionary<string, object>? VisitProperty(IPropertySymbol symbol)
+    public override Dictionary<string, object> VisitProperty(IPropertySymbol symbol)
     {
         var variables = new Dictionary<string, object>();
 
@@ -74,65 +67,23 @@ internal class EnvVariableVisitor : SymbolVisitor<IDictionary<string, object>>
 
         if (variableAttribute != null)
         {
-
-            var name = !string.IsNullOrEmpty(variableAttribute.Name) ? variableAttribute.Name : symbol.Name;
-            var envName = GetEnvVarName(GetParameterName(name));
-
-#pragma warning disable CS8603
-#pragma warning disable CS8602
+            // ReSharper disable once RedundantSuppressNullableWarningExpression
+            var name = (!string.IsNullOrEmpty(variableAttribute.Name) ? variableAttribute.Name : symbol.Name)!;
+            var envName = GetEnvVarName(name);
             variables.Add(envName, $"$({name})");
-#pragma warning restore CS8602
-#pragma warning restore CS8603
+        }
+
+        var templateParameterAttribute = symbol.GetCustomAbstractAttribute<ParameterAttribute>();
+
+        if (templateParameterAttribute != null)
+        {
+            // ReSharper disable once RedundantSuppressNullableWarningExpression
+            var name = (!string.IsNullOrEmpty(templateParameterAttribute.Name) ? templateParameterAttribute.Name : symbol.Name)!;
+            var envName = GetEnvVarName(name);
+            variables.Add(envName, $"${{{{ parameters.{name} }}}}");
         }
 
         return variables;
-    }
-
-    private string GetParameterName(string name)
-    {
-        if (SymbolEqualityComparer.Default.Equals(Type, _job.Symbol))
-        {
-            var tokens = new List<string> { _job.Stage.Pipeline.Name };
-
-            if (_job.Stage.Path != _job.Stage.Pipeline.Path)
-            {
-                tokens.Add(_job.Stage.Name);
-            }
-
-            if (_job.Path != _job.Stage.Path)
-            {
-                tokens.Add(_job.Name);
-            }
-
-            tokens.Add(name);
-
-            return string.Join("-", tokens);
-        }
-
-        if (SymbolEqualityComparer.Default.Equals(Type, _job.Stage.Symbol))
-        {
-            var tokens = new List<string> { _job.Stage.Pipeline.Name };
-
-            if (_job.Stage.Path != _job.Stage.Pipeline.Path)
-            {
-                tokens.Add(_job.Stage.Name);
-            }
-
-            tokens.Add(name);
-
-            return string.Join("-", tokens);
-        }
-
-        if (SymbolEqualityComparer.Default.Equals(Type, _job.Stage.Pipeline.Symbol))
-        {
-            var tokens = new List<string> { _job.Stage.Pipeline.Name };
-
-            tokens.Add(name);
-
-            return string.Join("-", tokens);
-        }
-
-        return name;
     }
 
     private static string GetEnvVarName(string name)

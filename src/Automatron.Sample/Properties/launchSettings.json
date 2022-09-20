@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "Automatron.Sample": {
-      "commandName": "Project",
-      "commandLineArgs": "NestedTasks-Build2 --value4 1399 --value1 222"
-      //"commandLineArgs": "NestedTasks-Build2 --nestedtasks-value4 1399 --value1 222"
-    }
-  }
-}

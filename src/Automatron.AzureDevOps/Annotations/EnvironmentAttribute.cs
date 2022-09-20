@@ -3,11 +3,10 @@
 namespace Automatron.AzureDevOps.Annotations;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property)]
-public class EnvironmentAttribute : ParameterAttribute
+public class EnvironmentAttribute : TemplateParameterAttribute
 {
-    public EnvironmentAttribute(string environment)
+    public EnvironmentAttribute(string environment) :base("Environment")
     {
-        Name = "Environment";
         Value = environment;
     }
 
