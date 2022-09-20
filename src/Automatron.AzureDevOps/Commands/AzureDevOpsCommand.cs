@@ -12,15 +12,13 @@ namespace Automatron.AzureDevOps.Commands
     [Command("AzureDevOps", Description = "AzureDevOps commands")]
     public class AzureDevOpsCommand
     {
-        private readonly IConsole _console3;
         private readonly IAnsiConsole _console;
         private readonly IEnumerable<Pipeline> _pipelines;
         private readonly IPipelineEngine _pipelineEngine;
         private readonly Table _summeryTable;
 
-        public AzureDevOpsCommand(IConsole console3,IAnsiConsole console, IEnumerable<Pipeline> pipelines, IPipelineEngine pipelineEngine)
+        public AzureDevOpsCommand(IAnsiConsole console, IEnumerable<Pipeline> pipelines, IPipelineEngine pipelineEngine)
         {
-            _console3 = console3;
             _console = console;
             _pipelines = pipelines;
             _pipelineEngine = pipelineEngine;
@@ -173,7 +171,6 @@ namespace Automatron.AzureDevOps.Commands
                 }
                 _console.Write(_summeryTable);
                 _console.MarkupLine($"[green]Succeeded[/] [deepskyblue3_1]({startingTitle}[/] [purple]({result!.Elapsed.Milliseconds} ms))[/]");
-                await _console3.Out.FlushAsync();
 
                 return 0;
             }
