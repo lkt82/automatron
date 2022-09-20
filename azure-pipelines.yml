@@ -23,37 +23,37 @@ stages:
     variables:
     - group: nuget
     steps:
-    - script: dotnet run -- run Ci -s Pipeline -j Pipeline -t Version
+    - script: dotnet run run -s Pipeline -j Pipeline -t Version Ci
       workingDirectory: src/Automatron.Pipeline
       env:
         NUGET_API_KEY: $(NugetApiKey)
       name: Version
       displayName: "\U0001F522 Version"
-    - script: dotnet run -- run Ci -s Pipeline -j Pipeline -t Clean
+    - script: dotnet run run -s Pipeline -j Pipeline -t Clean Ci
       workingDirectory: src/Automatron.Pipeline
       env:
         NUGET_API_KEY: $(NugetApiKey)
       name: Clean
       displayName: "\U0001F9F9 Clean"
-    - script: dotnet run -- run Ci -s Pipeline -j Pipeline -t Build
+    - script: dotnet run run -s Pipeline -j Pipeline -t Build Ci
       workingDirectory: src/Automatron.Pipeline
       env:
         NUGET_API_KEY: $(NugetApiKey)
       name: Build
       displayName: "\U0001F3D7 Build"
-    - script: dotnet run -- run Ci -s Pipeline -j Pipeline -t Test
+    - script: dotnet run run -s Pipeline -j Pipeline -t Test Ci
       workingDirectory: src/Automatron.Pipeline
       env:
         NUGET_API_KEY: $(NugetApiKey)
       name: Test
       displayName: "\U0001F9EA Test"
-    - script: dotnet run -- run Ci -s Pipeline -j Pipeline -t Pack
+    - script: dotnet run run -s Pipeline -j Pipeline -t Pack Ci
       workingDirectory: src/Automatron.Pipeline
       env:
         NUGET_API_KEY: $(NugetApiKey)
       name: Pack
       displayName: "\U0001F4E6 Pack"
-    - script: dotnet run -- run Ci -s Pipeline -j Pipeline -t Publish
+    - script: dotnet run run -s Pipeline -j Pipeline -t Publish Ci
       workingDirectory: src/Automatron.Pipeline
       env:
         NUGET_API_KEY: $(NugetApiKey)

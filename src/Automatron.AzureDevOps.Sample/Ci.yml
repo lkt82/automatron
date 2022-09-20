@@ -17,17 +17,17 @@ stages:
       runOnce:
         deploy:
           steps:
-          - script: dotnet run -- run Ci -s DeployToTesting -j Deployment -t Init
+          - script: dotnet run -- run -s DeployToTesting -j Deployment -t Init Ci
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
               PULUMI_API_KEY: $(PulumiApiKey)
             name: Init
-          - script: dotnet run -- run Ci -s DeployToTesting -j Deployment -t Preview
+          - script: dotnet run -- run -s DeployToTesting -j Deployment -t Preview Ci
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
               PULUMI_API_KEY: $(PulumiApiKey)
             name: Preview
-          - script: dotnet run -- run Ci -s DeployToTesting -j Deployment -t Update
+          - script: dotnet run -- run -s DeployToTesting -j Deployment -t Update Ci
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
               PULUMI_API_KEY: $(PulumiApiKey)
@@ -42,17 +42,17 @@ stages:
       runOnce:
         deploy:
           steps:
-          - script: dotnet run -- run Ci -s DeployToStaging -j Deployment -t Init
+          - script: dotnet run -- run -s DeployToStaging -j Deployment -t Init Ci
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
               PULUMI_API_KEY: $(PulumiApiKey)
             name: Init
-          - script: dotnet run -- run Ci -s DeployToStaging -j Deployment -t Preview
+          - script: dotnet run -- run -s DeployToStaging -j Deployment -t Preview Ci
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
               PULUMI_API_KEY: $(PulumiApiKey)
             name: Preview
-          - script: dotnet run -- run Ci -s DeployToStaging -j Deployment -t Update
+          - script: dotnet run -- run -s DeployToStaging -j Deployment -t Update Ci
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
               PULUMI_API_KEY: $(PulumiApiKey)
@@ -67,17 +67,17 @@ stages:
       runOnce:
         deploy:
           steps:
-          - script: dotnet run -- run Ci -s DeployToProduction -j Deployment -t Init
+          - script: dotnet run -- run -s DeployToProduction -j Deployment -t Init Ci
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
               PULUMI_API_KEY: $(PulumiApiKey)
             name: Init
-          - script: dotnet run -- run Ci -s DeployToProduction -j Deployment -t Preview
+          - script: dotnet run -- run -s DeployToProduction -j Deployment -t Preview Ci
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
               PULUMI_API_KEY: $(PulumiApiKey)
             name: Preview
-          - script: dotnet run -- run Ci -s DeployToProduction -j Deployment -t Update
+          - script: dotnet run -- run -s DeployToProduction -j Deployment -t Update Ci
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
               PULUMI_API_KEY: $(PulumiApiKey)
