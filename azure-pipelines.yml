@@ -23,37 +23,37 @@ stages:
     variables:
     - group: nuget
     steps:
-    - script: dotnet build /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet | dotnet run -- run --stage Pipeline --job Pipeline --step Version Ci
+    - script: dotnet build /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet | dotnet run --no-build -- run --stage Pipeline --job Pipeline --step Version Ci
       workingDirectory: src/Automatron.Pipeline
       env:
         NUGET_API_KEY: $(NugetApiKey)
       name: Version
       displayName: "\U0001F522 Version"
-    - script: dotnet build /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet | dotnet run -- run --stage Pipeline --job Pipeline --step Clean Ci
+    - script: dotnet build /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet | dotnet run --no-build -- run --stage Pipeline --job Pipeline --step Clean Ci
       workingDirectory: src/Automatron.Pipeline
       env:
         NUGET_API_KEY: $(NugetApiKey)
       name: Clean
       displayName: "\U0001F9F9 Clean"
-    - script: dotnet build /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet | dotnet run -- run --stage Pipeline --job Pipeline --step Build Ci
+    - script: dotnet build /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet | dotnet run --no-build -- run --stage Pipeline --job Pipeline --step Build Ci
       workingDirectory: src/Automatron.Pipeline
       env:
         NUGET_API_KEY: $(NugetApiKey)
       name: Build
       displayName: "\U0001F3D7 Build"
-    - script: dotnet build /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet | dotnet run -- run --stage Pipeline --job Pipeline --step Test Ci
+    - script: dotnet build /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet | dotnet run --no-build -- run --stage Pipeline --job Pipeline --step Test Ci
       workingDirectory: src/Automatron.Pipeline
       env:
         NUGET_API_KEY: $(NugetApiKey)
       name: Test
       displayName: "\U0001F9EA Test"
-    - script: dotnet build /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet | dotnet run -- run --stage Pipeline --job Pipeline --step Pack Ci
+    - script: dotnet build /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet | dotnet run --no-build -- run --stage Pipeline --job Pipeline --step Pack Ci
       workingDirectory: src/Automatron.Pipeline
       env:
         NUGET_API_KEY: $(NugetApiKey)
       name: Pack
       displayName: "\U0001F4E6 Pack"
-    - script: dotnet build /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet | dotnet run -- run --stage Pipeline --job Pipeline --step Publish Ci
+    - script: dotnet build /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet | dotnet run --no-build -- run --stage Pipeline --job Pipeline --step Publish Ci
       workingDirectory: src/Automatron.Pipeline
       env:
         NUGET_API_KEY: $(NugetApiKey)
