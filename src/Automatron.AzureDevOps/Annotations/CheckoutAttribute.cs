@@ -11,10 +11,5 @@ namespace Automatron.AzureDevOps.Annotations
         {
             Source = source;
         }
-
-        //public override Step Create(ISymbol symbol, IJob job)
-        //{
-        //    return new CheckoutTask(job,Source);
-        //}
     }
 }

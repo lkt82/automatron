@@ -11,9 +11,10 @@ internal class PipelineVisitor : SymbolVisitor
 {
     private readonly string _vscRoot;
     private readonly string _projectDirectory;
+    private readonly string _command;
     private readonly ConcreteTypeCollector _concreteClassCollector = new ();
 
-    public PipelineVisitor(string vscRoot,string projectDirectory)
+    public PipelineVisitor(string vscRoot,string projectDirectory,string command)
     {
         if (string.IsNullOrEmpty(vscRoot))
         {
@@ -27,6 +28,7 @@ internal class PipelineVisitor : SymbolVisitor
 
         _vscRoot = vscRoot;
         _projectDirectory = projectDirectory;
+        _command = command;
     }
 
     public override void VisitNamespace(INamespaceSymbol symbol)
@@ -55,7 +57,7 @@ internal class PipelineVisitor : SymbolVisitor
             return;
         }
 
-        var pipeline = CreatePipeline(symbol, pipelineAttribute, _projectDirectory);
+        var pipeline = CreatePipeline(symbol, pipelineAttribute);
 
         pipeline.CiTrigger = symbol.Accept(new CiTriggerVisitor());
 
@@ -72,14 +74,14 @@ internal class PipelineVisitor : SymbolVisitor
         Pipelines.Add(pipeline);
     }
 
-    private Pipeline CreatePipeline(ISymbol symbol,PipelineAttribute pipelineAttribute, string projectDirectory)
+    private Pipeline CreatePipeline(ISymbol symbol,PipelineAttribute pipelineAttribute)
     {
         var name = !string.IsNullOrEmpty(pipelineAttribute.Name) ? pipelineAttribute.Name : symbol.Name;
 
         var yamlName = !string.IsNullOrEmpty(pipelineAttribute.YmlName) ? pipelineAttribute.YmlName : name;
 
         #pragma warning disable CS8604
-        var pipeline = new Pipeline(name, yamlName + ".yml", pipelineAttribute.YmlPath, pipelineAttribute.RootPath ?? _vscRoot, projectDirectory, symbol);
+        var pipeline = new Pipeline(name, yamlName + ".yml", pipelineAttribute.YmlPath, pipelineAttribute.RootPath ?? _vscRoot, _projectDirectory, _command, symbol);
 #pragma warning restore CS8604
 
         return pipeline;

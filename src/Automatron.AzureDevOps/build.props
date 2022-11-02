@@ -10,6 +10,7 @@
 	<ItemGroup>
 		<CompilerVisibleProperty Include="AzureDevOpsPipelineProjectDirectory" />
 		<CompilerVisibleProperty Include="AzureDevOpsPipelineSkip" />
+		<CompilerVisibleProperty Include="AzureDevOpsPipelineCommand" />
 	</ItemGroup>
 
 </Project>

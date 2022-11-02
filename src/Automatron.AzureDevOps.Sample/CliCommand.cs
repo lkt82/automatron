@@ -1,12 +1,8 @@
 ﻿using Automatron;
 using Automatron.AzureDevOps.Commands;
 using Automatron.AzureDevOps.Middleware;
-using Automatron.AzureDevOps.Models;
-using Automatron.AzureDevOps.Sample;
 using Automatron.Commands;
 using CommandDotNet;
-using Microsoft.Extensions.DependencyInjection;
-using static Automatron.AzureDevOps.Sample.PulumiContinuousDeploymentPipeline;
 
 await new AutomationRunner<CliCommand>().UseAzureDevOps().ConfigureServices(c =>
 {

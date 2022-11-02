@@ -72,9 +72,20 @@ internal class PipelineYamlGenerator : ISourceGenerator
             return;
         }
 
+        if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.AzureDevOpsPipelineCommand",
+                out var command))
+        {
+            command = "run";
+        }
+
+        if (string.IsNullOrEmpty(command))
+        {
+            command = "run";
+        }
+
         try
         {
-            var pipelineVisitor = new PipelineVisitor(vscRoot, PathExtensions.GetUnixPath(projectDirectory));
+            var pipelineVisitor = new PipelineVisitor(vscRoot, PathExtensions.GetUnixPath(projectDirectory), command);
             pipelineVisitor.Visit(mainMethod.ContainingAssembly.GlobalNamespace);
 
             foreach (var pipeline in pipelineVisitor.Pipelines)
