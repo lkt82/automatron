@@ -4,11 +4,12 @@ using Automatron.Tasks.Middleware;
 
 namespace Automatron.Tasks;
 
-public static class TaskCli
+public class TaskRunner : AutomationRunner<TaskCommand>
 {
-    public static AutomationRunner New()
+    public TaskRunner()
     {
-        return new AutomationRunner<TaskCommand>().UseTasks();
+        this.UseTasks();
     }
+
 }
 #endif

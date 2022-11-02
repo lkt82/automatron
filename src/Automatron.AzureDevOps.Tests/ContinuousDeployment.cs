@@ -48,13 +48,13 @@ public abstract class PulumiContinuousDeploymentPipeline
     {
     }
 
-    [Stage(DependsOn = new object[] { typeof(DeployToTesting) })]
+    [Stage(DependsOn = new [] { nameof(DeployToTesting) })]
     [Environment("Staging")]
     public class DeployToStaging : PulumiDeploymentStage
     {
     }
 
-    [Stage(DependsOn = new object[] { typeof(DeployToStaging) })]
+    [Stage(DependsOn = new [] { nameof(DeployToStaging) })]
     [Environment("Production")]
     public class DeployToProduction : PulumiDeploymentStage
     {

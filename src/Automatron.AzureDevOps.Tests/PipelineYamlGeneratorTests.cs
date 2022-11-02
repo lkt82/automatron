@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Automatron.AzureDevOps.Generators;
 using Automatron.AzureDevOps.Generators.Models;
+using Automatron.Models;
 using FluentAssertions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -246,7 +247,7 @@ public class Pipeline
             .Subject.Jobs.Should().NotBeNull().And.ContainSingle()
             .Subject.Steps.Should().NotBeNull().And.ContainSingle()
             .Subject.Should().BeOfType<AutomatronScript>()
-            .Subject.Tasks.Should().Contain("Pipeline-Default");
+            .Subject.Name.Should().Be("Default");
     }
 
     [Fact]

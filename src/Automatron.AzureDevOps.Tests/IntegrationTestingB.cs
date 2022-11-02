@@ -32,7 +32,7 @@ public class IntegrationTestingB
         }
     }
 
-    [DeploymentJob("Teardown", Environment = Environment, DependsOn = new[] { typeof(SetupJob) })]
+    [DeploymentJob("Teardown", Environment = Environment, DependsOn = new[] { nameof(SetupJob) })]
     public class TeardownJob
     {
         [Step]

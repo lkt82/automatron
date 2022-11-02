@@ -1,4 +1,4 @@
-﻿using Automatron.Annotations;
+﻿using Automatron.Tasks.Annotations;
 
 namespace Automatron.Tests;
 
@@ -9,15 +9,6 @@ public abstract class TaskControllerFBase
 
     [Task]
     public virtual void F() { }
-
-    [Task(Action = nameof(F2A))]
-    public class F2
-    {
-        public virtual void F2A()
-        {
-
-        }
-    }
 }
 
 [Task]

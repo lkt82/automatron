@@ -3,11 +3,12 @@ using Automatron.AzureDevOps.Commands;
 using Automatron.AzureDevOps.Middleware;
 using Automatron.AzureDevOps.Models;
 using Automatron.AzureDevOps.Sample;
+using Automatron.Commands;
 using CommandDotNet;
 using Microsoft.Extensions.DependencyInjection;
 using static Automatron.AzureDevOps.Sample.PulumiContinuousDeploymentPipeline;
 
-await new AutomationRunner<Cli>().UseAzureDevOps().ConfigureServices(c =>
+await new AutomationRunner<CliCommand>().UseAzureDevOps().ConfigureServices(c =>
 {
     //var pipeline = new Pipeline("Ci", p => new[]
     //{
@@ -43,7 +44,7 @@ await new AutomationRunner<Cli>().UseAzureDevOps().ConfigureServices(c =>
     //c.AddSingleton<IEnumerable<Pipeline>>(new[] { pipeline });
 }).RunAsync(args);
 
-public class Cli : AutomationCli
+public class CliCommand : CompositeCommand
 {
     [Subcommand]
     public AzureDevOpsCommand? AzureDevOps { get; set; }

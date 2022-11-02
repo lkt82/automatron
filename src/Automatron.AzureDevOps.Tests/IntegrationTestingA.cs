@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using Automatron.AzureDevOps.Annotations;
+using Automatron.Models;
 
 namespace Automatron.AzureDevOps.Tests;
 
@@ -50,7 +51,7 @@ public class IntegrationTestingA
             }
         }
 
-        [DeploymentJob("Teardown", Environment = "Integration", DependsOn = new []{typeof(SetupJob) } )]
+        [DeploymentJob("Teardown", Environment = "Integration", DependsOn = new []{nameof(SetupJob) } )]
         public class TeardownJob
         {
             [Environment]

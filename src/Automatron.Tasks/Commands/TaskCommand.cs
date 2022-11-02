@@ -17,14 +17,14 @@ namespace Automatron.Tasks.Commands;
 public class TaskCommand
 {
     private readonly IAnsiConsole _console;
-    private readonly ITaskRunner _taskRunner;
+    private readonly ITaskEngine _taskEngine;
 
     private readonly Dictionary<string, Task> _tasks;
 
-    public TaskCommand(IAnsiConsole console, IEnumerable<Task> tasks, ITaskRunner taskRunner)
+    public TaskCommand(IAnsiConsole console, IEnumerable<Task> tasks, ITaskEngine taskEngine)
     {
         _console = console;
-        _taskRunner = taskRunner;
+        _taskEngine = taskEngine;
 
         _tasks = tasks.ToDictionary(c => c.Name.ToLowerInvariant(), c => c);
     }
@@ -100,7 +100,7 @@ public class TaskCommand
             taskStopWatch.Start();
             try
             {
-                await _taskRunner.Run(task);
+                await _taskEngine.Run(task);
 
                 taskStopWatch.Stop();
                 _console.MarkupLine($"[grey53]{assemblyName}:[/] [deepskyblue3_1]{task.Name}[/]: [green]Succeeded[/]: [purple]({taskStopWatch.ElapsedMilliseconds} ms)[/]");

@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Automatron.Models;
 using CommandDotNet;
 using CommandDotNet.Builders;
 using CommandDotNet.Extensions;
@@ -38,10 +37,6 @@ public class AutomationRunner : AppRunner
             .UseCancellationHandlers()
             .UseNameCasing(Case.LowerCase, true)
             .UseTypoSuggestions();
-    }
-
-    public AutomationRunner() : this(typeof(AutomationCli))
-    {
     }
 
     private readonly List<Action<AppConfigBuilder>> _configureActions = new();

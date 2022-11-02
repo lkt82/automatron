@@ -8,6 +8,6 @@ public sealed class AutomatronScript : Script
 
     private static string BuildCommand(string pipeline, string stage, string job, string step)
     {
-        return $"dotnet build /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet && dotnet run -- run --stage {stage} --job {job} --step {step} {pipeline}";
+        return $"dotnet run -- run --stage {stage} --job {job} --step {step} {pipeline}";
     }
 }

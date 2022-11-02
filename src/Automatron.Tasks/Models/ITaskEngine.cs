@@ -2,7 +2,7 @@
 
 namespace Automatron.Tasks.Models;
 
-public interface ITaskRunner
+public interface ITaskEngine
 {
     public System.Threading.Tasks.Task Run(Task task);
 }

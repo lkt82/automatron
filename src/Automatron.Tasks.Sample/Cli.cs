@@ -1,3 +1,3 @@
 ﻿using Automatron.Tasks;
 
-await TaskCli.New().RunAsync(args);
+await new TaskRunner().RunAsync(args);

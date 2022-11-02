@@ -17,11 +17,6 @@ public static class SymbolExtensions
         return symbol.GetAttributes().Where(c => c.IsCustomAttribute<T>()).Select(c => c.MapToCustomAttribute<T>()).FirstOrDefault();
     }
 
-    public static bool HasCustomAttributes<T>(this ISymbol symbol) where T : Attribute
-    {
-        return symbol.GetAttributes().Any(c => c.IsCustomAttribute<T>());
-    }
-
     public static IEnumerable<T> GetCustomAbstractAttributes<T>(this ISymbol symbol) where T : Attribute
     {
         return symbol.GetAttributes().GetCustomAbstractAttributes<T>();

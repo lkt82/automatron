@@ -18,11 +18,6 @@ public static class TypeExtension
         return visitor.VisitType(type);
     }
 
-    public static bool IsCustomAttribute<T>(this CustomAttributeData attributeData) where T : Attribute
-    {
-        return attributeData.AttributeType == typeof(T);
-    }
-
     public static IEnumerable<MethodInfo> GetAllMethods(this Type type)
     {
         return type.GetHierarchy().SelectMany(c => c.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
@@ -47,11 +42,6 @@ public static class TypeExtension
     public static T? GetAllCustomAttribute<T>(this Type type) where T : Attribute
     {
         return type.GetHierarchy().SelectMany(c => c.GetCustomAttributes<T>(false)).FirstOrDefault();
-    }
-
-    public static IEnumerable<CustomAttributeData> GetAllCustomAttributesData(this Type type)
-    {
-        return type.GetHierarchy().SelectMany(c => c.GetCustomAttributesData());
     }
 
     public static IEnumerable<Type> GetHierarchy(this Type type)

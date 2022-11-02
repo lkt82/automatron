@@ -6,11 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Automatron.Tasks.Models;
 
-internal class TaskRunner : ITaskRunner
+internal class TaskEngine : ITaskEngine
 {
     private readonly IServiceProvider _serviceProvider;
 
-    public TaskRunner(IServiceProvider serviceProvider)
+    public TaskEngine(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
     }

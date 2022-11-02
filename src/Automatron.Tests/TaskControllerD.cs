@@ -1,4 +1,4 @@
-﻿using Automatron.Annotations;
+﻿using Automatron.Tasks.Annotations;
 
 namespace Automatron.Tests;
 

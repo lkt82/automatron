@@ -4,11 +4,12 @@ using Automatron.AzureDevOps.Middleware;
 
 namespace Automatron.AzureDevOps;
 
-public static class AzureDevOpsCli
+public class AzureDevOpsRunner : AutomationRunner<AzureDevOpsCommand>
 {
-    public static AutomationRunner New()
+    public AzureDevOpsRunner()
     {
-        return new AutomationRunner<AzureDevOpsCommand>().UseAzureDevOps();
+        this.UseAzureDevOps();
     }
 }
+
 #endif

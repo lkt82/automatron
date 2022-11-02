@@ -29,7 +29,7 @@ public static class TaskMiddleware
             .AddSingleton<ITypeProvider>(typeProvider)
             .AddSingleton<TaskCommand>()
             .AddSingleton<TaskVisitor>()
-            .AddSingleton<ITaskRunner, TaskRunner>()
+            .AddSingleton<ITaskEngine, TaskEngine>()
             .AddSingleton(serviceProvider => serviceProvider.GetRequiredService<TaskVisitor>()
                 .VisitTypes(typeProvider.Types).OrderBy(c => c.Name).ToArray().AsEnumerable());
     }
