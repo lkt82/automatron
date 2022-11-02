@@ -23,7 +23,7 @@ stages:
     variables:
     - group: nuget
     steps:
-    - script: dotnet run -- run --stage Pipeline --job Pipeline --step Version Ci
+    - script: dotnet run -- run --stage Pipeline --job Pipeline --step Version Ci;
       workingDirectory: src/Automatron.Pipeline
       env:
         NUGET_API_KEY: $(NugetApiKey)
