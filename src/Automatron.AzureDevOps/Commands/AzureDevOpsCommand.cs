@@ -157,7 +157,8 @@ namespace Automatron.AzureDevOps.Commands
 
                 if (!string.IsNullOrEmpty(options.Step))
                 {
-                   result = await _pipelineEngine.Run(foundStep!, options.Variables,args.Parameters);
+                    //result = await _pipelineEngine.Run(foundStep!, options.Variables,args.Parameters);
+                    result = await _pipelineEngine.Run(foundStep!, options.Variables,null);
                 }
                 else if (!string.IsNullOrEmpty(options.Job))
                 {
