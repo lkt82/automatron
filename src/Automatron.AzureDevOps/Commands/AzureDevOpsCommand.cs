@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Automatron.AzureDevOps.Commands
 {
-    [Command("AzureDevOps", Description = "AzureDevOps commands", ArgumentSeparatorStrategy = ArgumentSeparatorStrategy.PassThru)]
+    [Command("AzureDevOps", Description = "AzureDevOps commands")]
     public class AzureDevOpsCommand
     {
         private readonly IAnsiConsole _console;

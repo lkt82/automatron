@@ -8,6 +8,6 @@ public sealed class AutomatronScript : Script
 
     private static string BuildCommand(string command,string pipeline, string stage, string job, string step)
     {
-        return $"dotnet run -- {command} --stage {stage} --job {job} --step {step} {pipeline} --";
+        return $"dotnet run -- {command} --stage {stage} --job {job} --step {step} {pipeline}";
     }
 }
