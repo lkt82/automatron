@@ -113,16 +113,17 @@ public class Pipeline
     {
         await RunAsync("dotnet", $"dotnet pack --no-build -c {Configuration} -o {ArtifactsDir}", workingDirectory: "../Automatron", noEcho: true);
         await RunAsync("dotnet", $"dotnet pack --no-build -c {Configuration} -o {ArtifactsDir}", workingDirectory: "../Automatron.AzureDevOps", noEcho: true);
+        await RunAsync("dotnet", $"dotnet pack --no-build -c {Configuration} -o {ArtifactsDir}", workingDirectory: "../Automatron.Tasks", noEcho: true);
     }
 
     [Step(Emoji = "🚀", DependsOn = new[] { nameof(Pack) })]
     public async Task Publish()
     {
-        //foreach (var nuget in Directory.EnumerateFiles(ArtifactsDir, "*.nupkg"))
-        //{
-        //    await _azureDevOpsTasks.UploadArtifact("/", "Nuget", nuget);
-        //    await _azureDevOpsTasks.UploadArtifact("/", "Nuget", nuget.Replace("nupkg", "snupkg"));
-        //    await RunAsync("dotnet", $"nuget push {nuget} -k {NugetApiKey?.GetValue()} -s https://api.nuget.org/v3/index.json --skip-duplicate", workingDirectory: "../Automatron", noEcho: true);
-        //}
+        foreach (var nuget in Directory.EnumerateFiles(ArtifactsDir, "*.nupkg"))
+        {
+            await _loggingCommands.UploadArtifactAsync("/", "Nuget", nuget);
+            await _loggingCommands.UploadArtifactAsync("/", "Nuget", nuget.Replace("nupkg", "snupkg"));
+            await RunAsync("dotnet", $"nuget push {nuget} -k {NugetApiKey?.GetValue()} -s https://api.nuget.org/v3/index.json --skip-duplicate", workingDirectory: "../Automatron", noEcho: true);
+        }
     }
 }

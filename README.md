@@ -1,90 +1,60 @@
-# Automatron
-
-[![NuGet version (Automatron)](https://img.shields.io/nuget/v/Automatron.svg?style=flat-square)](https://www.nuget.org/packages/Automatron/)
+﻿# Automatron
 [![Build status](https://dev.azure.com/lkt82/Public/_apis/build/status/Automatron%20CI?branchName=main)](https://dev.azure.com/lkt82/Public/_build/latest?definitionId=1)
 
-The Automatron [.NET library](https://www.nuget.org/packages/Automatron) is a task automation system that enables you to write you build and deployment workflows in the same language as your .Net applications
+The Automatron Platform is a collection of .NET libraries to help .Net Developers create automation workloads in the in the same language as your .Net applications
 
 Platform support: [.NET 6.0 and later](https://docs.microsoft.com/en-us/dotnet/core/whats-new/dotnet-6).
 
-- [Quick start](#quick-start)
 - [Tasks](#tasks)
-- [Dependencies](#dependencies)
+    - [Quick start](#tasks-quick-start)
+    - [Dependencies](#tasks-dependencies)
+    - [Parameters](#tasks-parameters)
 - [AzureDevOps](#azuredevops)
+  - [Quick start](#azuredevops-quick-start)
+  - [Parameters](#azuredevops-parameters)
 
-## Quick start
+## Tasks
 
-- Create a .NET console app named `Sample.Pipeline` and add a reference to [Automatron](https://www.nuget.org/packages/Automatron).
-- Rename `Program.cs` to `Pipeline.cs` and replace the contents with:
+[![NuGet version (Automatron.Tasks)](https://img.shields.io/nuget/v/Automatron.Tasks.svg?style=flat-square)](https://www.nuget.org/packages/Automatron.Tasks/)
+
+The Automatron.Tasks [.NET library](https://www.nuget.org/packages/Automatron.Tasks) is a task automation system that enables you to write task based workflows as .Net methods
+
+Tasks can be are defined as void/async methods on one or many classes
+
+Inheritance and interfaces are supported as well
+
+### Tasks Quick start
+
+- Create a .NET console app named `Sample` and add a reference to [Automatron.Tasks](https://www.nuget.org/packages/Automatron.Tasks).
+- Replace the contents in `Program.cs` with:
 ```c#
-using Automatron.Annotations;
-using CommandDotNet;
+using Automatron.Tasks;
+using Automatron.Tasks.Annotations;
 
-namespace Sample.Pipeline;
+await new TaskRunner().RunAsync(args);
 
-public class Pipeline
+namespace Sample;
+
+public class Build
 {
-    private readonly IConsole _console;
-
-    public Pipeline(IConsole console)
+    [Task(Default = true)]
+    public void Default()
     {
-        _console = console;
+        Console.WriteLine("Hello, world!");
     }
 
-    private static async Task<int> Main(string[] args)
+    [Task]
+    public void Build()
     {
-        return await new TaskRunner<Pipeline>().RunAsync(args);
-    }
-
-    public async Task Default()
-    {
-        await _console.Out.WriteLineAsync("Hello, world!");
+        Console.WriteLine("Building my app");
     }
 }
 ```
 - Run the app. E.g. `dotnet run` or F5 in Visual Studio:
 
-## Tasks
-
-Tasks are defined as void/async methods. 
-
-Inheritance and interfaces are supported
-
-```c#
-public class Pipeline
-{
-    private readonly IConsole _console;
-
-    public Pipeline(IConsole console)
-    {
-        _console = console;
-    }
-
-    private static async Task<int> Main(string[] args)
-    {
-        return await new TaskRunner<Pipeline>().RunAsync(args);
-    }
-
-    public async Task Default()
-    {
-        await _console.Out.WriteLineAsync("Hello, world!");
-    }
-
-    public void Build()
-    {
-        _console.Out.WriteLine("Building");
-    }
-
-    public async Task Test()
-    {
-        await _console.Out.WriteLineAsync("Testing");
-    }
-}
-```
-
 Tasks can be run via cmd arguments  ```dotnet run -- Build```
 
-## Dependencies
+### Tasks Dependencies
 
 Dependencies are expression via the attributes
 
@@ -92,84 +62,95 @@ Dependencies are expression via the attributes
 - DependentFor
 
 ```c#
-public class Pipeline
+using Automatron.Tasks;
+using Automatron.Tasks.Annotations;
+
+await new TaskRunner().RunAsync(args);
+
+namespace Sample;
+
+public class Build
 {
-    private readonly IConsole _console;
-
-    public Pipeline(IConsole console)
+    [Task(Default = true)]
+    [DependentOn(nameof(Build))]
+    public void Default()
     {
-        _console = console;
+        Console.WriteLine("Hello, world!");
     }
 
-    private static async Task<int> Main(string[] args)
-    {
-        return await new TaskRunner<Pipeline>().RunAsync(args);
-    }
-
-    public async Task Default()
-    {
-        await _console.Out.WriteLineAsync("Hello, world!");
-    }
-
+    [Task]
     public void Build()
     {
-        _console.Out.WriteLine("Building");
-    }
-
-    [DependentOn(nameof(Build))]
-    public async Task Test()
-    {
-        await _console.Out.WriteLineAsync("Testing");
+        Console.WriteLine("Building my app");
     }
 }
 ```
 
+### Tasks Parameters
+
 ## AzureDevOps
 
-Automatron can be used for gennerating the yaml pipeline for AzureDevOps.
+[![NuGet version (Automatron.AzureDevOps)](https://img.shields.io/nuget/v/Automatron.AzureDevOps.svg?style=flat-square)](https://www.nuget.org/packages/Automatron.AzureDevOps/)
 
-Pipelines are expression via the attributes in the addon library [Automatron.AzureDevOps](https://www.nuget.org/packages/Automatron.AzureDevOps).
+The Automatron.AzureDevOps [.NET library](https://www.nuget.org/packages/Automatron.AzureDevOps) enables you to write AzureDevOps workflows as .Net methods
+
+Automatron.AzureDevOps also generates the AzureDevOps pipeline yaml evry time the project is compiled.
+
+Steps can be are defined as void/async methods on one or many job classes
+
+Inheritance and interfaces are supported as well
+
+### AzureDevOps Quick start
 
 *The project needs to be in git repository to able to compute paths correctly or have the RootPath property set*
 
 ```c#
-[Pipeline]
+using System.Reflection;
+using Automatron.AzureDevOps;
+using Automatron.AzureDevOps.Annotations;
+using Automatron.AzureDevOps.Tasks;
+
+await new AzureDevOpsRunner().RunAsync(args);
+
+[Pipeline("Ci")]
 [CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
 [Pool(VmImage = "ubuntu-latest")]
+[Stage]
+[Job]
 public class Pipeline
 {
-    private readonly IConsole _console;
-
-    public Pipeline(IConsole console)
+    [Step(Emoji = "🔢")]
+    public async Task Version()
     {
-        _console = console;
     }
 
-    private static async Task<int> Main(string[] args)
+    [Step(Emoji = "🧹")]
+    public void Clean()
     {
-        return await new TaskRunner<Pipeline>().RunAsync(args);
     }
 
-    [Stage]
-    [Job]
-    public void Ci() { }
-
-    [AutomatronTask(nameof(Ci), SkipDependencies = true)]
-    [DependentFor(nameof(Ci))]
-    [DependentOn(nameof(Version))]
-    public void Build()
+    [Step(Emoji = "🏗", DependsOn = new []{ nameof(Version), nameof(Clean) })]
+    public async Task Build()
     {
-        _console.Out.WriteLine("Building");
     }
 
-    [AutomatronTask(nameof(Ci), SkipDependencies = true)]
-    [DependentFor(nameof(Ci))]
-    [DependentOn(nameof(Build))]
+    [Step(Emoji = "🧪", DependsOn = new[] { nameof(Build), nameof(Clean) })]
     public async Task Test()
     {
-        await _console.Out.WriteLineAsync("Testing");
+    }
+
+    [Step(Emoji = "📦", DependsOn = new[] { nameof(Build), nameof(Clean) })]
+    public async Task Pack()
+    {
+    }
+
+    [Step(Emoji = "🚀", DependsOn = new[] { nameof(Pack) })]
+    public async Task Publish()
+    {
     }
 }
 ```
 
-By reference the Automatron.AzureDevOps library and using the attributes on the class should result in a gennerated azure-pipelines.yml that is added to the project.
+Pipelines, Stage, Jobs, Steps can be run via cmd arguments  ```dotnet run -- Ci```
+
+### AzureDevOps Parameters

@@ -3,12 +3,17 @@
     <PropertyGroup>
 	    <TargetFrameworks>net6.0;netstandard2.0</TargetFrameworks>
 	    <Nullable>enable</Nullable>
-	    <Description>AzureDevOps Support for Automatron. Uses a Source Gennerator to build the AzureDevOps yaml</Description>
+	    <Description>The Automatron.AzureDevOps .NET library enables you to write AzureDevOps workflows as .Net methods</Description>
 		<PackageTags>Build;Pipeline;AzureDevOps</PackageTags>
 	    <LangVersion>latest</LangVersion>
+	    <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
 	<Import Project="..\..\build.props" />
+
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="build.props" Pack="true" PackagePath="\build\$(MSBuildProjectName).props" />
