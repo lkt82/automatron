@@ -88,14 +88,11 @@ namespace Automatron.AzureDevOps.Commands
         [Command( Description = "Run Azure DevOps pipeline")]
         public async Task<int> Run(PipelineRunArgs args, PipelineRunOptions options)
         {
-           // var pipelineName = args.Pipeline??options.Pipeline;
-           var pipelineName = args.Pipeline;
-
-            var foundPipeline =_pipelines.FirstOrDefault(c => string.Equals(c.Name, pipelineName, StringComparison.InvariantCultureIgnoreCase));
+            var foundPipeline =_pipelines.FirstOrDefault(c => string.Equals(c.Name, args.Pipeline, StringComparison.InvariantCultureIgnoreCase));
 
             if (foundPipeline == null)
             {
-                _console.MarkupLine($"Pipeline [deepskyblue3_1]{pipelineName}[/]: [red]Not found[/]");
+                _console.MarkupLine($"Pipeline [deepskyblue3_1]{args.Pipeline}[/]: [red]Not found[/]");
 
                 return 1;
             }
@@ -159,7 +156,6 @@ namespace Automatron.AzureDevOps.Commands
                 if (!string.IsNullOrEmpty(options.Step))
                 {
                     result = await _pipelineEngine.Run(foundStep!, options.Variables, options.Parameters);
-                    //result = await _pipelineEngine.Run(foundStep!, options.Variables,null);
                 }
                 else if (!string.IsNullOrEmpty(options.Job))
                 {
