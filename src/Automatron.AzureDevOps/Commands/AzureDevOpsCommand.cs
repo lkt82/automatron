@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Automatron.AzureDevOps.Commands
 {
-    [Command("AzureDevOps", Description = "AzureDevOps commands")]
+    [Command("AzureDevOps", Description = "AzureDevOps commands", ArgumentSeparatorStrategy = ArgumentSeparatorStrategy.PassThru)]
     public class AzureDevOpsCommand
     {
         private readonly IAnsiConsole _console;
@@ -157,8 +157,8 @@ namespace Automatron.AzureDevOps.Commands
 
                 if (!string.IsNullOrEmpty(options.Step))
                 {
-                    //result = await _pipelineEngine.Run(foundStep!, options.Variables,args.Parameters);
-                    result = await _pipelineEngine.Run(foundStep!, options.Variables,null);
+                    result = await _pipelineEngine.Run(foundStep!, options.Variables,args.Parameters);
+                    //result = await _pipelineEngine.Run(foundStep!, options.Variables,null);
                 }
                 else if (!string.IsNullOrEmpty(options.Job))
                 {
