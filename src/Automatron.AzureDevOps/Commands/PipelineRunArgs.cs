@@ -7,7 +7,7 @@ namespace Automatron.AzureDevOps.Commands;
 public record PipelineRunArgs : IArgumentModel
 {
     [Operand]
-    public string Pipeline { get; set; } = null!;
+    public string? Pipeline { get; set; }
 
     [Operand]
     public ParameterValue[]? Parameters { get; set; }
