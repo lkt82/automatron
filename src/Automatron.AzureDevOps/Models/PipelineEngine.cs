@@ -228,7 +228,7 @@ public class PipelineEngine : IPipelineEngine
         }
     }
 
-    public async Task<PipelineResult> Run(Pipeline pipeline, VariableValue[]? variables, ParameterValue[]? parameters)
+    public async Task<PipelineResult> Run(Pipeline pipeline, VariableValue[]? variables, IEnumerable<ParameterValue>? parameters)
     {
         return await RunPipeline(pipeline, variables ?? Array.Empty<VariableValue>(), parameters ?? Array.Empty<ParameterValue>(), async (serviceProvider, targetStage) =>
         {
@@ -239,7 +239,7 @@ public class PipelineEngine : IPipelineEngine
         });
     }
 
-    public async Task<PipelineResult> Run(Stage stage, VariableValue[]? variables, ParameterValue[]? parameters)
+    public async Task<PipelineResult> Run(Stage stage, VariableValue[]? variables, IEnumerable<ParameterValue>? parameters)
     {
         return await RunPipeline(stage.Pipeline, variables ?? Array.Empty<VariableValue>(), parameters ?? Array.Empty<ParameterValue>(), async (serviceProvider,targetStage)=>
         {
@@ -253,7 +253,7 @@ public class PipelineEngine : IPipelineEngine
         });
     }
 
-    public async Task<PipelineResult> Run(Job job, VariableValue[]? variables, ParameterValue[]? parameters)
+    public async Task<PipelineResult> Run(Job job, VariableValue[]? variables, IEnumerable<ParameterValue>? parameters)
     {
         return await RunPipeline(job.Stage.Pipeline, variables ?? Array.Empty<VariableValue>(), parameters ?? Array.Empty<ParameterValue>(), async (serviceProvider, targetStage) =>
         {
@@ -271,7 +271,7 @@ public class PipelineEngine : IPipelineEngine
         });
     }
 
-    public async Task<PipelineResult> Run(Step step, VariableValue[]? variables, ParameterValue[]? parameters)
+    public async Task<PipelineResult> Run(Step step, VariableValue[]? variables, IEnumerable<ParameterValue>? parameters)
     {
         return await RunPipeline(step.Job.Stage.Pipeline, variables ?? Array.Empty<VariableValue>(), parameters ?? Array.Empty<ParameterValue>(), async (serviceProvider, stage) =>
         {

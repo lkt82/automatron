@@ -1,4 +1,5 @@
 ﻿#if NET6_0
+using System.Collections.Generic;
 using Automatron.AzureDevOps.Models;
 using CommandDotNet;
 
@@ -10,6 +11,6 @@ public record PipelineRunArgs : IArgumentModel
     public string? Pipeline { get; set; }
 
     [Operand]
-    public ParameterValue[]? Parameters { get; set; }
+    public IEnumerable<ParameterValue>? Parameters { get; set; }
 }
 #endif

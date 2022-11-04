@@ -1,5 +1,6 @@
 ﻿#if NET6_0
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Automatron.AzureDevOps.Models;
@@ -22,13 +23,13 @@ public interface IPipelineEngine
     public event EventHandler<PipelineModelStartingArgs<Step>> OnStepStarting;
     public event EventHandler<PipelineModelFailedArgs<Step>> OnStepFailed;
 
-    public Task<PipelineResult> Run(Pipeline pipeline, VariableValue[]? variables, ParameterValue[]? parameters);
+    public Task<PipelineResult> Run(Pipeline pipeline, VariableValue[]? variables, IEnumerable<ParameterValue>? parameters);
 
-    public Task<PipelineResult> Run(Stage stage, VariableValue[]? variables, ParameterValue[]? parameters);
+    public Task<PipelineResult> Run(Stage stage, VariableValue[]? variables, IEnumerable<ParameterValue>? parameters);
 
-    public Task<PipelineResult> Run(Job job, VariableValue[]? variables, ParameterValue[]? parameters);
+    public Task<PipelineResult> Run(Job job, VariableValue[]? variables, IEnumerable<ParameterValue>? parameters);
 
-    public Task<PipelineResult> Run(Step step, VariableValue[]? variables, ParameterValue[]? parameters);
+    public Task<PipelineResult> Run(Step step, VariableValue[]? variables, IEnumerable<ParameterValue>? parameters);
 
 }
 
