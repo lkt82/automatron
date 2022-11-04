@@ -173,7 +173,7 @@ namespace Automatron.AzureDevOps.Commands
                    result = await _pipelineEngine.Run(foundPipeline, options.Variables, args.Parameters);
                 }
                 _console.Write(_summeryTable);
-                _console.MarkupLine($"[green]Succeeded[/] [deepskyblue3_1]({startingTitle}[/] [purple]({result!.Elapsed.Milliseconds} ms))[/]");
+                _console.MarkupLine($"[green]Succeeded[/] [deepskyblue3_1]({startingTitle}[/] [purple]({result.Elapsed.Milliseconds} ms))[/]");
 
                 return 0;
             }
