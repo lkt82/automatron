@@ -7,10 +7,10 @@ namespace Automatron.AzureDevOps.Commands;
 
 public record PipelineRunOptions : IArgumentModel
 {
-    internal const string HiddenName = nameof(HiddenName);
+    //internal const string HiddenName = nameof(HiddenName);
 
-    [Option('p', HiddenName)]
-    public string? Pipeline { get; set; }
+    //[Option('p', HiddenName)]
+    //public string? Pipeline { get; set; }
 
     [Option('s', "stage")]
     public string? Stage { get; set; }
@@ -23,5 +23,8 @@ public record PipelineRunOptions : IArgumentModel
 
     [Option('v', "variable")]
     public IEnumerable<VariableValue>? Variables { get; set; }
+
+    [Option('p', "parameters")]
+    public IEnumerable<ParameterValue>? Parameters { get; set; }
 }
 #endif

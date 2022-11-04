@@ -87,22 +87,22 @@ public static class AzureDevOpsMiddleware
                     var conv = TypeDescriptor.GetConverter(variable.Property.PropertyType);
                     variable.Value = conv.ConvertTo(defaultValue, variable.Property.PropertyType);
                 }
-                c.BuildEvents.OnCommandCreated += BuildEvents_OnCommandCreated;
+               // c.BuildEvents.OnCommandCreated += BuildEvents_OnCommandCreated;
                 c.CustomHelpProvider = new PipelineHelpProvider(c.CustomHelpProvider ?? new HelpTextProvider(c.AppSettings), pipelines, c.AppSettings);
             });
     }
 
-    private static void BuildEvents_OnCommandCreated(BuildEvents.CommandCreatedEventArgs obj)
-    {
-        var option = obj.CommandBuilder.Command.Options.SingleOrDefault(c => c.LongName == PipelineRunOptions.HiddenName);
+    //private static void BuildEvents_OnCommandCreated(BuildEvents.CommandCreatedEventArgs obj)
+    //{
+    //    var option = obj.CommandBuilder.Command.Options.SingleOrDefault(c => c.LongName == PipelineRunOptions.HiddenName);
 
-        if (option! == null!)
-        {
-            return;
-        }
+    //    if (option! == null!)
+    //    {
+    //        return;
+    //    }
 
-        option.Hidden = true;
+    //    option.Hidden = true;
         
-    }
+    //}
 }
 #endif

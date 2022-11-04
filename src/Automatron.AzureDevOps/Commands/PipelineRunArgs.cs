@@ -10,7 +10,7 @@ public record PipelineRunArgs : IArgumentModel
     [Operand]
     public string? Pipeline { get; set; }
 
-    [Operand]
-    public IEnumerable<ParameterValue>? Parameters { get; set; }
+    //[Operand]
+    //public IEnumerable<ParameterValue>? Parameters { get; set; }
 }
 #endif

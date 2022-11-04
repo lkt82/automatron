@@ -88,7 +88,8 @@ namespace Automatron.AzureDevOps.Commands
         [Command( Description = "Run Azure DevOps pipeline")]
         public async Task<int> Run(PipelineRunArgs args, PipelineRunOptions options)
         {
-            var pipelineName = args.Pipeline??options.Pipeline;
+           // var pipelineName = args.Pipeline??options.Pipeline;
+           var pipelineName = args.Pipeline;
 
             var foundPipeline =_pipelines.FirstOrDefault(c => string.Equals(c.Name, pipelineName, StringComparison.InvariantCultureIgnoreCase));
 
@@ -157,20 +158,20 @@ namespace Automatron.AzureDevOps.Commands
 
                 if (!string.IsNullOrEmpty(options.Step))
                 {
-                    result = await _pipelineEngine.Run(foundStep!, options.Variables,args.Parameters);
+                    result = await _pipelineEngine.Run(foundStep!, options.Variables, options.Parameters);
                     //result = await _pipelineEngine.Run(foundStep!, options.Variables,null);
                 }
                 else if (!string.IsNullOrEmpty(options.Job))
                 {
-                   result = await _pipelineEngine.Run(foundJob, options.Variables, args.Parameters);
+                   result = await _pipelineEngine.Run(foundJob, options.Variables, options.Parameters);
                 }
                 else if (!string.IsNullOrEmpty(options.Stage))
                 {
-                   result = await _pipelineEngine.Run(foundStage, options.Variables, args.Parameters);
+                   result = await _pipelineEngine.Run(foundStage, options.Variables, options.Parameters);
                 }
                 else
                 {
-                   result = await _pipelineEngine.Run(foundPipeline, options.Variables, args.Parameters);
+                   result = await _pipelineEngine.Run(foundPipeline, options.Variables, options.Parameters);
                 }
                 _console.Write(_summeryTable);
                 _console.MarkupLine($"[green]Succeeded[/] [deepskyblue3_1]({startingTitle}[/] [purple]({result.Elapsed.Milliseconds} ms))[/]");
