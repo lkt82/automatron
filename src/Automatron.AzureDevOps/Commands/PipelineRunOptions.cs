@@ -1,4 +1,5 @@
 ﻿#if NET6_0
+using System.Collections.Generic;
 using Automatron.AzureDevOps.Models;
 using CommandDotNet;
 
@@ -21,6 +22,6 @@ public record PipelineRunOptions : IArgumentModel
     public string? Step { get; set; }
 
     [Option('v', "variable")]
-    public VariableValue[]? Variables { get; set; }
+    public IEnumerable<VariableValue>? Variables { get; set; }
 }
 #endif
