@@ -11,5 +11,4 @@ public class AzureDevOpsRunner : AutomationRunner<AzureDevOpsCommand>
         this.UseAzureDevOps();
     }
 }
-
 #endif
