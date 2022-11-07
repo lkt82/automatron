@@ -9,7 +9,7 @@ public sealed class NuGetAuthenticateTask : Task<NuGetAuthenticateTask.NuGetAuth
         public bool? ForceReinstallCredentialProvider { get; set; }
     }
 
-    public NuGetAuthenticateTask(IJob job,NuGetAuthenticateInputs? inputs=null) : base(job,"NuGetAuthenticate@0", inputs)
+    public NuGetAuthenticateTask(IJob job,NuGetAuthenticateInputs? inputs=null) : base(job, "NuGetAuthenticate@1", inputs)
     {
     }
 }

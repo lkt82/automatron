@@ -4,7 +4,7 @@ using Automatron.AzureDevOps.Middleware;
 using Automatron.Commands;
 using CommandDotNet;
 
-await new AutomationRunner<CliCommand>().UseAzureDevOps().ConfigureServices(c =>
+await new AutomationRunner<Cli>().UseAzureDevOps().ConfigureServices(c =>
 {
     //var pipeline = new Pipeline("Ci", p => new[]
     //{
@@ -40,7 +40,7 @@ await new AutomationRunner<CliCommand>().UseAzureDevOps().ConfigureServices(c =>
     //c.AddSingleton<IEnumerable<Pipeline>>(new[] { pipeline });
 }).RunAsync(args);
 
-public class CliCommand : CompositeCommand
+public class Cli : CompositeCommand
 {
     [Subcommand]
     public AzureDevOpsCommand? AzureDevOps { get; set; }

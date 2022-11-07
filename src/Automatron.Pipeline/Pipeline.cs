@@ -124,7 +124,7 @@ public class Pipeline
         {
             await _loggingCommands.UploadArtifactAsync("/", "Nuget", nuget);
             await _loggingCommands.UploadArtifactAsync("/", "Nuget", nuget.Replace("nupkg", "snupkg"));
-            await RunAsync("dotnet", $"nuget push {nuget} -k {NugetApiKey?.GetValue()} -s https://api.nuget.org/v3/index.json --skip-duplicate", workingDirectory: "../Automatron", noEcho: true);
+            await RunAsync("dotnet", $"nuget push {nuget} -k {NugetApiKey?.GetValue()} -s https://api.nuget.org/v3/index.json --skip-duplicate", workingDirectory: RootDir, noEcho: true);
         }
     }
 }

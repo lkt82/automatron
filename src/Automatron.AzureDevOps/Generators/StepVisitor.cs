@@ -7,6 +7,7 @@ using Automatron.AzureDevOps.Annotations;
 using Automatron.AzureDevOps.Generators.Models;
 using Automatron.CodeAnalysis;
 using Microsoft.CodeAnalysis;
+using static Automatron.AzureDevOps.Generators.Models.PulumiTask;
 
 namespace Automatron.AzureDevOps.Generators;
 
@@ -86,8 +87,62 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
         return nodeAttribute switch
         {
             CheckoutAttribute checkoutAttribute => CreateCheckoutTask(member, checkoutAttribute),
+            NuGetAuthenticateAttribute nugetAuthenticateAttribute => CreateNuGetAuthenticateTask(member, nugetAuthenticateAttribute),
+            PulumiAttribute pulumiAttribute => CreatePulumiTask(member, pulumiAttribute),
             StepAttribute stepAttribute => CreateAutomatronScript(member, stepAttribute),
             _ => throw new NotSupportedException()
+        };
+    }
+
+    private Step CreatePulumiTask(IMethodSymbol member, PulumiAttribute pulumiAttribute)
+    {
+        var stepName = pulumiAttribute.Name;
+
+        var displayName = string.IsNullOrEmpty(pulumiAttribute.Emoji) ? pulumiAttribute.DisplayName : $"{pulumiAttribute.Emoji} {stepName}";
+
+        PulumiTaskInputs? inputs = null;
+
+        if (pulumiAttribute.Command != null || pulumiAttribute.Stack != null || pulumiAttribute.Cwd != null || pulumiAttribute.Args != null)
+        {
+            inputs = new PulumiTaskInputs
+            {
+                Command = pulumiAttribute.Command,
+                Stack = pulumiAttribute.Stack,
+                Cwd = pulumiAttribute.Cwd,
+                Args = pulumiAttribute.Args
+            };
+        }
+
+        return new PulumiTask(_job, inputs)
+        {
+            Name = stepName,
+            DisplayName = displayName,
+            Condition = pulumiAttribute.Condition
+        };
+    }
+
+    private Step CreateNuGetAuthenticateTask(IMethodSymbol member, NuGetAuthenticateAttribute nugetAuthenticateAttribute)
+    {
+        var stepName = nugetAuthenticateAttribute.Name;
+        var displayName = string.IsNullOrEmpty(nugetAuthenticateAttribute.Emoji) ? nugetAuthenticateAttribute.DisplayName : $"{nugetAuthenticateAttribute.Emoji} {stepName}";
+
+        NuGetAuthenticateTask.NuGetAuthenticateInputs? input = null;
+
+        if (!string.IsNullOrEmpty(nugetAuthenticateAttribute.NugetServiceConnections) ||
+            nugetAuthenticateAttribute.ReinstallCredentialProvider)
+        {
+            input = new NuGetAuthenticateTask.NuGetAuthenticateInputs
+            {
+                NuGetServiceConnections = nugetAuthenticateAttribute.NugetServiceConnections,
+                ForceReinstallCredentialProvider = nugetAuthenticateAttribute.ReinstallCredentialProvider
+            };
+        }
+
+        return new NuGetAuthenticateTask(_job, input)
+        {
+            Name = stepName,
+            DisplayName = displayName,
+            Condition = nugetAuthenticateAttribute.Condition
         };
     }
 
