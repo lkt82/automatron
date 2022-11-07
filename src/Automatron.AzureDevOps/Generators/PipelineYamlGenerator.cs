@@ -39,17 +39,17 @@ internal class PipelineYamlGenerator : ISourceGenerator
 
     public void Execute(GeneratorExecutionContext context)
     {
-        if (context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.AzureDevOpsPipelineSkip", out var skipYamlPipeline) && bool.Parse(skipYamlPipeline))
+        if (context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.AutomatronAzureDevOpsSkip", out var skipYamlPipeline) && bool.Parse(skipYamlPipeline))
         {
             return;
         }
 
         Debug.WriteLine($"Execute {nameof(PipelineYamlGenerator)}");
 
-        if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.AzureDevOpsPipelineProjectDirectory",
+        if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.AutomatronAzureDevOpsProjectDirectory",
                 out var projectDirectory))
         {
-            throw new InvalidOperationException("AzureDevOpsPipelineProjectDirectory not set");
+            throw new InvalidOperationException("AutomatronAzureDevOpsProjectDirectory not set");
         }
 
         string? vscRoot = null;
@@ -72,7 +72,7 @@ internal class PipelineYamlGenerator : ISourceGenerator
             return;
         }
 
-        if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.AzureDevOpsPipelineCommand",
+        if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.AutomatronAzureDevOpsCommand",
                 out var command))
         {
             command = "run";
@@ -99,11 +99,14 @@ internal class PipelineYamlGenerator : ISourceGenerator
         catch (Exception e)
 #pragma warning restore CS0168
         {
-            if (!Debugger.IsAttached)
+            if (context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.AutomatronAzureDevOpsDebug", out var debug) && bool.Parse(debug))
             {
-                Debugger.Launch();
+                if (!Debugger.IsAttached)
+                {
+                    Debugger.Launch();
+                }
+                throw;
             }
-            throw;
         }
     }
 

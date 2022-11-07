@@ -5,7 +5,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AzureDevOpsPipelineCommand>azuredevops run</AzureDevOpsPipelineCommand>
+	  <AutomatronAzureDevOpsCommand>azuredevops run</AutomatronAzureDevOpsCommand>
   </PropertyGroup>
 
 	<Import Project="..\Automatron.AzureDevOps\build.props"/>

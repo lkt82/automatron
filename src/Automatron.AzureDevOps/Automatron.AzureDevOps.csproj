@@ -33,28 +33,30 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="YamlDotNet" Version="11.2.1">
-          <GeneratePathProperty>True</GeneratePathProperty>
+        <PackageReference Include="YamlDotNet" Version="12.0.2" GeneratePathProperty="true">
+			<IncludeAssets>all</IncludeAssets>
         </PackageReference>
     </ItemGroup>
+
 
     <PropertyGroup>
         <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
     </PropertyGroup>
 
 	<ItemGroup>
-		<None Include="$(OutputPath)\netstandard2.0\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+		<None Include="$(PKGYamlDotNet)\lib\netstandard2.0\YamlDotNet.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+		<None Include="$(OutputPath)\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Automatron\Automatron.csproj" />
+		<ProjectReference Include="..\Automatron\Automatron.csproj" />
 	</ItemGroup>
 
 
 	<Target Name="GetDependencyTargetPaths">
-        <ItemGroup>
-            <TargetPathWithTargetPlatformMoniker Include="$(PKGYamlDotNet)\lib\netstandard1.3\YamlDotNet.dll" IncludeRuntimeDependency="false" />
+		<ItemGroup>
+			<TargetPathWithTargetPlatformMoniker Include="$(PKGYamlDotNet)\lib\netstandard2.0\YamlDotNet.dll" IncludeRuntimeDependency="false" />
         </ItemGroup>
     </Target>
 
