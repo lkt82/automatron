@@ -135,17 +135,33 @@ namespace Automatron.AzureDevOps.Commands
             if (!string.IsNullOrEmpty(options.Stage))
             {
                 startingTitle += " " + foundStage.Name;
+                if (!string.IsNullOrEmpty(options.Job))
+                {
+                    startingTitle += " " + foundJob.Name;
+                }
+                if (!string.IsNullOrEmpty(options.Step) && foundStep != null)
+                {
+                    startingTitle += " " + foundStep.Name;
+                }
+
             }
-            if (!string.IsNullOrEmpty(options.Job))
+            else if (!string.IsNullOrEmpty(options.Job))
             {
                 startingTitle += " " + foundStage.Name;
                 startingTitle += " " + foundJob.Name;
+                if (!string.IsNullOrEmpty(options.Step) && foundStep != null)
+                {
+                    startingTitle += " " + foundStep.Name;
+                }
             }
-            if (foundStep != null)
+            else if (!string.IsNullOrEmpty(options.Step))
             {
                 startingTitle += " " + foundStage.Name;
                 startingTitle += " " + foundJob.Name;
-                startingTitle += " " + foundStep.Name;
+                if (foundStep != null)
+                {
+                    startingTitle += " " + foundStep.Name;
+                }
             }
             _console.MarkupLine($"Starting... [deepskyblue3_1]({startingTitle})[/]");
 
