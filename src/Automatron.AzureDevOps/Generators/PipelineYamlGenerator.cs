@@ -62,7 +62,7 @@ internal class PipelineYamlGenerator : ISourceGenerator
 
         if (vscRoot == null)
         {
-            throw new NullReferenceException("vscRoot was null");
+            return;
         }
 
         var mainMethod = context.Compilation.GetEntryPoint(context.CancellationToken);
