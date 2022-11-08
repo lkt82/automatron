@@ -24,7 +24,7 @@ internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>, IComparer<Stage
 
         foreach (var stage in Stages.Values)
         {
-            stage.Jobs = symbol.Accept(new JobVisitor(stage));
+            stage.Jobs = stage.Symbol.Accept(new JobVisitor(stage));
         }
 
         var list = new List<Stage>(Stages.Values);
@@ -44,14 +44,6 @@ internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>, IComparer<Stage
 
         if (stageAttribute != null)
         {
-            //if (stageAttribute.DependsOn != null)
-            //{
-            //    foreach (var stageTypeSymbol in stageAttribute.DependsOn.Cast<INamedTypeSymbol>())
-            //    {
-            //        VisitStageType(stageTypeSymbol);
-            //    }
-            //}
-
             var stage = CreateStage(stageAttribute, symbol);
 
             Stages[symbol.Name] = stage;
@@ -61,8 +53,6 @@ internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>, IComparer<Stage
         {
             VisitStageType(type);
         }
-
-
     }
 
     private Stage CreateStage(StageAttribute stageAttribute, ISymbol symbol)

@@ -70,14 +70,6 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>, IComparer<IJob>
 
         if (jobAttribute != null)
         {
-            //if (jobAttribute.DependsOn != null)
-            //{
-            //    foreach (var jobTypeSymbol in jobAttribute.DependsOn.Cast<INamedTypeSymbol>())
-            //    {
-            //        VisitJobType(jobTypeSymbol);
-            //    }
-            //}
-
             IJob job;
 
             if (jobAttribute is DeploymentJobAttribute deploymentJobAttribute)
@@ -88,7 +80,7 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>, IComparer<IJob>
             {
                 job = CreateJob(jobAttribute, symbol);
             }
-         
+           
             job.Parameters = symbol.Accept(new TemplateParameterVisitor());
 
             job.Steps = symbol.Accept(new StepVisitor(job));
