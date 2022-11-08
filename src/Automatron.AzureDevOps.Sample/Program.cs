@@ -4,7 +4,7 @@ using Automatron.AzureDevOps.Middleware;
 using Automatron.Commands;
 using CommandDotNet;
 
-await new AutomationRunner<Cli>().UseAzureDevOps().ConfigureServices(c =>
+return await new AutomationRunner<Cli>().UseAzureDevOps().ConfigureServices(c =>
 {
     //var pipeline = new Pipeline("Ci", p => new[]
     //{

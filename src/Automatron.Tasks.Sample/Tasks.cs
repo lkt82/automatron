@@ -26,7 +26,6 @@ public class Tasks
     [Task(Default = true)]
     public void Build()
     {
-
     }
 
 

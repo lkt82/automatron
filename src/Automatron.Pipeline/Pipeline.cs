@@ -5,7 +5,7 @@ using Automatron.AzureDevOps.Tasks;
 using Automatron.Models;
 using static SimpleExec.Command;
 
-await new AzureDevOpsRunner().RunAsync(args);
+return await new AzureDevOpsRunner().RunAsync(args);
 
 [Pipeline("Ci",YmlPath = RootPath,YmlName = "azure-pipelines")]
 [CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
