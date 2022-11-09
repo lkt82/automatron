@@ -53,6 +53,7 @@ public class Pipeline
         }
     }
 
+    [Checkout(CheckoutSource.Self, FetchDepth = 0)]
     [Step(Emoji = "🔢")]
     public async Task Version()
     {

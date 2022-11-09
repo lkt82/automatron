@@ -13,7 +13,7 @@ public abstract class PulumiDeploymentJob
     public Secret? PulumiApiKey { get; set; }
 
     [Step]
-    [Checkout(CheckoutSource.Self)]
+    [Checkout(CheckoutSource.Self,FetchDepth = 0)]
     [NuGetAuthenticate]
     [Pulumi(DisplayName = "Pulumi install")]
     public virtual void Init()

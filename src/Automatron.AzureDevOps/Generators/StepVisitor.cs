@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Automatron.AzureDevOps.Annotations;
 using Automatron.AzureDevOps.Generators.Models;
 using Automatron.CodeAnalysis;
@@ -134,7 +133,7 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
             input = new NuGetAuthenticateTask.NuGetAuthenticateInputs
             {
                 NuGetServiceConnections = nugetAuthenticateAttribute.NugetServiceConnections,
-                ForceReinstallCredentialProvider = nugetAuthenticateAttribute.ReinstallCredentialProvider
+                ForceReinstallCredentialProvider = nugetAuthenticateAttribute.ReinstallCredentialProvider == false ? null : nugetAuthenticateAttribute.ReinstallCredentialProvider
             };
         }
 
@@ -175,7 +174,13 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
         {
             Name = stepName,
             DisplayName = displayName,
-            Condition = checkoutAttribute.Condition
+            Condition = checkoutAttribute.Condition,
+            FetchDepth = checkoutAttribute.FetchDepth == 1 ? null : checkoutAttribute.FetchDepth,
+            Clean = checkoutAttribute.Clean == false ? null : checkoutAttribute.Clean,
+            Lfs = checkoutAttribute.Lfs == false ? null : checkoutAttribute.Lfs,
+            Submodules = checkoutAttribute.Submodules == false ? null : checkoutAttribute.Submodules,
+            Path = checkoutAttribute.Path,
+            PersistCredentials = checkoutAttribute.PersistCredentials == false ? null : checkoutAttribute.PersistCredentials
         };
     }
 
@@ -186,31 +191,6 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
         var path = PathExtensions.GetUnixPath(PathExtensions.GetRelativePath(fullRoot, _job.Stage.Pipeline.ProjectDirectory));
 
         return path;
-    }
-
-    private static string GetEnvVarName(string name)
-    {
-        var envVarName = new StringBuilder();
-
-        for (var index = 0; index < name.Length; index++)
-        {
-            var n = name[index];
-            if (index > 0 && char.IsLower(name[index - 1]) && char.IsUpper(n))
-            {
-                envVarName.Append('_');
-                envVarName.Append(n);
-            }
-            else if (char.IsLower(n))
-            {
-                envVarName.Append(char.ToUpper(n));
-            }
-            else
-            {
-                envVarName.Append(n);
-            }
-        }
-
-        return envVarName.ToString();
     }
 
     public int Compare(Step? x, Step? y)

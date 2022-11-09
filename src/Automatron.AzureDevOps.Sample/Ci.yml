@@ -18,6 +18,7 @@ stages:
         deploy:
           steps:
           - checkout: self
+            fetchDepth: 0
           - task: NuGetAuthenticate@1
           - task: Pulumi@1
             displayName: Pulumi install
@@ -47,6 +48,7 @@ stages:
         deploy:
           steps:
           - checkout: self
+            fetchDepth: 0
           - task: NuGetAuthenticate@1
           - task: Pulumi@1
             displayName: Pulumi install
@@ -76,6 +78,7 @@ stages:
         deploy:
           steps:
           - checkout: self
+            fetchDepth: 0
           - task: NuGetAuthenticate@1
           - task: Pulumi@1
             displayName: Pulumi install

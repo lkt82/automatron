@@ -11,4 +11,16 @@ public sealed class CheckoutTask: Step
 
     [YamlMember(Alias = "checkout")]
     public string Source { get; set; }
+
+    public int? FetchDepth { get; set; }
+
+    public bool? Clean { get; set; }
+
+    public bool? Lfs { get; set; }
+
+    public bool? Submodules { get; set; }
+
+    public string? Path { get; set; }
+
+    public bool? PersistCredentials { get; set; }
 }

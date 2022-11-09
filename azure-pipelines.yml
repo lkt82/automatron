@@ -23,6 +23,8 @@ stages:
     variables:
     - group: nuget
     steps:
+    - checkout: self
+      fetchDepth: 0
     - script: dotnet run -- run --stage Pipeline --job Pipeline --step Version Ci
       workingDirectory: src/Automatron.Pipeline
       env:
