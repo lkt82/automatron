@@ -13,12 +13,7 @@ namespace Automatron.AzureDevOps.Generators;
 [Generator]
 internal class PipelineYamlGenerator : ISourceGenerator
 {
-    private readonly ISerializer _serializer;
-
-    public PipelineYamlGenerator()
-    {
-        _serializer = CreateYamlSerializer();
-    }
+    private ISerializer? _serializer;
 
     private readonly Dictionary<string, string> _vscRoot = new();
 
@@ -138,11 +133,13 @@ internal class PipelineYamlGenerator : ISourceGenerator
         var filePath = Path.Combine(dir, pipeline.YmlName);
 
         using var stream = File.CreateText(filePath);
-        _serializer.Serialize(stream, pipeline);
+        _serializer?.Serialize(stream, pipeline);
     }
 
     public void Initialize(GeneratorInitializationContext context)
     {
+        _serializer = CreateYamlSerializer();
+
 #if DEBUG
         //if (!Debugger.IsAttached)
         //{
