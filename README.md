@@ -11,6 +11,7 @@ Platform support: [.NET 6.0 and later](https://docs.microsoft.com/en-us/dotnet/c
     - [Parameters](#tasks-parameters)
 - [AzureDevOps](#azuredevops)
   - [Quick start](#azuredevops-quick-start)
+  - [Variables](#azuredevops-variables)
   - [Parameters](#azuredevops-parameters)
 
 ## Tasks
@@ -31,7 +32,7 @@ Inheritance and interfaces are supported as well
 using Automatron.Tasks;
 using Automatron.Tasks.Annotations;
 
-await new TaskRunner().RunAsync(args);
+return await new TaskRunner().RunAsync(args);
 
 namespace Sample;
 
@@ -65,7 +66,7 @@ Dependencies are expression via the attributes
 using Automatron.Tasks;
 using Automatron.Tasks.Annotations;
 
-await new TaskRunner().RunAsync(args);
+return await new TaskRunner().RunAsync(args);
 
 namespace Sample;
 
@@ -110,7 +111,7 @@ using Automatron.AzureDevOps;
 using Automatron.AzureDevOps.Annotations;
 using Automatron.AzureDevOps.Tasks;
 
-await new AzureDevOpsRunner().RunAsync(args);
+return await new AzureDevOpsRunner().RunAsync(args);
 
 [Pipeline("Ci")]
 [CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
@@ -119,38 +120,63 @@ await new AzureDevOpsRunner().RunAsync(args);
 [Job]
 public class Pipeline
 {
-    [Step(Emoji = "🔢")]
-    public async Task Version()
-    {
-    }
-
-    [Step(Emoji = "🧹")]
-    public void Clean()
-    {
-    }
-
-    [Step(Emoji = "🏗", DependsOn = new []{ nameof(Version), nameof(Clean) })]
+    [Step(Emoji = "🏗"]
     public async Task Build()
     {
     }
 
-    [Step(Emoji = "🧪", DependsOn = new[] { nameof(Build), nameof(Clean) })]
+    [Step(Emoji = "🧪", DependsOn = new[] { nameof(Build) })]
     public async Task Test()
     {
     }
 
-    [Step(Emoji = "📦", DependsOn = new[] { nameof(Build), nameof(Clean) })]
+    [Step(Emoji = "📦", DependsOn = new[] { nameof(Test) })]
     public async Task Pack()
-    {
-    }
-
-    [Step(Emoji = "🚀", DependsOn = new[] { nameof(Pack) })]
-    public async Task Publish()
     {
     }
 }
 ```
 
 Pipelines, Stage, Jobs, Steps can be run via cmd arguments  ```dotnet run -- Ci```
+
+### AzureDevOps Variables
+
+Variables can mapped as properties
+
+```c#
+using System.Reflection;
+using Automatron.AzureDevOps;
+using Automatron.AzureDevOps.Annotations;
+using Automatron.AzureDevOps.Tasks;
+
+return await new AzureDevOpsRunner().RunAsync(args);
+
+[Pipeline("Ci")]
+[CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
+[Pool(VmImage = "ubuntu-latest")]
+[VariableGroup("nuget")]
+[Stage]
+[Job]
+public class Pipeline
+{
+    [Variable(Description = "The nuget api key")]
+    public Secret? NugetApiKey { get; set; }
+
+    [Step(Emoji = "🏗"]
+    public async Task Build()
+    {
+    }
+
+    [Step(Emoji = "🧪", DependsOn = new[] { nameof(Build) })]
+    public async Task Test()
+    {
+    }
+
+    [Step(Emoji = "📦", DependsOn = new[] { nameof(Test) })]
+    public async Task Pack()
+    {
+    }
+}
+```
 
 ### AzureDevOps Parameters

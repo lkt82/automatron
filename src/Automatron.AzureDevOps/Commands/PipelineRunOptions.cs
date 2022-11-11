@@ -21,5 +21,14 @@ public record PipelineRunOptions : IArgumentModel
 
     [Option('p', "parameters")]
     public IEnumerable<ParameterValue>? Parameters { get; set; }
+
+    [Option('n', "no-summary",BooleanMode = BooleanMode.Implicit )]
+    public bool NoSummary { get; set; }
+
+    [Option('d', "run-dependencies", BooleanMode = BooleanMode.Implicit)]
+    public bool RunDependencies { get; set; }
+
+    [Option('m', "dry-run", BooleanMode = BooleanMode.Implicit)]
+    public bool DryRun { get; set; }
 }
 #endif

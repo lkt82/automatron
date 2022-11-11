@@ -69,8 +69,8 @@ public class Pipeline
     [Step(Emoji = "🧹")]
     public void Clean()
     {
-        EnsureDirectory(ArtifactsDir);
         CleanDirectory(ArtifactsDir);
+        EnsureDirectory(ArtifactsDir);
     }
 
     [Step(Emoji = "🏗", DependsOn = new []{ nameof(Version), nameof(Clean) })]

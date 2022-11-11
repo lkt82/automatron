@@ -32,7 +32,7 @@ public class PipelineEngine : IPipelineEngine
     public event EventHandler<PipelineModelFailedArgs<Job>>? OnJobFailed;
     public event EventHandler<PipelineModelFailedArgs<Stage>>? OnStageFailed;
 
-    private async Task<PipelineResult> RunPipeline(Pipeline pipeline, IEnumerable<VariableValue> variables, IEnumerable<ParameterValue> parameters, Func<IServiceProvider,Stage, Task> stageAction)
+    private async Task<PipelineResult> RunPipeline(Pipeline pipeline, IEnumerable<VariableValue> variables, IEnumerable<ParameterValue> parameters, Func<IServiceProvider,Stage, Task> stageAction, bool dryRun)
     {
         ConvertVariables(variables, pipeline.Variables.ToDictionary(c => c.Name.ToLower(), c => c));
         ConvertParameters(parameters, pipeline.Parameters.ToDictionary(c => c.Name.ToLower(), c => c));
@@ -44,18 +44,12 @@ public class PipelineEngine : IPipelineEngine
         {
             OnPipelineStarting?.Invoke(this, new PipelineModelStartingArgs<Pipeline>(pipeline));
 
-            //await using var scope = _serviceProvider.CreateAsyncScope();
-
-            //var pipelineService = scope.ServiceProvider.GetRequiredService(pipeline.Type);
-            //BindProperties(pipelineService, pipeline.Variables);
-            //BindProperties(pipelineService, pipeline.Parameters);
-
             foreach (var stage in pipeline.Stages)
             {
                 await stageAction(_serviceProvider, stage);
             }
 
-            OnPipelineCompleted?.Invoke(this, new PipelineModelCompletedArgs<Pipeline>(pipeline, stopWatch.Elapsed));
+            OnPipelineCompleted?.Invoke(this, new PipelineModelCompletedArgs<Pipeline>(pipeline, stopWatch.Elapsed, dryRun));
 
             return new PipelineResult(stopWatch.Elapsed);
 
@@ -64,7 +58,7 @@ public class PipelineEngine : IPipelineEngine
         {
             var pipelineException = new PipelineException(pipeline, new[] { exception }, stopWatch.Elapsed);
 
-            OnPipelineFailed?.Invoke(this, new PipelineModelFailedArgs<Pipeline>(pipeline, stopWatch.Elapsed, pipelineException));
+            OnPipelineFailed?.Invoke(this, new PipelineModelFailedArgs<Pipeline>(pipeline, stopWatch.Elapsed, pipelineException, dryRun));
 
             throw pipelineException;
         }
@@ -74,7 +68,7 @@ public class PipelineEngine : IPipelineEngine
         }
     }
 
-    private async Task RunStage(IServiceProvider serviceProvider, Stage stage, IEnumerable<VariableValue> variables, Func<IServiceProvider, Job, Task> jobAction)
+    private async Task RunStage(IServiceProvider serviceProvider, Stage stage, IEnumerable<VariableValue> variables, Func<IServiceProvider, Job, Task> jobAction,bool dryRun)
     {
         ConvertVariables(variables, stage.Variables.ToDictionary(c => c.Name.ToLower(), c => c));
         
@@ -85,21 +79,18 @@ public class PipelineEngine : IPipelineEngine
         {
             OnStageStarting?.Invoke(this, new PipelineModelStartingArgs<Stage>(stage));
 
-           // var stageService = serviceProvider.GetRequiredService(stage.Type);
-           // BindProperties(stageService, stage.Variables);
-
             foreach (var job in stage.Jobs)
             {
                 await jobAction(serviceProvider, job);
             }
 
-            OnStageCompleted?.Invoke(this, new PipelineModelCompletedArgs<Stage>(stage, stopWatch.Elapsed));
+            OnStageCompleted?.Invoke(this, new PipelineModelCompletedArgs<Stage>(stage, stopWatch.Elapsed, dryRun));
         }
         catch (JobException exception)
         {
             var stageException = new StageException(stage, new[] { exception }, stopWatch.Elapsed);
 
-            OnStageFailed?.Invoke(this, new PipelineModelFailedArgs<Stage>(stage, stopWatch.Elapsed, stageException));
+            OnStageFailed?.Invoke(this, new PipelineModelFailedArgs<Stage>(stage, stopWatch.Elapsed, stageException, dryRun));
 
             throw stageException;
         }
@@ -109,7 +100,7 @@ public class PipelineEngine : IPipelineEngine
         }
     }
 
-    private async Task RunJob(IServiceProvider serviceProvider, Job job, IEnumerable<VariableValue> variables, Func<Step,object, Task> stepAction)
+    private async Task RunJob(IServiceProvider serviceProvider, Job job, IEnumerable<VariableValue> variables, Func<Step,object, Task> stepAction,bool dryRun)
     {
         ConvertVariables(variables, job.Variables.ToDictionary(c => c.Name.ToLower(), c => c));
         
@@ -137,13 +128,13 @@ public class PipelineEngine : IPipelineEngine
                 await stepAction(step, jobService);
             }
 
-            OnJobCompleted?.Invoke(this, new PipelineModelCompletedArgs<Job>(job, stopWatch.Elapsed));
+            OnJobCompleted?.Invoke(this, new PipelineModelCompletedArgs<Job>(job, stopWatch.Elapsed, dryRun));
         }
         catch (StepException exception)
         {
             var jobException = new JobException(job, exception, stopWatch.Elapsed);
 
-            OnJobFailed?.Invoke(this, new PipelineModelFailedArgs<Job>(job, stopWatch.Elapsed, jobException));
+            OnJobFailed?.Invoke(this, new PipelineModelFailedArgs<Job>(job, stopWatch.Elapsed, jobException, dryRun));
 
             throw jobException;
         }
@@ -165,7 +156,7 @@ public class PipelineEngine : IPipelineEngine
         return Task.CompletedTask;
     }
 
-    private async Task RunStep(Step step,object jobService)
+    private async Task RunStep(Step step,object jobService,bool dryRun)
     {
         var stopWatch = new Stopwatch();
         stopWatch.Start();
@@ -174,15 +165,18 @@ public class PipelineEngine : IPipelineEngine
         {
             OnStepStarting?.Invoke(this, new PipelineModelStartingArgs<Step>(step));
 
-            await RunStepAction(step, jobService);
+            if (!dryRun)
+            {
+                await RunStepAction(step, jobService);
+            }
 
-            OnStepCompleted?.Invoke(this, new PipelineModelCompletedArgs<Step>(step, stopWatch.Elapsed));
+            OnStepCompleted?.Invoke(this, new PipelineModelCompletedArgs<Step>(step, stopWatch.Elapsed, dryRun));
         }
         catch (Exception exception)
         {
             var stepException = new StepException(step, stopWatch.Elapsed, exception.GetBaseException());
 
-            OnStepFailed?.Invoke(this, new PipelineModelFailedArgs<Step>(step, stopWatch.Elapsed, stepException));
+            OnStepFailed?.Invoke(this, new PipelineModelFailedArgs<Step>(step, stopWatch.Elapsed, stepException, dryRun));
 
             throw stepException;
         }
@@ -228,18 +222,18 @@ public class PipelineEngine : IPipelineEngine
         }
     }
 
-    public async Task<PipelineResult> Run(Pipeline pipeline, IEnumerable<VariableValue>? variables, IEnumerable<ParameterValue>? parameters)
+    public async Task<PipelineResult> Run(Pipeline pipeline, IEnumerable<VariableValue>? variables, IEnumerable<ParameterValue>? parameters, bool dryRun)
     {
         return await RunPipeline(pipeline, variables ?? Array.Empty<VariableValue>(), parameters ?? Array.Empty<ParameterValue>(), async (serviceProvider, targetStage) =>
         {
             await RunStage(serviceProvider, targetStage, variables ?? Array.Empty<VariableValue>(), async (provider, targetJob) =>
             {
-                await RunJob(provider, targetJob, variables ?? Array.Empty<VariableValue>(), async (targetStep, jobService) => await RunStep(targetStep, jobService));
-            });
-        });
+                await RunJob(provider, targetJob, variables ?? Array.Empty<VariableValue>(), async (targetStep, jobService) => await RunStep(targetStep, jobService, dryRun), dryRun);
+            }, dryRun);
+        }, dryRun);
     }
 
-    public async Task<PipelineResult> Run(Stage stage, IEnumerable<VariableValue>? variables, IEnumerable<ParameterValue>? parameters)
+    public async Task<PipelineResult> Run(Stage stage, IEnumerable<VariableValue>? variables, IEnumerable<ParameterValue>? parameters,bool dryRun)
     {
         return await RunPipeline(stage.Pipeline, variables ?? Array.Empty<VariableValue>(), parameters ?? Array.Empty<ParameterValue>(), async (serviceProvider,targetStage)=>
         {
@@ -247,13 +241,13 @@ public class PipelineEngine : IPipelineEngine
             {
                 await RunStage(serviceProvider, stage, variables ?? Array.Empty<VariableValue>(), async (provider, targetJob) =>
                 {
-                    await RunJob(provider, targetJob, variables ?? Array.Empty<VariableValue>(), async (step, o) => await RunStep(step, o));
-                });
+                    await RunJob(provider, targetJob, variables ?? Array.Empty<VariableValue>(), async (step, o) => await RunStep(step, o, dryRun), dryRun);
+                }, dryRun);
             }
-        });
+        }, dryRun);
     }
 
-    public async Task<PipelineResult> Run(Job job, IEnumerable<VariableValue>? variables, IEnumerable<ParameterValue>? parameters)
+    public async Task<PipelineResult> Run(Job job, IEnumerable<VariableValue>? variables, IEnumerable<ParameterValue>? parameters, bool dryRun)
     {
         return await RunPipeline(job.Stage.Pipeline, variables ?? Array.Empty<VariableValue>(), parameters ?? Array.Empty<ParameterValue>(), async (serviceProvider, targetStage) =>
         {
@@ -263,15 +257,15 @@ public class PipelineEngine : IPipelineEngine
                 {
                     if (targetJob.Equals(job))
                     {
-                        await RunJob(provider, targetJob, variables ?? Array.Empty<VariableValue>(), async (targetStep, jobService) => await RunStep(targetStep, jobService));
+                        await RunJob(provider, targetJob, variables ?? Array.Empty<VariableValue>(), async (targetStep, jobService) => await RunStep(targetStep, jobService, dryRun), dryRun);
                     }
 
-                });
+                }, dryRun);
             }
-        });
+        }, dryRun);
     }
 
-    public async Task<PipelineResult> Run(Step step, IEnumerable<VariableValue>? variables, IEnumerable<ParameterValue>? parameters)
+    public async Task<PipelineResult> Run(Step step, IEnumerable<VariableValue>? variables, IEnumerable<ParameterValue>? parameters, bool dryRun,bool runDependencies)
     {
         return await RunPipeline(step.Job.Stage.Pipeline, variables ?? Array.Empty<VariableValue>(), parameters ?? Array.Empty<ParameterValue>(), async (serviceProvider, stage) =>
         {
@@ -281,18 +275,32 @@ public class PipelineEngine : IPipelineEngine
                 {
                     if (job.Equals(step.Job))
                     {
+                        var dependencies = new List<Step>();
+
                         await RunJob(provider, job, variables ?? Array.Empty<VariableValue>(), async (targetStep, jobService) =>
                         {
                             if (targetStep.Equals(step))
                             {
-                                await RunStep(step, jobService);
+                                if (runDependencies)
+                                {
+                                    foreach (var dependency in dependencies)
+                                    {
+                                        await RunStep(dependency, jobService, dryRun);
+                                    }
+                                }
+
+                                await RunStep(step, jobService, dryRun);
                             }
-                        });
+                            else
+                            {
+                                dependencies.Add(targetStep);
+                            }
+                        }, dryRun);
                     }
 
-                });
+                }, dryRun);
             }
-        });
+        }, dryRun);
     }
 
 }

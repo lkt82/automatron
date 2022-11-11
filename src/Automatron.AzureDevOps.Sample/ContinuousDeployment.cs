@@ -18,7 +18,7 @@ public abstract class PulumiDeploymentJob
     [Pulumi(DisplayName = "Pulumi install")]
     public virtual void Init()
     {
-       //throw new Exception(":/:/:/");
+        Console.WriteLine("init");
     }
 
     [Step(DependsOn = new[] { nameof(Init) })]

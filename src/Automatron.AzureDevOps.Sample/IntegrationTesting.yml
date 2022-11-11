@@ -38,14 +38,14 @@ stages:
       runOnce:
         deploy:
           steps:
-          - script: dotnet run -- azuredevops run --stage Integration --job Setup --step Init Int
+          - script: dotnet run -- azuredevops run --stage Integration --job Setup --step Init -n Int
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
               RUN_TESTS: ${{ parameters.RunTests }}
               NUGET_API_KEY: $(NugetApiKey)
               AZURE_CLIENT_ID: $(AzureClientId)
             name: Init
-          - script: dotnet run -- azuredevops run --stage Integration --job Setup --step Update Int
+          - script: dotnet run -- azuredevops run --stage Integration --job Setup --step Update -n Int
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
               RUN_TESTS: ${{ parameters.RunTests }}
@@ -60,9 +60,9 @@ stages:
       runOnce:
         deploy:
           steps:
-          - script: dotnet run -- azuredevops run --stage Integration --job Teardown --step Init Int
+          - script: dotnet run -- azuredevops run --stage Integration --job Teardown --step Init -n Int
             workingDirectory: src/Automatron.AzureDevOps.Sample
             name: Init
-          - script: dotnet run -- azuredevops run --stage Integration --job Teardown --step Destroy Int
+          - script: dotnet run -- azuredevops run --stage Integration --job Teardown --step Destroy -n Int
             workingDirectory: src/Automatron.AzureDevOps.Sample
             name: Destroy

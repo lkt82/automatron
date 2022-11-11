@@ -2,9 +2,9 @@
   "profiles": {
     "Automatron.AzureDevOps.Sample": {
       "commandName": "Project",
-      "commandLineArgs": "azuredevops run -v PulumiApiKey:hest ci PulumiApiKey:hest AzureClientId:hest",
+      "commandLineArgs": "azuredevops run -s DeployToProduction -j Deployment -t Update -n Ci",
       "environmentVariables": {
-        "AZURE_CLIENT_SECRET": "hest"
+        "AZURE_CLIENT_SECRET": "test"
       }
     }
   }

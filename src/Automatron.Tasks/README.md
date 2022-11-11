@@ -21,7 +21,7 @@ Inheritance and interfaces are supported as well
 using Automatron.Tasks;
 using Automatron.Tasks.Annotations;
 
-await new TaskRunner().RunAsync(args);
+return await new TaskRunner().RunAsync(args);
 
 namespace Sample;
 
@@ -55,7 +55,7 @@ Dependencies are expression via the attributes
 using Automatron.Tasks;
 using Automatron.Tasks.Annotations;
 
-await new TaskRunner().RunAsync(args);
+return await new TaskRunner().RunAsync(args);
 
 namespace Sample;
 
