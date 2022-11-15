@@ -7,7 +7,7 @@ using static SimpleExec.Command;
 
 return await new AzureDevOpsRunner().RunAsync(args);
 
-[Pipeline("Ci",YmlPath = RootPath,YmlName = "azure-pipelines")]
+[Pipeline("Ci",YmlDir = RelativeRootDir,YmlName = "azure-pipelines")]
 [CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
 [Pool(VmImage = "ubuntu-latest")]
 [VariableGroup("nuget")]
@@ -17,11 +17,11 @@ public class Pipeline
 {
     private readonly LoggingCommands _loggingCommands;
 
-    private const string RootPath = "../../";
+    private const string RelativeRootDir = "../../";
 
     private const string Configuration = "Release";
 
-    private static string RootDir => Path.GetFullPath(RootPath,Directory.GetCurrentDirectory());
+    private static string RootDir => Path.GetFullPath(RelativeRootDir,Directory.GetCurrentDirectory());
 
     private static string ArtifactsDir => $"{RootDir}.artifacts";
 

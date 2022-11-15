@@ -186,9 +186,9 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
 
     private string GetWorkingDirectory()
     {
-        var fullRoot = PathExtensions.GetUnixPath(Path.GetFullPath(_job.Stage.Pipeline.RootPath)) + "/";
+        var fullRoot = PathExtensions.GetUnixPath(Path.GetFullPath(_job.Stage.Pipeline.RootDir)) + "/";
 
-        var path = PathExtensions.GetUnixPath(PathExtensions.GetRelativePath(fullRoot, _job.Stage.Pipeline.ProjectDirectory));
+        var path = PathExtensions.GetUnixPath(PathExtensions.GetRelativePath(fullRoot, _job.Stage.Pipeline.ProjectDir));
 
         return path;
     }

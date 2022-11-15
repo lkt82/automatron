@@ -7,7 +7,7 @@ stages:
       runOnce:
         deploy:
           steps:
-          - script: dotnet run -- azuredevops run --stage DeployToTesting --job DeployToTesting --step Version -n CollapsedCi
+          - script: dotnet run -- azuredevops run --stage "DeployToTesting" --job "DeployToTesting" --step "Version" -n "CollapsedCi"
             workingDirectory: src/Automatron.AzureDevOps.Sample
             name: Version
             displayName: "\U0001F522 Version"
@@ -19,7 +19,7 @@ stages:
       runOnce:
         deploy:
           steps:
-          - script: dotnet run -- azuredevops run --stage DeployToProduction --job DeployToProduction --step Version -n CollapsedCi
+          - script: dotnet run -- azuredevops run --stage "DeployToProduction" --job "DeployToProduction" --step "Version" -n "CollapsedCi"
             workingDirectory: src/Automatron.AzureDevOps.Sample
             name: Version
             displayName: "\U0001F522 Version"

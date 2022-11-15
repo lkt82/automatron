@@ -81,7 +81,7 @@ internal class PipelineVisitor : SymbolVisitor
         var yamlName = !string.IsNullOrEmpty(pipelineAttribute.YmlName) ? pipelineAttribute.YmlName : name;
 
         #pragma warning disable CS8604
-        var pipeline = new Pipeline(name, yamlName + ".yml", pipelineAttribute.YmlPath, pipelineAttribute.RootPath ?? _vscRoot, _projectDirectory, _command, symbol);
+        var pipeline = new Pipeline(name, yamlName + ".yml", pipelineAttribute.YmlDir, pipelineAttribute.RootDir ?? _vscRoot, _projectDirectory, _command, symbol);
 #pragma warning restore CS8604
 
         return pipeline;

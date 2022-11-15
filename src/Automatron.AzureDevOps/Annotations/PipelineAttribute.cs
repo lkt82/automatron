@@ -7,11 +7,13 @@ namespace Automatron.AzureDevOps.Annotations
     {
         public string? Name { get; }
 
+        public string? DisplayName { get; set; }
+
         public string? YmlName { get; set; }
 
-        public string YmlPath { get; set; } = "./";
+        public string YmlDir { get; set; } = "./";
 
-        public string? RootPath { get; set; }
+        public string? RootDir { get; set; }
 
         public PipelineAttribute(string name)
         {

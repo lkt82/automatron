@@ -6,16 +6,15 @@ namespace Automatron.AzureDevOps.Generators.Models;
 
 public sealed class Pipeline
 {
-    public Pipeline(string name, string ymlName, string ymlPath, string rootPath,string projectDirectory, string command, ISymbol symbol)
+    public Pipeline(string name, string ymlName, string ymlDir, string rootDir,string projectDir, string command, ISymbol symbol)
     {
         Name = name;
         YmlName = ymlName;
-        YmlPath = ymlPath;
-        RootPath = rootPath;
-        ProjectDirectory = projectDirectory;
+        YmlDir = ymlDir;
+        RootDir = rootDir;
+        ProjectDir = projectDir;
         Symbol = symbol;
 
-        Path = "/" + Name;
         Command = command;
     }
 
@@ -26,15 +25,15 @@ public sealed class Pipeline
     public string YmlName { get; }
 
     [YamlIgnore]
-    public string YmlPath { get; }
+    public string YmlDir { get; }
 
     [YamlIgnore]
-    public string RootPath { get; }
+    public string RootDir { get; }
 
     [YamlIgnore] public string Command { get; }
 
     [YamlIgnore]
-    public string ProjectDirectory { get; }
+    public string ProjectDir { get; }
 
     [YamlIgnore]
     public ISymbol Symbol { get; set; }
@@ -51,6 +50,4 @@ public sealed class Pipeline
     public Pool? Pool { get; set; }
 
     public IEnumerable<Stage>? Stages { get; set; }
-
-    [YamlIgnore] public string Path { get; set; }
 }

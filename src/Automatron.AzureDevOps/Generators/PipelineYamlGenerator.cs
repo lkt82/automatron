@@ -15,21 +15,28 @@ internal class PipelineYamlGenerator : ISourceGenerator
 {
     private ISerializer? _serializer;
 
-    private readonly Dictionary<string, string> _vscRoot = new();
+    private readonly Dictionary<string, string?> _vscRoot = new();
 
-    private static string GetGitRoot(string workingDirectory)
+    private static string? GetGitRoot(string workingDirectory)
     {
-        using var git = new Process();
-        git.StartInfo.FileName = "git";
-        git.StartInfo.Arguments = "rev-parse --show-toplevel";
-        git.StartInfo.UseShellExecute = false;
-        git.StartInfo.RedirectStandardOutput = true;
-        git.StartInfo.WorkingDirectory = workingDirectory;
-        git.Start();
+        var dir = workingDirectory;
 
-        var gitRoot = git.StandardOutput.ReadToEnd();
-        git.WaitForExit();
-        return gitRoot.TrimEnd('\n');
+        while (dir != null)
+        {
+            if (IsGitRoot(dir))
+            {
+                return dir;
+            }
+
+            dir = Directory.GetParent(dir)?.FullName;
+        }
+
+        return null;
+    }
+
+    private static bool IsGitRoot(string dir)
+    {
+        return Directory.Exists(Path.Combine(dir, ".git"));
     }
 
     public void Execute(GeneratorExecutionContext context)
@@ -47,13 +54,12 @@ internal class PipelineYamlGenerator : ISourceGenerator
             throw new InvalidOperationException("AutomatronAzureDevOpsProjectDirectory not set");
         }
 
-        string? vscRoot = null;
-
         if (!_vscRoot.ContainsKey(projectDirectory))
         {
-            vscRoot = GetGitRoot(projectDirectory);
-            _vscRoot[projectDirectory] = vscRoot;
+            _vscRoot[projectDirectory] = GetGitRoot(projectDirectory);
         }
+
+        var vscRoot = _vscRoot[projectDirectory];
 
         if (vscRoot == null)
         {
@@ -122,7 +128,7 @@ internal class PipelineYamlGenerator : ISourceGenerator
 
     private void SavePipeline(Pipeline pipeline)
     {
-        var combined = Path.Combine(pipeline.ProjectDirectory, pipeline.YmlPath);
+        var combined = Path.Combine(pipeline.ProjectDir, pipeline.YmlDir);
         var dir = Path.GetFullPath(combined);
 
         if (!Directory.Exists(dir))
