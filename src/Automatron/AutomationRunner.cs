@@ -37,6 +37,8 @@ public class AutomationRunner : AppRunner
             .UseCancellationHandlers()
             .UseNameCasing(Case.LowerCase, true)
             .UseTypoSuggestions();
+
+        AppSettings.Commands.InheritCommandsFromBaseClasses = true;
     }
 
     private readonly List<Action<AppConfigBuilder>> _configureActions = new();
