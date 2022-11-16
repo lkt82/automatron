@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using Automatron.AzureDevOps.Generators.Converters;
 using Automatron.AzureDevOps.Generators.Models;
+using Automatron.AzureDevOps.IO;
 using Microsoft.CodeAnalysis;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -17,27 +18,6 @@ internal class PipelineYamlGenerator : ISourceGenerator
 
     private readonly Dictionary<string, string?> _vscRoot = new();
 
-    private static string? GetGitRoot(string workingDirectory)
-    {
-        var dir = workingDirectory;
-
-        while (dir != null)
-        {
-            if (IsGitRoot(dir))
-            {
-                return dir;
-            }
-
-            dir = Directory.GetParent(dir)?.FullName;
-        }
-
-        return null;
-    }
-
-    private static bool IsGitRoot(string dir)
-    {
-        return Directory.Exists(Path.Combine(dir, ".git"));
-    }
 
     public void Execute(GeneratorExecutionContext context)
     {
@@ -56,7 +36,7 @@ internal class PipelineYamlGenerator : ISourceGenerator
 
         if (!_vscRoot.ContainsKey(projectDirectory))
         {
-            _vscRoot[projectDirectory] = GetGitRoot(projectDirectory);
+            _vscRoot[projectDirectory] = PathExtensions.GetGitRoot(projectDirectory);
         }
 
         var vscRoot = _vscRoot[projectDirectory];

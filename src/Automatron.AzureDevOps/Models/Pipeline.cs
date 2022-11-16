@@ -7,21 +7,13 @@ namespace Automatron.AzureDevOps.Models
 {
     public class Pipeline :IComparer<Stage>, IEqualityComparer<Pipeline>
     {
-        public Pipeline(string name, string ymlName, string ymlDir, IEnumerable<Stage> stages, Type type)
+        public Pipeline(string name, IEnumerable<Stage> stages, Type type) :this(name, _ => stages, type)
         {
-            Name = name;
-            YmlName = ymlName;
-            YmlDir = ymlDir;
-            Type = type;
-
-            Stages = CreateStages(stages.ToArray());
         }
 
-        public Pipeline(string name, string ymlName, string ymlDir, Func<Pipeline,IEnumerable<Stage>> stagesFunc,Type type)
+        public Pipeline(string name, Func<Pipeline,IEnumerable<Stage>> stagesFunc,Type type)
         {
             Name = name;
-            YmlName = ymlName;
-            YmlDir = ymlDir;
             Type = type;
 
             Stages = CreateStages(stagesFunc(this).ToArray());
@@ -44,9 +36,11 @@ namespace Automatron.AzureDevOps.Models
 
         public string Name { get; }
 
-        public string YmlName { get; }
+        public string? YmlName { get; set; }
 
-        public string YmlDir { get; }
+        public string? YmlDir { get; set; }
+
+        public string? RootDir { get; set; }
 
         public string? DisplayName { get; set; }
 

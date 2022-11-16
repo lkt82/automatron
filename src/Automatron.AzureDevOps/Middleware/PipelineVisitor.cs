@@ -35,12 +35,15 @@ namespace Automatron.AzureDevOps.Middleware
         {
             var name = !string.IsNullOrEmpty(pipelineAttribute.Name) ? pipelineAttribute.Name : type.Name;
 
-            var yamlName = !string.IsNullOrEmpty(pipelineAttribute.YmlName) ? pipelineAttribute.YmlName : name;
+            var yamlName = (!string.IsNullOrEmpty(pipelineAttribute.YmlName) ? pipelineAttribute.YmlName : name) + ".yml";
 
-            var pipeline = new Pipeline(name, yamlName + ".yml", pipelineAttribute.YmlDir,p => new StageVisitor(p).VisitTypes(type.GetAllNestedTypes().Append(type)), type)
-                {
-                    DisplayName = pipelineAttribute.DisplayName
-                };
+            var pipeline = new Pipeline(name, p => new StageVisitor(p).VisitTypes(type.GetAllNestedTypes().Append(type)), type)
+            {
+                DisplayName = pipelineAttribute.DisplayName,
+                YmlName = yamlName,
+                YmlDir = pipelineAttribute.YmlDir,
+                RootDir = pipelineAttribute.RootDir
+            };
 
             pipeline.Variables.UnionWith(type.Accept(new VariableVisitor()) ?? Enumerable.Empty<Variable>());
             

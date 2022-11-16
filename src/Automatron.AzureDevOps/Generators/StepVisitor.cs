@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Automatron.AzureDevOps.Annotations;
 using Automatron.AzureDevOps.Generators.Models;
+using Automatron.AzureDevOps.IO;
 using Automatron.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using static Automatron.AzureDevOps.Generators.Models.PulumiTask;
