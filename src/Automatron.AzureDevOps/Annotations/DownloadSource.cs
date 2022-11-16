@@ -1,8 +1,7 @@
-﻿namespace Automatron.AzureDevOps.Annotations
+﻿namespace Automatron.AzureDevOps.Annotations;
+
+public static class DownloadSource
 {
-    public static class DownloadSource
-    {
-        public const string None = "none";
-        public const string Current = "current";
-    }
+    public const string None = "none";
+    public const string Current = "current";
 }

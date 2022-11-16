@@ -1,17 +1,16 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Automatron.AzureDevOps.Annotations
-{
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true)]
-    public class VariableGroupAttribute : Attribute
-    {
-        public string Name { get; }
+namespace Automatron.AzureDevOps.Annotations;
 
-        [UsedImplicitly]
-        public VariableGroupAttribute(string name)
-        {
-            Name = name;
-        }
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true)]
+public class VariableGroupAttribute : Attribute
+{
+    public string Name { get; }
+
+    [UsedImplicitly]
+    public VariableGroupAttribute(string name)
+    {
+        Name = name;
     }
 }

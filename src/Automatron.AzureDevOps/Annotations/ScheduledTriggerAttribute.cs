@@ -1,23 +1,22 @@
 ﻿using System;
 
-namespace Automatron.AzureDevOps.Annotations
+namespace Automatron.AzureDevOps.Annotations;
+
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true)]
+public class ScheduledTriggerAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true)]
-    public class ScheduledTriggerAttribute : Attribute
+    public ScheduledTriggerAttribute(string cron)
     {
-        public ScheduledTriggerAttribute(string cron)
-        {
-            Cron = cron;
-        }
-
-        public string Cron { get; }
-            
-        public string? DisplayName { get; set; }
-
-        public bool Always { get; set; }
-
-        public string[]? IncludeBranches { get; set; }
-
-        public string[]? ExcludeBranches { get; set; }
+        Cron = cron;
     }
+
+    public string Cron { get; }
+            
+    public string? DisplayName { get; set; }
+
+    public bool Always { get; set; }
+
+    public string[]? IncludeBranches { get; set; }
+
+    public string[]? ExcludeBranches { get; set; }
 }

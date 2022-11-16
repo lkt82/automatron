@@ -103,7 +103,7 @@ Inheritance and interfaces are supported as well
 
 ### AzureDevOps Quick start
 
-*The project needs to be in git repository to able to compute paths correctly or have the RootPath property set*
+*The project needs to be in git repository to able to compute paths correctly or have the RootDir property set*
 
 ```c#
 using System.Reflection;

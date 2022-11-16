@@ -1,12 +1,11 @@
 ﻿using System;
 
-namespace Automatron.AzureDevOps.Annotations
-{
-    [AttributeUsage(AttributeTargets.Method)]
-    public class NuGetAuthenticateAttribute : NodeAttribute
-    {
-        public string? NugetServiceConnections { get; set; }
+namespace Automatron.AzureDevOps.Annotations;
 
-        public bool ReinstallCredentialProvider { get; set; }
-    }
+[AttributeUsage(AttributeTargets.Method)]
+public class NuGetAuthenticateAttribute : NodeAttribute
+{
+    public string? NugetServiceConnections { get; set; }
+
+    public bool ReinstallCredentialProvider { get; set; }
 }
