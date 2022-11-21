@@ -76,7 +76,10 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
         {
             var step = CreateStep(nodeAttribute, symbol);
 
-            Steps[symbol.Name] = step;
+            if (step.Name != null)
+            {
+                Steps[step.Name] = step;
+            }
 
             yield return step;
         }
@@ -113,11 +116,16 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
             };
         }
 
+        var last = Steps.Keys.LastOrDefault();
+
+        var dependsOn = last != null ? new[] { last } : null;
+
         return new PulumiTask(_job, inputs)
         {
             Name = stepName,
             DisplayName = displayName,
-            Condition = pulumiAttribute.Condition
+            Condition = pulumiAttribute.Condition,
+            DependsOn = dependsOn
         };
     }
 
@@ -138,11 +146,16 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
             };
         }
 
+        var last = Steps.Keys.LastOrDefault();
+
+        var dependsOn = last != null ? new[] { last } : null;
+
         return new NuGetAuthenticateTask(_job, input)
         {
             Name = stepName,
             DisplayName = displayName,
-            Condition = nugetAuthenticateAttribute.Condition
+            Condition = nugetAuthenticateAttribute.Condition,
+            DependsOn = dependsOn
         };
     }
 
@@ -171,6 +184,10 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
         var stepName = checkoutAttribute.Name;
         var displayName = string.IsNullOrEmpty(checkoutAttribute.Emoji) ? checkoutAttribute.DisplayName : $"{checkoutAttribute.Emoji} {stepName}";
 
+        var last = Steps.Keys.LastOrDefault();
+
+        var dependsOn = last != null ? new[] { last } : null;
+
         return new CheckoutTask(_job, checkoutAttribute.Source)
         {
             Name = stepName,
@@ -181,7 +198,8 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
             Lfs = checkoutAttribute.Lfs == false ? null : checkoutAttribute.Lfs,
             Submodules = checkoutAttribute.Submodules == false ? null : checkoutAttribute.Submodules,
             Path = checkoutAttribute.Path,
-            PersistCredentials = checkoutAttribute.PersistCredentials == false ? null : checkoutAttribute.PersistCredentials
+            PersistCredentials = checkoutAttribute.PersistCredentials == false ? null : checkoutAttribute.PersistCredentials,
+            DependsOn = dependsOn
         };
     }
 

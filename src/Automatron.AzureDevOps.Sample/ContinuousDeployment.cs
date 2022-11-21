@@ -12,16 +12,16 @@ public abstract class PulumiDeploymentJob
     [Variable]
     public Secret? PulumiApiKey { get; set; }
 
-    [Step]
     [Checkout(CheckoutSource.Self,FetchDepth = 0)]
     [NuGetAuthenticate]
     [Pulumi(DisplayName = "Pulumi install")]
-    public virtual void Init()
+    [Step]
+    public virtual void Configure()
     {
-        Console.WriteLine("init");
+        Console.WriteLine("Configure");
     }
 
-    [Step(DependsOn = new[] { nameof(Init) })]
+    [Step(DependsOn = new[] { nameof(Configure) })]
     public virtual void Preview()
     {
 
