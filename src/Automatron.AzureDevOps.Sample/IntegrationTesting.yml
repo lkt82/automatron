@@ -43,14 +43,14 @@ stages:
             env:
               RUN_TESTS: ${{ parameters.RunTests }}
               NUGET_API_KEY: $(NugetApiKey)
-              AZURE_CLIENT_ID: $(AzureClientId)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
             name: Init
           - script: dotnet run -- azuredevops run --stage "Integration" --job "Setup" --step "Update" -n "Int"
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
               RUN_TESTS: ${{ parameters.RunTests }}
               NUGET_API_KEY: $(NugetApiKey)
-              AZURE_CLIENT_ID: $(AzureClientId)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
             name: Update
   - deployment: Teardown
     dependsOn:

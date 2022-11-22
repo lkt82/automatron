@@ -24,7 +24,7 @@ public class IntegrationTesting
     [Variable(Description = "The nuget api key")]
     public Secret? NugetApiKey { get; set; }
 
-    [Variable]
+    [Variable(Value = "AZURE_CLIENT_ID")]
     public virtual string? AzureClientId { get; set; }
 
     [Stage("Integration")]
@@ -50,9 +50,6 @@ public class IntegrationTesting
 
             [Environment]
             public virtual string? Environment { get; set; }
-
-            //[Variable]
-            //public virtual string? AzureClientId { get; set; }
 
             [Step]
             public virtual void Init()

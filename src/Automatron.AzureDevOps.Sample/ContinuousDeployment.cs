@@ -12,6 +12,9 @@ public abstract class PulumiDeploymentJob
     [Variable]
     public Secret? PulumiApiKey { get; set; }
 
+    [Variable(Value = "AZURE_CLIENT_ID")]
+    public virtual string? AzureClientId { get; set; }
+
     [Checkout(CheckoutSource.Self,FetchDepth = 0)]
     [NuGetAuthenticate]
     [Pulumi(DisplayName = "Pulumi install")]
@@ -49,8 +52,12 @@ public abstract class PulumiDeploymentStage
 [VariableGroup("Nuget")]
 public abstract class PulumiContinuousDeploymentPipeline
 {
-    [Variable]
-    public Secret? PulumiApiKey { get; set; }
+    //[Variable]
+    //public Secret? PulumiApiKey { get; set; }
+
+
+    //[Variable(Value = "AZURE_CLIENT_ID")]
+    //public virtual string? AzureClientId { get; set; }
 
     [Stage]
     [Environment("Testing")]

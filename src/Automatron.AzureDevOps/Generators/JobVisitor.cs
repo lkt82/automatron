@@ -15,8 +15,6 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>, IComparer<IJob>
 
     private Dictionary<string, IJob> Jobs { get; } = new();
 
-    private INamedTypeSymbol? _root;
-
     public JobVisitor(Stage stage)
     {
         _stage = stage;
@@ -49,8 +47,6 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>, IComparer<IJob>
 
     public override IEnumerable<IJob> VisitNamedType(INamedTypeSymbol symbol)
     {
-        _root = symbol;
-
         VisitJobType(symbol);
 
         var list = new List<IJob>(Jobs.Values);
@@ -81,7 +77,7 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>, IComparer<IJob>
                 job = CreateJob(jobAttribute, symbol);
             }
            
-            job.Parameters = symbol.Accept(new TemplateParameterVisitor());
+            job.TemplateParameters = symbol.Accept(new TemplateParameterVisitor());
 
             job.Steps = symbol.Accept(new StepVisitor(job));
 

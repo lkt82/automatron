@@ -70,7 +70,7 @@ internal class EnvVariableVisitor : SymbolVisitor<Dictionary<string, object>>
             // ReSharper disable once RedundantSuppressNullableWarningExpression
             var name = (!string.IsNullOrEmpty(variableAttribute.Name) ? variableAttribute.Name : symbol.Name)!;
             var envName = GetEnvVarName(name);
-            variables.Add(envName, $"$({name})");
+            variables.Add(envName, variableAttribute.Value != null ? $"$({variableAttribute.Value})" : $"$({name})");
         }
 
         var templateParameterAttribute = symbol.GetCustomAbstractAttribute<ParameterAttribute>();
