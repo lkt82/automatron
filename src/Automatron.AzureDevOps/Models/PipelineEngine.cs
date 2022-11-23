@@ -190,6 +190,10 @@ public class PipelineEngine : IPipelineEngine
     {
         foreach (var variable in variables)
         {
+            if (variable.Value == null)
+            {
+                continue;
+            }
             variable.Property.SetValue(service, variable.Value);
         }
     }
