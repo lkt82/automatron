@@ -1,18 +1,16 @@
 ﻿using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
 using YamlDotNet.Serialization;
 
 namespace Automatron.AzureDevOps.Generators.Models;
 
 public sealed class Job: IJob
 {
-    public Job(Stage stage,string name, string? displayName, string[]? dependsOn, string? condition, ISymbol symbol)
+    public Job(Stage stage,string name, string? displayName, string[]? dependsOn, string? condition)
     {
         Name = name;
         DisplayName = displayName;
         DependsOn = dependsOn;
         Condition = condition;
-        Symbol = symbol;
         Stage = stage;
     }
 
@@ -26,9 +24,6 @@ public sealed class Job: IJob
     public string? Condition { get; set; }
 
     public Pool? Pool { get; set; }
-
-    [YamlIgnore]
-    public ISymbol Symbol { get; set; }
 
     public IEnumerable<IVariable>? Variables { get; set; }
 

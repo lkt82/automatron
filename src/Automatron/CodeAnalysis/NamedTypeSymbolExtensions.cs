@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
@@ -24,17 +25,20 @@ public static class NamedTypeSymbolExtensions
         }
 
         types.AddRange(symbol.AllInterfaces);
+
+        types.Reverse();
+
         return types;
     }
 
     public static IEnumerable<IMethodSymbol> GetAllMethods(this INamedTypeSymbol symbol)
     {
-        return symbol.GetHierarchy().SelectMany(c => c.GetMembers().Where(member => member.Kind == SymbolKind.Method && member.DeclaredAccessibility == Accessibility.Public).Cast<IMethodSymbol>().Where(member => member.MethodKind == MethodKind.Ordinary));
+        return symbol.GetHierarchy().SelectMany(c => c.GetMembers().Where(member => member is { Kind: SymbolKind.Method, DeclaredAccessibility: Accessibility.Public }).Cast<IMethodSymbol>().Where(member => member.MethodKind == MethodKind.Ordinary));
     }
 
     public static IEnumerable<IPropertySymbol> GetAllProperties(this INamedTypeSymbol symbol)
     {
-        return symbol.GetHierarchy().SelectMany(c => c.GetMembers().Where(member => member.Kind == SymbolKind.Property && member.DeclaredAccessibility == Accessibility.Public).Cast<IPropertySymbol>());
+        return symbol.GetHierarchy().SelectMany(c => c.GetMembers().Where(member => member is { Kind: SymbolKind.Property, DeclaredAccessibility: Accessibility.Public }).Cast<IPropertySymbol>());
     }
 
     public static IEnumerable<AttributeData> GetAllAttributes(this INamedTypeSymbol symbol)
@@ -45,5 +49,10 @@ public static class NamedTypeSymbolExtensions
     public static IEnumerable<INamedTypeSymbol> GetAllTypeMembers(this INamedTypeSymbol symbol)
     {
         return symbol.GetHierarchy().SelectMany(c => c.GetTypeMembers());
+    }
+
+    public static IEnumerable<T> GetAllCustomAttributes<T>(this INamedTypeSymbol symbol) where T : Attribute
+    {
+        return symbol.GetAllAttributes().GetCustomAttributes<T>();
     }
 }

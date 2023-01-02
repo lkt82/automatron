@@ -69,7 +69,7 @@ public static class TaskMiddleware
                 var tasks = c.DependencyResolver!.Resolve<IEnumerable<Task>>()!.ToArray();
                 var environment = c.DependencyResolver!.Resolve<IEnvironment>()!;
 
-                var parameters = tasks.SelectMany(task => task.Parameters).SelectMany(parameterType => parameterType.Parameters).Distinct().OrderBy(parameter => parameter.Name).ToArray();
+                var parameters = tasks.SelectMany(task => task.ParameterTypes).SelectMany(parameterType => parameterType.Parameters).Distinct().OrderBy(parameter => parameter.Name).ToArray();
 
                 foreach (var parameter in parameters)
                 {

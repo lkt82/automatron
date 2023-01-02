@@ -62,6 +62,9 @@ public static class TypeExtension
         }
 
         types.AddRange(type.GetInterfaces());
+
+        types.Reverse();
+
         return types;
     }
 

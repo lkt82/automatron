@@ -87,22 +87,12 @@ public static class AttributeDataExtensions
 
     public static IEnumerable<T> GetCustomAttributes<T>(this IEnumerable<AttributeData> attributeData) where T : Attribute
     {
-        return attributeData.Where(c => c.IsCustomAttribute<T>()).Select(c => c.MapToCustomAttribute<T>());
-    }
-
-    public static IEnumerable<T> GetCustomAbstractAttributes<T>(this IEnumerable<AttributeData> attributeData) where T : Attribute
-    {
         return attributeData.Where(c => c.IsAssignableFrom<T>()).Select(c => c.MapToCustomAttribute<T>(Type.GetType(c.AttributeClass + ", " + c.AttributeClass?.ContainingAssembly) ?? throw new InvalidOperationException()));
-    }
-
-    public static T? GetCustomAbstractAttribute<T>(this IEnumerable<AttributeData> attributeData) where T : Attribute
-    {
-        return attributeData.Where(c => c.IsAssignableFrom<T>()).Select(c => c.MapToCustomAttribute<T>(Type.GetType(c.AttributeClass + ", " + c.AttributeClass?.ContainingAssembly) ?? throw new InvalidOperationException())).FirstOrDefault();
     }
 
     public static T? GetCustomAttribute<T>(this IEnumerable<AttributeData> attributeData) where T : Attribute
     {
-        return attributeData.Where(c => c.IsCustomAttribute<T>()).Select(c => c.MapToCustomAttribute<T>()).FirstOrDefault();
+        return attributeData.Where(c => c.IsAssignableFrom<T>()).Select(c => c.MapToCustomAttribute<T>(Type.GetType(c.AttributeClass + ", " + c.AttributeClass?.ContainingAssembly) ?? throw new InvalidOperationException())).FirstOrDefault();
     }
 
     public static bool IsAssignableFrom<T>(this AttributeData attribute)

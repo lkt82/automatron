@@ -50,11 +50,11 @@ internal class JobVisitor : MemberVisitor<IEnumerable<Job>>
 
     public override IEnumerable<Job>? VisitType(Type type)
     {
-        var jobAttribute = type.GetAllCustomAttribute<JobAttribute>();
+        var jobAttribute = type.GetAllCustomAttributes<JobAttribute>().ToArray();
 
-        if (jobAttribute != null)
+        if (jobAttribute.Any())
         {
-            yield return CreateJob(type, jobAttribute);
+            yield return CreateJob(type, Merge(jobAttribute));
         }
     }
 
@@ -62,12 +62,28 @@ internal class JobVisitor : MemberVisitor<IEnumerable<Job>>
     {
         var name = !string.IsNullOrEmpty(jobAttribute.Name) ? jobAttribute.Name : type.Name;
 
-        _dependsOnMap[name] = jobAttribute.DependsOn;
-
         var job = new Job(name, _stage, p => type.Accept(new StepVisitor(p)) ?? Enumerable.Empty<Step>(), type);
         job.Variables.UnionWith(type.Accept(new VariableVisitor()) ?? Enumerable.Empty<Variable>());
 
+        _dependsOnMap[name] = jobAttribute.DependsOn;
+
         return job;
+    }
+
+    private static JobAttribute Merge(IEnumerable<JobAttribute> jobAttributes)
+    {
+        var mergedJobAttribute = new JobAttribute();
+
+        foreach (var jobAttribute in jobAttributes)
+        {
+            mergedJobAttribute.Name = jobAttribute.Name ?? mergedJobAttribute.Name;
+            mergedJobAttribute.DisplayName = jobAttribute.DisplayName ?? mergedJobAttribute.DisplayName;
+            mergedJobAttribute.DependsOn = jobAttribute.DependsOn ?? mergedJobAttribute.DependsOn;
+            mergedJobAttribute.Condition = jobAttribute.Condition ?? mergedJobAttribute.Condition;
+            mergedJobAttribute.Emoji = jobAttribute.Emoji ?? mergedJobAttribute.Emoji;
+        }
+
+        return mergedJobAttribute;
     }
 }
 #endif

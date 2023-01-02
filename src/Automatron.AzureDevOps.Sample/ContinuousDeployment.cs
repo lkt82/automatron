@@ -52,13 +52,6 @@ public abstract class PulumiDeploymentStage
 [VariableGroup("Nuget")]
 public abstract class PulumiContinuousDeploymentPipeline
 {
-    //[Variable]
-    //public Secret? PulumiApiKey { get; set; }
-
-
-    //[Variable(Value = "AZURE_CLIENT_ID")]
-    //public virtual string? AzureClientId { get; set; }
-
     [Stage]
     [Environment("Testing")]
     public class DeployToTesting : PulumiDeploymentStage

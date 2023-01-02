@@ -36,26 +36,26 @@ public class AzureDevOpsCommand
 
     private void PipelineEngineOnStageFailed(object? sender, PipelineModelFailedArgs<Stage> args)
     {
-        if (args.DryRun)
+        var columns = new List<string> { args.Model.Pipeline.Name, $"[deepskyblue3_1]{args.Model.Name}[/]", string.Empty, string.Empty, "[red]FAILED[/]"};
+
+        if (!args.DryRun)
         {
-            _summeryTable.AddRow(args.Model.Pipeline.Name, $"[deepskyblue3_1]{args.Model.Name}[/]", string.Empty, string.Empty, "[red]FAILED[/]");
+            columns.Add($"[purple]{args.Elapsed.Milliseconds} ms[/]");
         }
-        else
-        {
-            _summeryTable.AddRow(args.Model.Pipeline.Name, $"[deepskyblue3_1]{args.Model.Name}[/]", string.Empty, string.Empty, "[red]FAILED[/]", $"[purple]{args.Elapsed.Milliseconds} ms[/]");
-        }
+
+        _summeryTable.AddRow(columns.ToArray());
     }
 
     private void PipelineEngineOnJobFailed(object? sender, PipelineModelFailedArgs<Job> args)
     {
-        if (args.DryRun)
+        var columns = new List<string> { args.Model.Stage.Pipeline.Name, args.Model.Stage.Name, $"[deepskyblue3_1]{args.Model.Name}[/]", string.Empty, "[red]FAILED[/]" };
+
+        if (!args.DryRun)
         {
-            _summeryTable.AddRow(args.Model.Stage.Pipeline.Name, args.Model.Stage.Name, $"[deepskyblue3_1]{args.Model.Name}[/]", string.Empty, "[red]FAILED[/]");
+            columns.Add($"[purple]{args.Elapsed.Milliseconds} ms[/]");
         }
-        else
-        {
-            _summeryTable.AddRow(args.Model.Stage.Pipeline.Name, args.Model.Stage.Name, $"[deepskyblue3_1]{args.Model.Name}[/]", string.Empty, "[red]FAILED[/]", $"[purple]{args.Elapsed.Milliseconds} ms[/]");
-        }
+
+        _summeryTable.AddRow(columns.ToArray());
     }
 
     private void PipelineEngineOnStepFailed(object? sender, PipelineModelFailedArgs<Step> args)
@@ -64,19 +64,16 @@ public class AzureDevOpsCommand
 
         var error = Markup.Escape(args.Exception.GetBaseException().ToString());
 
-        if (args.DryRun)
-        {
-            _console.MarkupLine($"[grey53]{executionName}:[/] [deepskyblue3_1]{args.Model.Name}[/]: [red]{error}[/]");
+        _console.MarkupLine($"[grey53]{executionName}:[/] [deepskyblue3_1]{args.Model.Name}[/]: [red]{error}[/]");
 
-            _summeryTable.AddRow(args.Model.Job.Stage.Pipeline.Name, args.Model.Job.Stage.Name, args.Model.Job.Name, $"[deepskyblue3_1]{args.Model.Name}[/]", "[red]FAILED[/]");
-        }
-        else
-        {
-            _console.MarkupLine($"[grey53]{executionName}:[/] [deepskyblue3_1]{args.Model.Name}[/]: [red]{error}[/]");
+        var columns = new List<string> { args.Model.Job.Stage.Pipeline.Name, args.Model.Job.Stage.Name, args.Model.Job.Name, $"[deepskyblue3_1]{args.Model.Name}[/]", "[red]FAILED[/]" };
 
-            _summeryTable.AddRow(args.Model.Job.Stage.Pipeline.Name, args.Model.Job.Stage.Name, args.Model.Job.Name, $"[deepskyblue3_1]{args.Model.Name}[/]", "[red]FAILED[/]", $"[purple]{args.Elapsed.Milliseconds} ms[/]");
+        if (!args.DryRun)
+        {
+            columns.Add($"[purple]{args.Elapsed.Milliseconds} ms[/]");
         }
 
+        _summeryTable.AddRow(columns.ToArray());
     }
 
     private void PipelineEngineOnStepCompleted(object? sender, PipelineModelCompletedArgs<Step> args)

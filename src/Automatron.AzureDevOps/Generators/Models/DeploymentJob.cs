@@ -1,19 +1,17 @@
 ﻿using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
 using YamlDotNet.Serialization;
 
 namespace Automatron.AzureDevOps.Generators.Models;
 
 public sealed class DeploymentJob : IJob
 {
-    public DeploymentJob(Stage stage,string name, string? displayName, string[]? dependsOn, string? condition,string environment, ISymbol symbol)
+    public DeploymentJob(Stage stage,string name, string? displayName, string[]? dependsOn, string? condition,string environment)
     {
         Name = name;
         DisplayName = displayName;
         DependsOn = dependsOn;
         Condition = condition;
         Environment = environment;
-        Symbol = symbol;
         Stage = stage;
     }
 
@@ -28,16 +26,13 @@ public sealed class DeploymentJob : IJob
 
     public Pool? Pool { get; set; }
 
-    [YamlIgnore]
-    public ISymbol Symbol { get; set; }
-
     public IEnumerable<IVariable>? Variables { get; set; }
 
     [YamlIgnore] public IDictionary<string, object>? TemplateParameters { get; set; }
 
     public int? TimeoutInMinutes { get; set; }
 
-    public string Environment { get; }
+    public string Environment { get; set; }
 
     public IDeploymentStrategy Strategy { get; set; } = new RunOnceDeploymentStrategy();
 

@@ -100,7 +100,7 @@ public class TaskCommand
             taskStopWatch.Start();
             try
             {
-                await _taskEngine.Run(task);
+                await _taskEngine.Run(task, options.Parameters);
 
                 taskStopWatch.Stop();
                 _console.MarkupLine($"[grey53]{assemblyName}:[/] [deepskyblue3_1]{task.Name}[/]: [green]Succeeded[/]: [purple]({taskStopWatch.ElapsedMilliseconds} ms)[/]");

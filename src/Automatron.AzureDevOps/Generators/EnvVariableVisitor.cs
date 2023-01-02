@@ -73,7 +73,7 @@ internal class EnvVariableVisitor : SymbolVisitor<Dictionary<string, object>>
             variables.Add(envName, variableAttribute.Value != null ? $"$({variableAttribute.Value})" : $"$({name})");
         }
 
-        var templateParameterAttribute = symbol.GetCustomAbstractAttribute<ParameterAttribute>();
+        var templateParameterAttribute = symbol.GetCustomAttribute<ParameterAttribute>();
 
         if (templateParameterAttribute != null)
         {

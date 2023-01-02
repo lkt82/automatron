@@ -11,7 +11,7 @@ internal class TemplateParameterVisitor : SymbolVisitor<IDictionary<string, obje
     {
         var parameters = new Dictionary<string, object>();
 
-        var parameterAttributes = symbol.GetAllAttributes().GetCustomAbstractAttributes<TemplateParameterAttribute>();
+        var parameterAttributes = symbol.GetAllCustomAttributes<TemplateParameterAttribute>();
         foreach (var variableAttribute in parameterAttributes)
         {
             if (variableAttribute.Name == null || variableAttribute.Value == null)

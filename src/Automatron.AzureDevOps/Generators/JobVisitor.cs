@@ -62,24 +62,11 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>, IComparer<IJob>
             return;
         }
 
-        var jobAttribute = symbol.GetAllAttributes().GetCustomAbstractAttribute<JobAttribute>();
+        var jobAttributes = symbol.GetAllCustomAttributes<JobAttribute>().ToArray();
 
-        if (jobAttribute != null)
+        if (jobAttributes.Any())
         {
-            IJob job;
-
-            if (jobAttribute is DeploymentJobAttribute deploymentJobAttribute)
-            {
-                job = CreateDeploymentJob(deploymentJobAttribute, symbol);
-            }
-            else
-            {
-                job = CreateJob(jobAttribute, symbol);
-            }
-           
-            job.TemplateParameters = symbol.Accept(new TemplateParameterVisitor());
-
-            job.Steps = symbol.Accept(new StepVisitor(job));
+            var job = CreateJob(Merge(jobAttributes), symbol);
 
             Jobs[symbol.Name] = job;
         }
@@ -90,42 +77,84 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>, IComparer<IJob>
         }
     }
 
-    private Job CreateJob(JobAttribute jobAttribute, ISymbol symbol)
+    private static JobAttribute Merge(IEnumerable<JobAttribute> jobAttributes)
     {
-        var name = !string.IsNullOrEmpty(jobAttribute.Name) ? jobAttribute.Name! : symbol.Name;
+        var mergedJobAttribute = new JobAttribute();
 
-        var job = new Job(_stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition, symbol)
-            {
-                Pool = symbol.Accept(new PoolVisitor()),
-                Variables = symbol.Accept(new VariableVisitor())
-            };
-
-        return job;
-    }
-
-    private DeploymentJob CreateDeploymentJob(DeploymentJobAttribute jobAttribute, ISymbol symbol)
-    {
-        var name = !string.IsNullOrEmpty(jobAttribute.Name) ? jobAttribute.Name! : symbol.Name;
-
-        var environment = jobAttribute.Environment;
-
-        if (!string.IsNullOrEmpty(environment) && _stage.TemplateParameters != null)
+        foreach (var jobAttribute in jobAttributes)
         {
-            var match = Regex.Match(environment, "^\\$\\{\\{(?<name>.+)\\}\\}");
-            if (match.Success)
+            if (jobAttribute is DeploymentJobAttribute && mergedJobAttribute is not DeploymentJobAttribute)
             {
-                environment = (string)_stage.TemplateParameters[match.Groups["name"].Value];
+                mergedJobAttribute = new DeploymentJobAttribute
+                {
+                    Name = mergedJobAttribute.Name,
+                    DisplayName = mergedJobAttribute.DisplayName,
+                    DependsOn = mergedJobAttribute.DependsOn,
+                    Condition = mergedJobAttribute.Condition
+                };
+            }
+
+            mergedJobAttribute.Name = jobAttribute.Name ?? mergedJobAttribute.Name;
+            mergedJobAttribute.DisplayName = jobAttribute.DisplayName ?? mergedJobAttribute.DisplayName;
+            mergedJobAttribute.DependsOn = jobAttribute.DependsOn ?? mergedJobAttribute.DependsOn;
+            mergedJobAttribute.Condition = jobAttribute.Condition ?? mergedJobAttribute.Condition;
+            mergedJobAttribute.Emoji = jobAttribute.Emoji ?? mergedJobAttribute.Emoji;
+
+            if (jobAttribute is DeploymentJobAttribute deploymentJobAttribute && mergedJobAttribute is DeploymentJobAttribute mergedDeploymentJobAttribute)
+            {
+                mergedDeploymentJobAttribute.Timeout = deploymentJobAttribute.Timeout ?? mergedDeploymentJobAttribute.Timeout;
+                mergedDeploymentJobAttribute.Environment = deploymentJobAttribute.Environment ?? mergedDeploymentJobAttribute.Environment;
             }
         }
 
-        var job = new DeploymentJob(_stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition, environment ?? throw new InvalidOperationException(),symbol)
-        {
-            TimeoutInMinutes = jobAttribute.Timeout == null ? null : Convert.ToInt32(TimeSpan.Parse(jobAttribute.Timeout).TotalMinutes),
-            Pool = symbol.Accept(new PoolVisitor()),
-            Variables = symbol.Accept(new VariableVisitor())
-        };
+        return mergedJobAttribute;
+    }
 
+    private IJob CreateJob(JobAttribute jobAttribute, ISymbol symbol)
+    {
+        var name = !string.IsNullOrEmpty(jobAttribute.Name) ? jobAttribute.Name! : symbol.Name;
+
+        IJob? job;
+
+        if (jobAttribute is DeploymentJobAttribute deploymentJobAttribute)
+        {
+            job =  new DeploymentJob(_stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition, ParseEnvironment(deploymentJobAttribute.Environment) ?? throw new InvalidOperationException())
+            {
+                TimeoutInMinutes = deploymentJobAttribute.Timeout == null ? null : ParseTimeoutInMinutest(deploymentJobAttribute.Timeout)
+            };
+        }
+        else
+        {
+            job = new Job(_stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition);
+        }
+
+        job.Pool = symbol.Accept(new PoolVisitor());
+        job.Variables = symbol.Accept(new VariableVisitor());
+        job.TemplateParameters = symbol.Accept(new TemplateParameterVisitor());
+        job.Steps = symbol.Accept(new StepVisitor(job));
 
         return job;
     }
+
+    private static int ParseTimeoutInMinutest(string environment)
+    {
+        return Convert.ToInt32(TimeSpan.Parse(environment).TotalMinutes);
+    }
+
+    private string? ParseEnvironment(string? environment)
+    {
+        if (string.IsNullOrEmpty(environment) || _stage.TemplateParameters == null)
+        {
+            return environment;
+        }
+
+        var match = Regex.Match(environment, "^\\$\\{\\{(?<name>.+)\\}\\}");
+        if (match.Success)
+        {
+            environment = (string)_stage.TemplateParameters[match.Groups["name"].Value];
+        }
+
+        return environment;
+    }
+
 }

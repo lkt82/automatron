@@ -31,11 +31,11 @@ internal class TaskVisitor : MemberVisitor<IEnumerable<Task>>
                 continue;
             }
 
-            var parameters = (type.Accept(new ParameterTypeVisitor()) ?? Enumerable.Empty<ParameterType>()).ToArray();
+            var parameterTypes = (type.Accept(new ParameterTypeVisitor()) ?? Enumerable.Empty<ParameterType>()).ToArray();
 
             foreach (var task in tasks)
             {
-                task.Parameters = parameters;
+                task.ParameterTypes = parameterTypes;
 
                 yield return task;
             }

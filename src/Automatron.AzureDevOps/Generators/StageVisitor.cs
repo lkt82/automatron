@@ -40,11 +40,11 @@ internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>, IComparer<Stage
             return;
         }
 
-        var stageAttribute = symbol.GetAllAttributes().GetCustomAttribute<StageAttribute>();
+        var stageAttributes = symbol.GetAllCustomAttributes<StageAttribute>().ToArray();
 
-        if (stageAttribute != null)
+        if (stageAttributes.Any())
         {
-            var stage = CreateStage(stageAttribute, symbol);
+            var stage = CreateStage(Merge(stageAttributes), symbol);
 
             Stages[symbol.Name] = stage;
         }
@@ -67,6 +67,22 @@ internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>, IComparer<Stage
             };
 
         return stage;
+    }
+
+    private static StageAttribute Merge(IEnumerable<StageAttribute> stageAttributes)
+    {
+        var mergedStageAttribute = new StageAttribute();
+
+        foreach (var stageAttribute in stageAttributes)
+        {
+            mergedStageAttribute.Name = stageAttribute.Name ?? mergedStageAttribute.Name;
+            mergedStageAttribute.DisplayName = stageAttribute.DisplayName ?? mergedStageAttribute.DisplayName;
+            mergedStageAttribute.DependsOn = stageAttribute.DependsOn ?? mergedStageAttribute.DependsOn;
+            mergedStageAttribute.Condition = stageAttribute.Condition ?? mergedStageAttribute.Condition;
+            mergedStageAttribute.Emoji = stageAttribute.Emoji ?? mergedStageAttribute.Emoji;
+        }
+
+        return mergedStageAttribute;
     }
 
     public int Compare(Stage? x, Stage? y)

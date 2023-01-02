@@ -7,10 +7,10 @@ namespace Automatron.Tasks.Models;
 
 public class Task
 {
-    public Task(string name, ISet<Task> dependencies, IAction action, IEnumerable<ParameterType> parameters,Type type)
+    public Task(string name, ISet<Task> dependencies, IAction action, IEnumerable<ParameterType> parameterTypes,Type type)
     {
         Action = action;
-        Parameters = parameters;
+        ParameterTypes = parameterTypes;
         Type = type;
         Name = name;
         Dependencies = dependencies;
@@ -24,7 +24,7 @@ public class Task
 
     public IAction Action { get; }
 
-    public IEnumerable<ParameterType> Parameters { get; set; }
+    public IEnumerable<ParameterType> ParameterTypes { get; set; }
 
     public Type Type { get; }
 }

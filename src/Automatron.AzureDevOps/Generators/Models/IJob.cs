@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators.Models;
 
@@ -13,7 +12,7 @@ public interface IJob
 
     string? Condition { get; }
 
-    Pool? Pool { get; }
+    Pool? Pool { get; set; }
 
     IEnumerable<IVariable>? Variables { get; set; }
 
@@ -22,6 +21,4 @@ public interface IJob
     IEnumerable<Step>? Steps { get; set; }
 
     Stage Stage { get; }
-
-    ISymbol Symbol { get; set; }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.CodeAnalysis;
@@ -9,21 +8,11 @@ public static class SymbolExtensions
 {
     public static IEnumerable<T> GetCustomAttributes<T>(this ISymbol symbol) where T : Attribute
     {
-        return symbol.GetAttributes().Where(c => c.IsCustomAttribute<T>()).Select(c=> c.MapToCustomAttribute<T>());
+        return symbol.GetAttributes().GetCustomAttributes<T>();
     }
 
     public static T? GetCustomAttribute<T>(this ISymbol symbol) where T : Attribute
     {
-        return symbol.GetAttributes().Where(c => c.IsCustomAttribute<T>()).Select(c => c.MapToCustomAttribute<T>()).FirstOrDefault();
-    }
-
-    public static IEnumerable<T> GetCustomAbstractAttributes<T>(this ISymbol symbol) where T : Attribute
-    {
-        return symbol.GetAttributes().GetCustomAbstractAttributes<T>();
-    }
-
-    public static T? GetCustomAbstractAttribute<T>(this ISymbol symbol) where T : Attribute
-    {
-        return symbol.GetAttributes().GetCustomAbstractAttribute<T>();
+        return symbol.GetAttributes().GetCustomAttribute<T>();
     }
 }

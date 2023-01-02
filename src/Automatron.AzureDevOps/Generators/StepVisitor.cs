@@ -72,7 +72,7 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
 
     private IEnumerable<Step> VisitStepType(IMethodSymbol symbol)
     {
-        foreach (var nodeAttribute in symbol.GetCustomAbstractAttributes<NodeAttribute>())
+        foreach (var nodeAttribute in symbol.GetCustomAttributes<NodeAttribute>())
         {
             var step = CreateStep(nodeAttribute, symbol);
 

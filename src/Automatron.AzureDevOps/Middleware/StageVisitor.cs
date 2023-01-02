@@ -50,11 +50,11 @@ internal class StageVisitor : MemberVisitor<IEnumerable<Stage>>
 
     public override IEnumerable<Stage>? VisitType(Type type)
     {
-        var stageAttribute = type.GetAllCustomAttribute<StageAttribute>();
+        var stageAttributes = type.GetAllCustomAttributes<StageAttribute>().ToArray();
 
-        if (stageAttribute != null)
+        if (stageAttributes.Any())
         {
-            yield return CreateStage(type, stageAttribute);
+            yield return CreateStage(type, Merge(stageAttributes));
         }
     }
 
@@ -62,13 +62,29 @@ internal class StageVisitor : MemberVisitor<IEnumerable<Stage>>
     {
         var name = !string.IsNullOrEmpty(stageAttribute.Name) ? stageAttribute.Name : type.Name;
 
-        _dependsOnMap[name] = stageAttribute.DependsOn;
-
         var stage = new Stage(name, _pipeline, p => new JobVisitor(p).VisitTypes(type.GetAllNestedTypes().Append(type)), type);
 
         stage.Variables.UnionWith(type.Accept(new VariableVisitor()) ?? Enumerable.Empty<Variable>());
 
+        _dependsOnMap[name] = stageAttribute.DependsOn;
+
         return stage;
+    }
+
+    private static StageAttribute Merge(IEnumerable<StageAttribute> stageAttributes)
+    {
+        var mergedStageAttribute = new StageAttribute();
+
+        foreach (var stageAttribute in stageAttributes)
+        {
+            mergedStageAttribute.Name = stageAttribute.Name ?? mergedStageAttribute.Name;
+            mergedStageAttribute.DisplayName = stageAttribute.DisplayName ?? mergedStageAttribute.DisplayName;
+            mergedStageAttribute.DependsOn = stageAttribute.DependsOn ?? mergedStageAttribute.DependsOn;
+            mergedStageAttribute.Condition = stageAttribute.Condition ?? mergedStageAttribute.Condition;
+            mergedStageAttribute.Emoji = stageAttribute.Emoji ?? mergedStageAttribute.Emoji;
+        }
+
+        return mergedStageAttribute;
     }
 }
 #endif
