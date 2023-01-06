@@ -1,4 +1,5 @@
 ﻿#if NET6_0
+using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,14 +21,27 @@ public static class TypeExtension
 
     public static IEnumerable<MethodInfo> GetAllMethods(this Type type)
     {
-        return type.GetHierarchy().SelectMany(c => c.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+        var allMethods = type.GetHierarchy().SelectMany(c => c.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)).Where(c => !c.IsSpecialName).ToList();
+
+        var array = allMethods.ToArray();
+
+        foreach (var methodSymbol in array)
+        {
+            if (methodSymbol.IsOverride())
+            {
+                var symbol1 = methodSymbol;
+                var index = allMethods.FindIndex(c => c.Name == symbol1.Name);
+                allMethods.RemoveAt(index);
+            }
+        }
+
+        return allMethods;
     }
 
     public static IEnumerable<Type> GetAllNestedTypes(this Type type)
     {
         return type.GetHierarchy().SelectMany(c => c.GetNestedTypes());
     }
-
 
     public static IEnumerable<PropertyInfo> GetAllProperties(this Type type)
     {

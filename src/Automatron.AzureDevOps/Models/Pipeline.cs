@@ -2,10 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Automatron.Collections;
 
 namespace Automatron.AzureDevOps.Models
 {
-    public class Pipeline :IComparer<Stage>, IEqualityComparer<Pipeline>
+    public class Pipeline : IEqualityComparer<Pipeline>
     {
         public Pipeline(string name, IEnumerable<Stage> stages, Type type) :this(name, _ => stages, type)
         {
@@ -19,19 +20,9 @@ namespace Automatron.AzureDevOps.Models
             Stages = CreateStages(stagesFunc(this).ToArray());
         }
 
-        private ISet<Stage> CreateStages(IReadOnlyList<Stage> stages)
+        private static IEnumerable<Stage> CreateStages(IEnumerable<Stage> stages)
         {
-            for (var i = 1; i < stages.Count; i++)
-            {
-                if (stages[i].DependsOn.Any())
-                {
-                    continue;
-                }
-
-                stages[i].DependsOn.Add(stages[i - 1]);
-            }
-
-            return new SortedSet<Stage>(stages, this);
+            return new HashSet<Stage>(stages.TopologicalSort(x => x.DependsOn));
         }
 
         public string Name { get; }
@@ -46,31 +37,11 @@ namespace Automatron.AzureDevOps.Models
 
         public Type Type { get; }
 
-        public ISet<Stage> Stages { get; }
+        public IEnumerable<Stage> Stages { get; }
 
         public ISet<Variable> Variables { get; } = new HashSet<Variable>();
 
         public ISet<Parameter> Parameters { get; } = new HashSet<Parameter>();
-
-        public int Compare(Stage? x, Stage? y)
-        {
-            if (x == null || y == null)
-            {
-                return 0;
-            }
-
-            if (x.DependsOn.Contains(y))
-            {
-                return 1;
-            }
-
-            if (y.DependsOn.Contains(x))
-            {
-                return -1;
-            }
-
-            return -1;
-        }
 
         public bool Equals(Pipeline? x, Pipeline? y)
         {

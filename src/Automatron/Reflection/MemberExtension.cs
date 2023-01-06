@@ -34,6 +34,12 @@ public static class MemberExtension
             return type.GetAllCustomAttributes<T>();
         }
 
+
+        if (memberInfo is MethodInfo methodInfo)
+        {
+            return methodInfo.GetAllCustomAttributes<T>();
+        }
+
         return memberInfo.GetCustomAttributes<T>();
     }
 

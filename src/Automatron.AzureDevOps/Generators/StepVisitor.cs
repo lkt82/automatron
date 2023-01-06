@@ -6,16 +6,17 @@ using Automatron.AzureDevOps.Annotations;
 using Automatron.AzureDevOps.Generators.Models;
 using Automatron.AzureDevOps.IO;
 using Automatron.CodeAnalysis;
+using Automatron.Collections;
 using Microsoft.CodeAnalysis;
 using static Automatron.AzureDevOps.Generators.Models.PulumiTask;
 
 namespace Automatron.AzureDevOps.Generators;
 
-internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
+internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>
 {
     private readonly IJob _job;
 
-    private Dictionary<string,Step> Steps { get; } = new();
+    private readonly Dictionary<string, string[]?> _dependsOnMap = new();
 
     private Dictionary<string, object>? EnvVariable { get; set; }
 
@@ -27,26 +28,11 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
 
     public override IEnumerable<Step> VisitNamedType(INamedTypeSymbol symbol)
     {
-        var steps = VisitStepType(symbol);
-
-        var list = new List<Step>(steps);
-        list.Sort(this);
-
-        return list;
-    }
-
-    public override IEnumerable<Step> VisitMethod(IMethodSymbol symbol)
-    {
-        return Steps.ContainsKey(symbol.Name) ? Enumerable.Empty<Step>() : VisitStepType(symbol);
-    }
-
-    private IEnumerable<Step> VisitStepType(INamedTypeSymbol symbol)
-    {
         EnvVariable = symbol.Accept(new EnvVariableVisitor());
 
-        var methods = symbol.GetAllMethods();
+        var stepMap = new Dictionary<string, Step>();
 
-        foreach (var method in methods)
+        foreach (var method in symbol.GetAllMethods())
         {
             var steps = method.Accept(this);
 
@@ -57,44 +43,84 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
 
             foreach (var step in steps)
             {
-                yield return step;
+                stepMap.Add(step.Id, step);
             }
         }
 
-        foreach (var type in symbol.GetAllTypeMembers())
+        CalculateDependencies(stepMap);
+
+        var sortedList = stepMap.Values.TopologicalSort(x => x.DependsOn);
+
+        return sortedList;
+    }
+
+    private void CalculateDependencies(Dictionary<string, Step> stepMap)
+    {
+        foreach (var stepName in _dependsOnMap)
         {
-            foreach (var step in VisitStepType(type))
+            var step = stepMap[stepName.Key];
+
+            if (stepName.Value == null)
             {
-                yield return step;
+                continue;
+            }
+
+            foreach (var dependsOn in stepName.Value)
+            {
+                if (stepMap.ContainsKey(dependsOn))
+                {
+                    step.DependsOn.Add(stepMap[dependsOn]);
+                }
+            }
+        }
+
+        var list = stepMap.Values.ToList();
+
+        for (int i = 0; i < list.Count; i++)
+        {
+            var current = list[i];
+
+            if (current.Name == null)
+            {
+                if (i + 1 < list.Count)
+                {
+                    var next = list[i + 1];
+                    current.DependsOn.UnionWith(next.DependsOn);
+                    next.DependsOn.Add(current);
+                }
             }
         }
     }
 
-    private IEnumerable<Step> VisitStepType(IMethodSymbol symbol)
+    public override IEnumerable<Step> VisitMethod(IMethodSymbol symbol)
     {
-        foreach (var nodeAttribute in symbol.GetCustomAttributes<NodeAttribute>())
+        var checkoutAttribute = symbol.GetAllCustomAttributes<CheckoutAttribute>().ToArray();
+
+        if (checkoutAttribute.Any())
         {
-            var step = CreateStep(nodeAttribute, symbol);
-
-            if (step.Name != null)
-            {
-                Steps[step.Name] = step;
-            }
-
-            yield return step;
+            yield return CreateCheckoutTask(symbol, checkoutAttribute.Last());
         }
-    }
 
-    private Step CreateStep(NodeAttribute nodeAttribute, IMethodSymbol member)
-    {
-        return nodeAttribute switch
+        var nuGetAuthenticateAttribute = symbol.GetAllCustomAttributes<NuGetAuthenticateAttribute>().ToArray();
+
+        if (nuGetAuthenticateAttribute.Any())
         {
-            CheckoutAttribute checkoutAttribute => CreateCheckoutTask(member, checkoutAttribute),
-            NuGetAuthenticateAttribute nugetAuthenticateAttribute => CreateNuGetAuthenticateTask(member, nugetAuthenticateAttribute),
-            PulumiAttribute pulumiAttribute => CreatePulumiTask(member, pulumiAttribute),
-            StepAttribute stepAttribute => CreateAutomatronScript(member, stepAttribute),
-            _ => throw new NotSupportedException()
-        };
+            yield return CreateNuGetAuthenticateTask(symbol, nuGetAuthenticateAttribute.Last());
+        }
+
+        var pulumiAttribute = symbol.GetAllCustomAttributes<PulumiAttribute>().ToArray();
+
+        if (pulumiAttribute.Any())
+        {
+            yield return CreatePulumiTask(symbol, pulumiAttribute.Last());
+        }
+
+        var stepAttributes = symbol.GetAllCustomAttributes<StepAttribute>().ToArray();
+
+        if (stepAttributes.Any())
+        {
+            yield return CreateAutomatronScript(symbol, Merge(stepAttributes));
+        }
     }
 
     private Step CreatePulumiTask(IMethodSymbol member, PulumiAttribute pulumiAttribute)
@@ -116,16 +142,16 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
             };
         }
 
-        var last = Steps.Keys.LastOrDefault();
+        //var last = Steps.Keys.LastOrDefault();
 
-        var dependsOn = last != null ? new[] { last } : null;
+        //var dependsOn = last != null ? new[] { last } : null;
 
         return new PulumiTask(_job, inputs)
         {
             Name = stepName,
             DisplayName = displayName,
             Condition = pulumiAttribute.Condition,
-            DependsOn = dependsOn
+           /// DependsOn = dependsOn
         };
     }
 
@@ -146,16 +172,16 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
             };
         }
 
-        var last = Steps.Keys.LastOrDefault();
+       // var last = Steps.Keys.LastOrDefault();
 
-        var dependsOn = last != null ? new[] { last } : null;
+       // var dependsOn = last != null ? new[] { last } : null;
 
         return new NuGetAuthenticateTask(_job, input)
         {
             Name = stepName,
             DisplayName = displayName,
             Condition = nugetAuthenticateAttribute.Condition,
-            DependsOn = dependsOn
+            //DependsOn = dependsOn
         };
     }
 
@@ -165,15 +191,16 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
 
         var displayName = string.IsNullOrEmpty(stepAttribute.Emoji) ? stepAttribute.DisplayName : $"{stepAttribute.Emoji} {stepName}";
 
-        var dependsOn = stepAttribute.DependsOn == null ? Array.Empty<string>() : stepAttribute.DependsOn.Select(c => Steps[c].Name!).ToArray();
+        _dependsOnMap[stepName ?? throw new InvalidOperationException()] = stepAttribute.DependsOn;
 
         // ReSharper disable once RedundantSuppressNullableWarningExpression
         return new AutomatronScript(_job, stepName!)
         {
             Name = stepName,
+            Id = stepName,
             DisplayName = displayName,
             Condition = stepAttribute.Condition,
-            DependsOn = dependsOn,
+            //DependsOn = stepAttribute.DependsOn,
             WorkingDirectory = stepAttribute.WorkingDirectory ?? GetWorkingDirectory(),
             Env = EnvVariable
         };
@@ -184,9 +211,9 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
         var stepName = checkoutAttribute.Name;
         var displayName = string.IsNullOrEmpty(checkoutAttribute.Emoji) ? checkoutAttribute.DisplayName : $"{checkoutAttribute.Emoji} {stepName}";
 
-        var last = Steps.Keys.LastOrDefault();
+        //var last = Steps.Keys.LastOrDefault();
 
-        var dependsOn = last != null ? new[] { last } : null;
+        //var dependsOn = last != null ? new[] { last } : null;
 
         return new CheckoutTask(_job, checkoutAttribute.Source)
         {
@@ -199,8 +226,24 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
             Submodules = checkoutAttribute.Submodules == false ? null : checkoutAttribute.Submodules,
             Path = checkoutAttribute.Path,
             PersistCredentials = checkoutAttribute.PersistCredentials == false ? null : checkoutAttribute.PersistCredentials,
-            DependsOn = dependsOn
+            //DependsOn = dependsOn
         };
+    }
+
+    private static StepAttribute Merge(IEnumerable<StepAttribute> stepAttributes)
+    {
+        var mergedStepAttribute = new StepAttribute();
+
+        foreach (var stepAttribute in stepAttributes)
+        {
+            mergedStepAttribute.Name = stepAttribute.Name ?? mergedStepAttribute.Name;
+            mergedStepAttribute.DisplayName = stepAttribute.DisplayName ?? mergedStepAttribute.DisplayName;
+            mergedStepAttribute.DependsOn = stepAttribute.DependsOn ?? mergedStepAttribute.DependsOn;
+            mergedStepAttribute.Condition = stepAttribute.Condition ?? mergedStepAttribute.Condition;
+            mergedStepAttribute.Emoji = stepAttribute.Emoji ?? mergedStepAttribute.Emoji;
+        }
+
+        return mergedStepAttribute;
     }
 
     private string GetWorkingDirectory()
@@ -210,30 +253,5 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>, IComparer<Step>
         var path = PathExtensions.GetUnixPath(PathExtensions.GetRelativePath(fullRoot, _job.Stage.Pipeline.ProjectDir));
 
         return path;
-    }
-
-    public int Compare(Step? x, Step? y)
-    {
-        if (x == null || y == null)
-        {
-            return 0;
-        }
-
-        if (x.DependsOn != null && x.DependsOn.Contains(y.Name))
-        {
-            return 1;
-        }
-
-        if (y.DependsOn != null && y.DependsOn.Contains(x.Name))
-        {
-            return -1;
-        }
-
-        if (y.DependsOn != null && x.DependsOn == null)
-        {
-            return -1;
-        }
-
-        return 0;
     }
 }

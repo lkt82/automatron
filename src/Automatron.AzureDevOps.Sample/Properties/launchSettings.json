@@ -2,7 +2,7 @@
   "profiles": {
     "Automatron.AzureDevOps.Sample": {
       "commandName": "Project",
-      "commandLineArgs": "azuredevops run -s DeployToProduction -j Deployment -t Update -n Ci",
+      "commandLineArgs": "azuredevops run Ci",
       "environmentVariables": {
         "AZURE_CLIENT_SECRET": "test"
       }

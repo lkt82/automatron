@@ -28,12 +28,19 @@ stages:
               PULUMI_API_KEY: $(PulumiApiKey)
               AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
             name: Configure
+          - script: dotnet run -- azuredevops run --stage "DeployToTesting" --job "Deployment" --step "AfterConfigure" -n "Ci"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            env:
+              PULUMI_API_KEY: $(PulumiApiKey)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+            name: AfterConfigure
           - script: dotnet run -- azuredevops run --stage "DeployToTesting" --job "Deployment" --step "Preview" -n "Ci"
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
               PULUMI_API_KEY: $(PulumiApiKey)
               AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
             name: Preview
+          - task: NuGetAuthenticate@1
           - script: dotnet run -- azuredevops run --stage "DeployToTesting" --job "Deployment" --step "Update" -n "Ci"
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
@@ -61,12 +68,19 @@ stages:
               PULUMI_API_KEY: $(PulumiApiKey)
               AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
             name: Configure
+          - script: dotnet run -- azuredevops run --stage "DeployToStaging" --job "Deployment" --step "AfterConfigure" -n "Ci"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            env:
+              PULUMI_API_KEY: $(PulumiApiKey)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+            name: AfterConfigure
           - script: dotnet run -- azuredevops run --stage "DeployToStaging" --job "Deployment" --step "Preview" -n "Ci"
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
               PULUMI_API_KEY: $(PulumiApiKey)
               AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
             name: Preview
+          - task: NuGetAuthenticate@1
           - script: dotnet run -- azuredevops run --stage "DeployToStaging" --job "Deployment" --step "Update" -n "Ci"
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
@@ -94,12 +108,19 @@ stages:
               PULUMI_API_KEY: $(PulumiApiKey)
               AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
             name: Configure
+          - script: dotnet run -- azuredevops run --stage "DeployToProduction" --job "Deployment" --step "AfterConfigure" -n "Ci"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            env:
+              PULUMI_API_KEY: $(PulumiApiKey)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+            name: AfterConfigure
           - script: dotnet run -- azuredevops run --stage "DeployToProduction" --job "Deployment" --step "Preview" -n "Ci"
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
               PULUMI_API_KEY: $(PulumiApiKey)
               AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
             name: Preview
+          - task: NuGetAuthenticate@1
           - script: dotnet run -- azuredevops run --stage "DeployToProduction" --job "Deployment" --step "Update" -n "Ci"
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:

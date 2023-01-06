@@ -5,11 +5,12 @@ using System.Text.RegularExpressions;
 using Automatron.AzureDevOps.Annotations;
 using Automatron.AzureDevOps.Generators.Models;
 using Automatron.CodeAnalysis;
+using Automatron.Collections;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
 
-internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>, IComparer<IJob>
+internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>
 {
     private readonly Stage _stage;
 
@@ -20,37 +21,11 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>, IComparer<IJob>
         _stage = stage;
     }
 
-    public int Compare(IJob? x, IJob? y)
-    {
-        if (x == null || y == null)
-        {
-            return 0;
-        }
-
-        if (x.DependsOn != null && x.DependsOn.Contains(y.Name))
-        {
-            return 1;
-        }
-
-        if (y.DependsOn != null && y.DependsOn.Contains(x.Name))
-        {
-            return -1;
-        }
-
-        if (y.DependsOn != null && x.DependsOn == null)
-        {
-            return -1;
-        }
-
-        return 0;
-    }
-
     public override IEnumerable<IJob> VisitNamedType(INamedTypeSymbol symbol)
     {
         VisitJobType(symbol);
 
-        var list = new List<IJob>(Jobs.Values);
-        list.Sort(this);
+        var list = Jobs.Values.TopologicalSort(x => x.DependsOn ?? Enumerable.Empty<string>(), x => x.Name);
 
         return list;
     }

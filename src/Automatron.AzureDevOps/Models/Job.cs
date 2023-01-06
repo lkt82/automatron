@@ -1,11 +1,12 @@
 ﻿#if NET6_0
+using Automatron.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Automatron.AzureDevOps.Models;
 
-public class Job : IComparer<Step>, IEqualityComparer<Job>
+public class Job : IEqualityComparer<Job>
 {
     public Job(string name,Stage stage, IEnumerable<Step> steps, Type type)
     {
@@ -26,19 +27,9 @@ public class Job : IComparer<Step>, IEqualityComparer<Job>
         Steps = CreateSteps(stepsFunc(this).ToArray());
     }
 
-    private ISet<Step> CreateSteps(IReadOnlyList<Step> steps)
+    private static IEnumerable<Step> CreateSteps(IEnumerable<Step> steps)
     {
-        for (var i = 1; i < steps.Count; i++)
-        {
-            if (steps[i].DependsOn.Any())
-            {
-                continue;
-            }
-
-            steps[i].DependsOn.Add(steps[i - 1]);
-        }
-
-        return new SortedSet<Step>(steps, this);
+        return new HashSet<Step>(steps.TopologicalSort(x => x.DependsOn));
     }
 
     public string Name { get; }
@@ -47,31 +38,11 @@ public class Job : IComparer<Step>, IEqualityComparer<Job>
 
     public Type Type { get; }
 
-    public ISet<Step> Steps { get; }
+    public IEnumerable<Step> Steps { get; }
 
     public ISet<Job> DependsOn { get; } = new HashSet<Job>();
 
     public ISet<Variable> Variables { get; } = new HashSet<Variable>();
-
-    public int Compare(Step? x, Step? y)
-    {
-        if (x == null || y == null)
-        {
-            return 0;
-        }
-
-        if (x.DependsOn.Contains(y))
-        {
-            return 1;
-        }
-
-        if (y.DependsOn.Contains(x))
-        {
-            return -1;
-        }
-
-        return -1;
-    }
 
     public bool Equals(Job? x, Job? y)
     {

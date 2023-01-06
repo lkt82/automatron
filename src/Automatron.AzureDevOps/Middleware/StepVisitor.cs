@@ -52,11 +52,11 @@ internal class StepVisitor : MemberVisitor<IEnumerable<Step>>
 
     public override IEnumerable<Step>? VisitMethod(MethodInfo methodInfo)
     {
-        var stepAttribute = methodInfo.GetAllCustomAttribute<StepAttribute>();
+        var stepAttributes = methodInfo.GetAllCustomAttributes<StepAttribute>().ToArray();
 
-        if (stepAttribute != null)
+        if (stepAttributes.Any())
         {
-            yield return CreateStep(methodInfo, stepAttribute);
+            yield return CreateStep(methodInfo, Merge(stepAttributes));
         }
     }
 
@@ -68,5 +68,22 @@ internal class StepVisitor : MemberVisitor<IEnumerable<Step>>
 
         return new Step(name, _job, new MethodAction(methodInfo));
     }
+
+    private static StepAttribute Merge(IEnumerable<StepAttribute> stepAttributes)
+    {
+        var mergedStepAttribute = new StepAttribute();
+
+        foreach (var stepAttribute in stepAttributes)
+        {
+            mergedStepAttribute.Name = stepAttribute.Name ?? mergedStepAttribute.Name;
+            mergedStepAttribute.DisplayName = stepAttribute.DisplayName ?? mergedStepAttribute.DisplayName;
+            mergedStepAttribute.DependsOn = stepAttribute.DependsOn ?? mergedStepAttribute.DependsOn;
+            mergedStepAttribute.Condition = stepAttribute.Condition ?? mergedStepAttribute.Condition;
+            mergedStepAttribute.Emoji = stepAttribute.Emoji ?? mergedStepAttribute.Emoji;
+        }
+
+        return mergedStepAttribute;
+    }
+
 }
 #endif

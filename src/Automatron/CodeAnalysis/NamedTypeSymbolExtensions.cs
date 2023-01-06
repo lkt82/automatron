@@ -33,7 +33,21 @@ public static class NamedTypeSymbolExtensions
 
     public static IEnumerable<IMethodSymbol> GetAllMethods(this INamedTypeSymbol symbol)
     {
-        return symbol.GetHierarchy().SelectMany(c => c.GetMembers().Where(member => member is { Kind: SymbolKind.Method, DeclaredAccessibility: Accessibility.Public }).Cast<IMethodSymbol>().Where(member => member.MethodKind == MethodKind.Ordinary));
+        var allMethods = symbol.GetHierarchy().SelectMany(c => c.GetMembers().Where(member => member is { Kind: SymbolKind.Method, DeclaredAccessibility: Accessibility.Public }).Cast<IMethodSymbol>().Where(member => member.MethodKind == MethodKind.Ordinary)).ToList();
+
+        var array = allMethods.ToArray();
+
+        foreach (var methodSymbol in array)
+        {
+            if (methodSymbol.IsOverride)
+            {
+                var symbol1 = methodSymbol;
+                var index = allMethods.FindIndex(c => c.Name == symbol1.Name);
+                allMethods.RemoveAt(index);
+            }
+        }
+
+        return allMethods;
     }
 
     public static IEnumerable<IPropertySymbol> GetAllProperties(this INamedTypeSymbol symbol)

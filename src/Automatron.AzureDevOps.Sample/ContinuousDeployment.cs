@@ -30,6 +30,7 @@ public abstract class PulumiDeploymentJob
 
     }
 
+    [NuGetAuthenticate]
     [Step(DependsOn = new[] { nameof(Preview) })]
     public virtual void Update()
     {
@@ -42,6 +43,17 @@ public abstract class PulumiDeploymentStage
 {
     public class DeploymentJob : PulumiDeploymentJob
     {
+        [Step(DependsOn = new[] { nameof(Configure) })]
+        public virtual void AfterConfigure()
+        {
+
+        }
+
+        [Step(DependsOn = new[] { nameof(AfterConfigure) })]
+        public override void Preview()
+        {
+            base.Preview();
+        }
     }
 }
 

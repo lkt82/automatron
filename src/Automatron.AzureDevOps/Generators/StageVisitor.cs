@@ -3,11 +3,12 @@ using System.Linq;
 using Automatron.AzureDevOps.Annotations;
 using Automatron.AzureDevOps.Generators.Models;
 using Automatron.CodeAnalysis;
+using Automatron.Collections;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
 
-internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>, IComparer<Stage>
+internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>
 {
     private readonly Pipeline _pipeline;
 
@@ -27,8 +28,7 @@ internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>, IComparer<Stage
             stage.Jobs = stage.Symbol.Accept(new JobVisitor(stage));
         }
 
-        var list = new List<Stage>(Stages.Values);
-        list.Sort(this);
+        var list = Stages.Values.TopologicalSort(x => x.DependsOn ?? Enumerable.Empty<string>(), x => x.Name);
 
         return list;
     }
@@ -83,30 +83,5 @@ internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>, IComparer<Stage
         }
 
         return mergedStageAttribute;
-    }
-
-    public int Compare(Stage? x, Stage? y)
-    {
-        if (x == null || y == null)
-        {
-            return 0;
-        }
-
-        if (x.DependsOn != null && x.DependsOn.Contains(y.Name))
-        {
-            return 1;
-        }
-
-        if (y.DependsOn != null && y.DependsOn.Contains(x.Name))
-        {
-            return -1;
-        }
-
-        if (y.DependsOn != null && x.DependsOn == null)
-        {
-            return -1;
-        }
-
-        return 0;
     }
 }
