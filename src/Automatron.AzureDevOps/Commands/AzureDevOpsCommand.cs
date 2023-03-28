@@ -247,7 +247,7 @@ public class AzureDevOpsCommand
             }
 
             _console.MarkupLine(options.DryRun
-                ? $"[grey53]DryRun[/] [deepskyblue3_1]({startingTitle}[/]"
+                ? $"[grey53]DryRun[/] [deepskyblue3_1]({startingTitle})[/]"
                 : $"[green]Succeeded[/] [deepskyblue3_1]({startingTitle}[/] [purple]({result.Elapsed.Milliseconds} ms))[/]");
 
             return 0;

@@ -21,6 +21,8 @@ internal class PipelineYamlGenerator : ISourceGenerator
 
     public void Execute(GeneratorExecutionContext context)
     {
+        _serializer ??= CreateYamlSerializer();
+
         if (context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.AutomatronAzureDevOpsSkip", out var skipYamlPipeline) && bool.Parse(skipYamlPipeline))
         {
             return;
@@ -98,11 +100,13 @@ internal class PipelineYamlGenerator : ISourceGenerator
         var disabledCiTriggerConverter = new DisabledCiTriggerConverter();
         var serializerBuilder = new SerializerBuilder();
 
+//#pragma warning disable CS0618 // Type or member is obsolete
         var serializer = serializerBuilder.WithTypeConverter(disabledCiTriggerConverter)
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .DisableAliases()
             .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitNull | DefaultValuesHandling.OmitEmptyCollections)
             .Build();
+//#pragma warning restore CS0618 // Type or member is obsolete
         return serializer;
     }
 
@@ -124,8 +128,6 @@ internal class PipelineYamlGenerator : ISourceGenerator
 
     public void Initialize(GeneratorInitializationContext context)
     {
-        _serializer = CreateYamlSerializer();
-
 #if DEBUG
         //if (!Debugger.IsAttached)
         //{
