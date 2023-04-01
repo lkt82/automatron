@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NETSTANDARD2_0
+using System;
 using System.Collections.Generic;
 using Automatron.AzureDevOps.Annotations;
 using Automatron.AzureDevOps.Generators.Models;
@@ -87,3 +88,4 @@ internal class PipelineVisitor : SymbolVisitor
         return pipeline;
     }
 }
+#endif

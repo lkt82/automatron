@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NETSTANDARD2_0
+using System;
 using Automatron.AzureDevOps.Generators.Models;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
@@ -24,3 +25,4 @@ namespace Automatron.AzureDevOps.Generators.Converters
         }
     }
 }
+#endif

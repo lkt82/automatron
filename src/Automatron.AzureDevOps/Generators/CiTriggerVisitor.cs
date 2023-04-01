@@ -1,4 +1,5 @@
-﻿using Automatron.AzureDevOps.Annotations;
+﻿#if NETSTANDARD2_0
+using Automatron.AzureDevOps.Annotations;
 using Automatron.AzureDevOps.Generators.Models;
 using Automatron.CodeAnalysis;
 using Microsoft.CodeAnalysis;
@@ -46,3 +47,4 @@ internal class CiTriggerVisitor : SymbolVisitor<ICiTrigger>
         return trigger;
     }
 }
+#endif

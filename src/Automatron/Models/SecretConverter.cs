@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NET6_0
+using System;
 using System.ComponentModel;
 using System.Globalization;
 
@@ -16,3 +17,4 @@ internal sealed class SecretConverter : TypeConverter
         return destinationType == typeof(Secret) ? new Secret(value.ToString() ?? throw new InvalidOperationException()) : base.ConvertTo(context, culture, value, destinationType);
     }
 }
+#endif

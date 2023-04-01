@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if NETSTANDARD2_0
+using System.Collections.Generic;
 using Automatron.AzureDevOps.Annotations;
 using Automatron.CodeAnalysis;
 using Microsoft.CodeAnalysis;
@@ -25,3 +26,4 @@ internal class TemplateParameterVisitor : SymbolVisitor<IDictionary<string, obje
     }
 
 }
+#endif

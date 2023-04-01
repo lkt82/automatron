@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NETSTANDARD2_0
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -137,3 +138,4 @@ internal class PipelineYamlGenerator : ISourceGenerator
         Debug.WriteLine($"Initialize {nameof(PipelineYamlGenerator)}");
     }
 }
+#endif

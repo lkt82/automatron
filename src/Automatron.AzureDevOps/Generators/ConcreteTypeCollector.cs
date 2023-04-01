@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if NETSTANDARD2_0
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
@@ -40,3 +41,4 @@ internal class ConcreteTypeCollector : SymbolVisitor
         NamedTypes.Add(symbol);
     }
 }
+#endif

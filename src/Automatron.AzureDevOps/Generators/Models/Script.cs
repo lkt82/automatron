@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if NETSTANDARD2_0
+using System.Collections.Generic;
 using YamlDotNet.Serialization;
 
 namespace Automatron.AzureDevOps.Generators.Models;
@@ -16,3 +17,4 @@ public class Script : Step
 
     [YamlMember] public IDictionary<string, object>? Env { get; set; }
 }
+#endif

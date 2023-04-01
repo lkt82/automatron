@@ -1,4 +1,5 @@
-﻿namespace Automatron.AzureDevOps.Generators.Models;
+﻿#if NETSTANDARD2_0
+namespace Automatron.AzureDevOps.Generators.Models;
 
 public sealed class PulumiTask : Task<PulumiTask.PulumiTaskInputs>
 {
@@ -18,3 +19,4 @@ public sealed class PulumiTask : Task<PulumiTask.PulumiTaskInputs>
 
     }
 }
+#endif

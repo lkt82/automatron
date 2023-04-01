@@ -1,4 +1,5 @@
-﻿namespace Automatron.AzureDevOps.Generators.Models;
+﻿#if NETSTANDARD2_0
+namespace Automatron.AzureDevOps.Generators.Models;
 
 public sealed class AutomatronScript : Script
 {
@@ -11,3 +12,4 @@ public sealed class AutomatronScript : Script
         return $"dotnet run -- {command} --stage \"{stage}\" --job \"{job}\" --step \"{step}\" -n \"{pipeline}\"";
     }
 }
+#endif

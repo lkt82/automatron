@@ -1,4 +1,5 @@
-﻿namespace Automatron.AzureDevOps.Generators.Models;
+﻿#if NETSTANDARD2_0
+namespace Automatron.AzureDevOps.Generators.Models;
 
 public sealed class Variable : IVariable
 {
@@ -11,3 +12,4 @@ public sealed class Variable : IVariable
     public string Name { get; set; }
     public object Value { get; set; }
 }
+#endif

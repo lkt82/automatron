@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if NETSTANDARD2_0
+using System.Collections.Generic;
 using Automatron.AzureDevOps.Annotations;
 using Automatron.AzureDevOps.Generators.Models;
 using Automatron.CodeAnalysis;
@@ -31,3 +32,4 @@ internal class VariableVisitor : SymbolVisitor<IEnumerable<IVariable>>
         }
     }
 }
+#endif

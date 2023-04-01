@@ -1,4 +1,5 @@
-﻿namespace Automatron.AzureDevOps.Generators.Models;
+﻿#if NETSTANDARD2_0
+namespace Automatron.AzureDevOps.Generators.Models;
 
 public sealed class ScheduledTrigger
 {
@@ -15,3 +16,4 @@ public sealed class ScheduledTrigger
 
     public TriggerBranches? Branches { get; set; }
 }
+#endif

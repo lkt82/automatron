@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if NETSTANDARD2_0
+using System.Collections.Generic;
 using YamlDotNet.Serialization;
 
 namespace Automatron.AzureDevOps.Generators.Models;
@@ -34,3 +35,4 @@ public sealed class Job: IJob
     [YamlIgnore]
     public Stage Stage { get; }
 }
+#endif

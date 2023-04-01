@@ -1,4 +1,5 @@
-﻿using YamlDotNet.Serialization;
+﻿#if NETSTANDARD2_0
+using YamlDotNet.Serialization;
 
 namespace Automatron.AzureDevOps.Generators.Models;
 
@@ -12,3 +13,4 @@ public sealed class VariableGroup : IVariable
     [YamlMember(Alias = "group")]
     public string Name { get; set; }
 }
+#endif

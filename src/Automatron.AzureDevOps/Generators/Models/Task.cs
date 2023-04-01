@@ -1,4 +1,5 @@
-﻿using YamlDotNet.Serialization;
+﻿#if NETSTANDARD2_0
+using YamlDotNet.Serialization;
 
 namespace Automatron.AzureDevOps.Generators.Models;
 
@@ -16,3 +17,4 @@ public abstract class Task<T> : Step
     [YamlMember]
     public T? Inputs { get; set; }
 }
+#endif

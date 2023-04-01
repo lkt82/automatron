@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿#if NETSTANDARD2_0
+using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
 using System;
 
@@ -31,3 +32,4 @@ public static class MethodSymbolExtensions
         return list;
     }
 }
+#endif

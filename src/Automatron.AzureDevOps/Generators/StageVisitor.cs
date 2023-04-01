@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if NETSTANDARD2_0
+using System.Collections.Generic;
 using System.Linq;
 using Automatron.AzureDevOps.Annotations;
 using Automatron.AzureDevOps.Generators.Models;
@@ -85,3 +86,4 @@ internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>
         return mergedStageAttribute;
     }
 }
+#endif

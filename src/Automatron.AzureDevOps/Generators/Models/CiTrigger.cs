@@ -1,4 +1,5 @@
-﻿namespace Automatron.AzureDevOps.Generators.Models;
+﻿#if NETSTANDARD2_0
+namespace Automatron.AzureDevOps.Generators.Models;
 
 public sealed class CiTrigger: ICiTrigger
 {
@@ -8,3 +9,4 @@ public sealed class CiTrigger: ICiTrigger
 
     public TriggerPaths? Paths { get; set; }
 }
+#endif

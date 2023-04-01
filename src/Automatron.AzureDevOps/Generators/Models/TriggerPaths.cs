@@ -1,4 +1,5 @@
-﻿namespace Automatron.AzureDevOps.Generators.Models;
+﻿#if NETSTANDARD2_0
+namespace Automatron.AzureDevOps.Generators.Models;
 
 public sealed class TriggerPaths
 {
@@ -6,3 +7,4 @@ public sealed class TriggerPaths
 
     public string[]? Exclude { get; set; }
 }
+#endif

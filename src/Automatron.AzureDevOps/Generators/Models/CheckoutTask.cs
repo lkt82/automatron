@@ -1,4 +1,5 @@
-﻿using YamlDotNet.Serialization;
+﻿#if NETSTANDARD2_0
+using YamlDotNet.Serialization;
 
 namespace Automatron.AzureDevOps.Generators.Models;
 
@@ -24,3 +25,4 @@ public sealed class CheckoutTask: Step
 
     public bool? PersistCredentials { get; set; }
 }
+#endif

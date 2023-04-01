@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if NETSTANDARD2_0
+using System.Collections.Generic;
 
 namespace Automatron.AzureDevOps.Generators.Models;
 
@@ -22,3 +23,4 @@ public interface IJob
 
     Stage Stage { get; }
 }
+#endif

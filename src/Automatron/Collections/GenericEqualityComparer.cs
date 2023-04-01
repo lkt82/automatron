@@ -1,39 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Automatron.Collections
+namespace Automatron.Collections;
+
+internal class GenericEqualityComparer<TItem, TKey> : EqualityComparer<TItem> where TKey : notnull
 {
-    internal class GenericEqualityComparer<TItem, TKey> : EqualityComparer<TItem> where TKey : notnull
+    private readonly Func<TItem, TKey> _getKey;
+    private readonly EqualityComparer<TKey> _keyComparer;
+
+    public GenericEqualityComparer(Func<TItem, TKey> getKey)
     {
-        private readonly Func<TItem, TKey> _getKey;
-        private readonly EqualityComparer<TKey> _keyComparer;
+        _getKey = getKey;
+        _keyComparer = EqualityComparer<TKey>.Default;
+    }
 
-        public GenericEqualityComparer(Func<TItem, TKey> getKey)
+    public override bool Equals(TItem? x, TItem? y)
+    {
+        if (x == null && y == null)
         {
-            _getKey = getKey;
-            _keyComparer = EqualityComparer<TKey>.Default;
+            return true;
         }
+        if (x == null || y == null)
+        {
+            return false;
+        }
+        return _keyComparer.Equals(_getKey(x), _getKey(y));
+    }
 
-        public override bool Equals(TItem? x, TItem? y)
+    public override int GetHashCode(TItem obj)
+    {
+        if (obj == null)
         {
-            if (x == null && y == null)
-            {
-                return true;
-            }
-            if (x == null || y == null)
-            {
-                return false;
-            }
-            return _keyComparer.Equals(_getKey(x), _getKey(y));
+            return 0;
         }
-
-        public override int GetHashCode(TItem obj)
-        {
-            if (obj == null)
-            {
-                return 0;
-            }
-            return _keyComparer.GetHashCode(_getKey(obj));
-        }
+        return _keyComparer.GetHashCode(_getKey(obj));
     }
 }

@@ -27,7 +27,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Automatron.AzureDevOps\Automatron.AzureDevOps.csproj" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.5.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.5.0" />
+    <ProjectReference Include="..\Automatron.AzureDevOps\Automatron.AzureDevOps.csproj" SetTargetFramework="TargetFramework=net6.0" />
+    <ProjectReference Include="..\Automatron.AzureDevOps\Automatron.AzureDevOps.csproj" SetTargetFramework="TargetFramework=netstandard2.0" />
   </ItemGroup>
 
 </Project>

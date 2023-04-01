@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if NETSTANDARD2_0
+using System.Collections.Generic;
 using System.Text;
 using Automatron.AzureDevOps.Annotations;
 using Automatron.CodeAnalysis;
@@ -113,3 +114,4 @@ internal class EnvVariableVisitor : SymbolVisitor<Dictionary<string, object>>
         return envVarName.ToString();
     }
 }
+#endif

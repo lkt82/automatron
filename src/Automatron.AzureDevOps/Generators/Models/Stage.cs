@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if NETSTANDARD2_0
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using YamlDotNet.Serialization;
 
@@ -40,3 +41,4 @@ public sealed class Stage
     [YamlIgnore]
     public Pipeline Pipeline { get; }
 }
+#endif

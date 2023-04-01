@@ -1,9 +1,9 @@
-﻿using System;
+﻿#if NET6_0
+using System;
 using System.Reflection;
 
 namespace Automatron.Models;
 
-#if NET6_0
 public class MethodAction : IAction
 {
     public MethodInfo Method { get; }

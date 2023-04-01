@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if NETSTANDARD2_0
+using System.Collections.Generic;
 using Automatron.AzureDevOps.Annotations;
 using Automatron.CodeAnalysis;
 using Microsoft.CodeAnalysis;
@@ -100,3 +101,4 @@ internal class ParameterVisitor : SymbolVisitor<IEnumerable<Models.Parameter>>
         };
     }
 }
+#endif

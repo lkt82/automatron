@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NETSTANDARD2_0
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -70,3 +71,4 @@ public static class NamedTypeSymbolExtensions
         return symbol.GetAllAttributes().GetCustomAttributes<T>();
     }
 }
+#endif

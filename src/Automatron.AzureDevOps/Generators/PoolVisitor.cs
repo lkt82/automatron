@@ -1,4 +1,5 @@
-﻿using Automatron.AzureDevOps.Annotations;
+﻿#if NETSTANDARD2_0
+using Automatron.AzureDevOps.Annotations;
 using Automatron.AzureDevOps.Generators.Models;
 using Automatron.CodeAnalysis;
 using Microsoft.CodeAnalysis;
@@ -19,3 +20,4 @@ internal class PoolVisitor : SymbolVisitor<Pool>
         return new Pool(poolAttribute.Name, poolAttribute.VmImage);
     }
 }
+#endif

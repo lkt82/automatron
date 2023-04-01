@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NETSTANDARD2_0
+using System;
 using System.Collections.Generic;
 using YamlDotNet.Serialization;
 
@@ -40,3 +41,4 @@ public abstract class Step: IEqualityComparer<Step>
         return obj.Id.GetHashCode();
     }
 }
+#endif

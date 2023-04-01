@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NET6_0
+using System;
 using System.ComponentModel;
 
 namespace Automatron.Models;
@@ -22,3 +23,4 @@ public sealed record Secret
         return string.IsNullOrEmpty(_secret) ? string.Empty : ValueReplacement;
     }
 }
+#endif

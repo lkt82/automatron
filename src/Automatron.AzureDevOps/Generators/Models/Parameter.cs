@@ -1,4 +1,5 @@
-﻿namespace Automatron.AzureDevOps.Generators.Models;
+﻿#if NETSTANDARD2_0
+namespace Automatron.AzureDevOps.Generators.Models;
 
 public sealed class Parameter
 {
@@ -21,3 +22,4 @@ public sealed class Parameter
 
     public object[]? Values { get; set; }
 }
+#endif

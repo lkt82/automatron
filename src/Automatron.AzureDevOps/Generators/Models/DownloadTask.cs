@@ -1,4 +1,5 @@
-﻿using YamlDotNet.Serialization;
+﻿#if NETSTANDARD2_0
+using YamlDotNet.Serialization;
 
 namespace Automatron.AzureDevOps.Generators.Models;
 
@@ -16,3 +17,4 @@ public sealed class DownloadTask : Step
 
     public string? Patterns { get; set; }
 }
+#endif
