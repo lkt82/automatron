@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-		<TargetFrameworks>net6.0;netstandard2.0</TargetFrameworks>
+		<TargetFramework>net6.0</TargetFramework>
 	    <Nullable>enable</Nullable>
 	    <Description>The Automatron.Tasks .NET library is a task automation system that enables you to write task based workflows as .Net methods</Description>
 		<PackageTags>Build;Pipeline</PackageTags>
@@ -16,18 +16,15 @@
 		<None Include="README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="All" />
     <PackageReference Include="CommandDotNet" Version="7.0.2" />
     <PackageReference Include="CommandDotNet.IoC.MicrosoftDependencyInjection" Version="5.0.1" />
     <PackageReference Include="CommandDotNet.NameCasing" Version="4.0.2" />
     <PackageReference Include="CommandDotNet.Spectre" Version="3.0.2" />
   </ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Include="JetBrains.Annotations" Version="2022.3.1" PrivateAssets="true" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="true" />
-    <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="true" />
-	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Automatron\Automatron.csproj" />
