@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using Automatron.Models;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -43,7 +44,7 @@ internal class TaskEngine : ITaskEngine
         }
     }
 
-    public System.Threading.Tasks.Task Run(Task task, IEnumerable<ParameterValue>? parameters)
+    public System.Threading.Tasks.Task Run(Task task, IEnumerable<ParameterValue>? parameters, CancellationToken cancellationToken)
     {
         ConvertParameters(parameters ?? Array.Empty<ParameterValue>(), task.ParameterTypes.SelectMany(c=> c.Parameters).ToDictionary(c => c.Name.ToLower(), c => c));
 
@@ -57,7 +58,7 @@ internal class TaskEngine : ITaskEngine
             BindProperties(parameterTypeService, parameterType.Parameters);
         }
 
-        var result = task.Action.Invoke(service);
+        var result = task.Action.Invoke(service, cancellationToken);
 
         if (result is System.Threading.Tasks.Task asyncResult)
         {

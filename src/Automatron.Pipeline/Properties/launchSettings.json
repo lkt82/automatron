@@ -2,7 +2,7 @@
   "profiles": {
     "Automatron.Pipeline": {
       "commandName": "Project",
-      "commandLineArgs": "Build",
+      "commandLineArgs": "run Ci -t Build -d",
       "workingDirectory": "."
     }
   }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Automatron.Collections;
 using Automatron.Tasks.Models;
@@ -30,7 +31,7 @@ public class TaskCommand
     }
 
     [Command(Description = "Run tasks")]
-    public async Task<int> Run(TaskRunArgs args, TaskRunOptions options)
+    public async Task<int> Run(TaskRunArgs args, TaskRunOptions options, CancellationToken cancellationToken)
     {
         var assemblyName = Assembly.GetEntryAssembly()!.GetName().Name;
 
@@ -100,7 +101,7 @@ public class TaskCommand
             taskStopWatch.Start();
             try
             {
-                await _taskEngine.Run(task, options.Parameters);
+                await _taskEngine.Run(task, options.Parameters, cancellationToken);
 
                 taskStopWatch.Stop();
                 _console.MarkupLine($"[grey53]{assemblyName}:[/] [deepskyblue3_1]{task.Name}[/]: [green]Succeeded[/]: [purple]({taskStopWatch.ElapsedMilliseconds} ms)[/]");

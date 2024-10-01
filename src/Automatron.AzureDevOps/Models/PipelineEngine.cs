@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Automatron.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -144,9 +145,9 @@ public class PipelineEngine : IPipelineEngine
         }
     }
 
-    private static Task RunStepAction(Step step, object jobService)
+    private static Task RunStepAction(Step step, object jobService, CancellationToken cancellationToken)
     {
-        var result = step.Action.Invoke(jobService);
+        var result = step.Action.Invoke(jobService, cancellationToken);
 
         if (result is Task asyncResult)
         {
@@ -156,7 +157,7 @@ public class PipelineEngine : IPipelineEngine
         return Task.CompletedTask;
     }
 
-    private async Task RunStep(Step step,object jobService,bool dryRun)
+    private async Task RunStep(Step step,object jobService,bool dryRun, CancellationToken cancellationToken)
     {
         var stopWatch = new Stopwatch();
         stopWatch.Start();
@@ -167,7 +168,7 @@ public class PipelineEngine : IPipelineEngine
 
             if (!dryRun)
             {
-                await RunStepAction(step, jobService);
+                await RunStepAction(step, jobService, cancellationToken);
             }
 
             OnStepCompleted?.Invoke(this, new PipelineModelCompletedArgs<Step>(step, stopWatch.Elapsed, dryRun));
@@ -226,18 +227,20 @@ public class PipelineEngine : IPipelineEngine
         }
     }
 
-    public async Task<PipelineResult> Run(Pipeline pipeline, IEnumerable<VariableValue>? variables, IEnumerable<ParameterValue>? parameters, bool dryRun)
+    public async Task<PipelineResult> Run(Pipeline pipeline, IEnumerable<VariableValue>? variables,
+        IEnumerable<ParameterValue>? parameters, bool dryRun, CancellationToken cancellationToken)
     {
         return await RunPipeline(pipeline, variables ?? Array.Empty<VariableValue>(), parameters ?? Array.Empty<ParameterValue>(), async (serviceProvider, targetStage) =>
         {
             await RunStage(serviceProvider, targetStage, variables ?? Array.Empty<VariableValue>(), async (provider, targetJob) =>
             {
-                await RunJob(provider, targetJob, variables ?? Array.Empty<VariableValue>(), async (targetStep, jobService) => await RunStep(targetStep, jobService, dryRun), dryRun);
+                await RunJob(provider, targetJob, variables ?? Array.Empty<VariableValue>(), async (targetStep, jobService) => await RunStep(targetStep, jobService, dryRun, cancellationToken), dryRun);
             }, dryRun);
         }, dryRun);
     }
 
-    public async Task<PipelineResult> Run(Stage stage, IEnumerable<VariableValue>? variables, IEnumerable<ParameterValue>? parameters,bool dryRun)
+    public async Task<PipelineResult> Run(Stage stage, IEnumerable<VariableValue>? variables,
+        IEnumerable<ParameterValue>? parameters, bool dryRun, CancellationToken cancellationToken)
     {
         return await RunPipeline(stage.Pipeline, variables ?? Array.Empty<VariableValue>(), parameters ?? Array.Empty<ParameterValue>(), async (serviceProvider,targetStage)=>
         {
@@ -245,13 +248,14 @@ public class PipelineEngine : IPipelineEngine
             {
                 await RunStage(serviceProvider, stage, variables ?? Array.Empty<VariableValue>(), async (provider, targetJob) =>
                 {
-                    await RunJob(provider, targetJob, variables ?? Array.Empty<VariableValue>(), async (step, o) => await RunStep(step, o, dryRun), dryRun);
+                    await RunJob(provider, targetJob, variables ?? Array.Empty<VariableValue>(), async (step, o) => await RunStep(step, o, dryRun, cancellationToken), dryRun);
                 }, dryRun);
             }
         }, dryRun);
     }
 
-    public async Task<PipelineResult> Run(Job job, IEnumerable<VariableValue>? variables, IEnumerable<ParameterValue>? parameters, bool dryRun)
+    public async Task<PipelineResult> Run(Job job, IEnumerable<VariableValue>? variables,
+        IEnumerable<ParameterValue>? parameters, bool dryRun, CancellationToken cancellationToken)
     {
         return await RunPipeline(job.Stage.Pipeline, variables ?? Array.Empty<VariableValue>(), parameters ?? Array.Empty<ParameterValue>(), async (serviceProvider, targetStage) =>
         {
@@ -261,7 +265,7 @@ public class PipelineEngine : IPipelineEngine
                 {
                     if (targetJob.Equals(job))
                     {
-                        await RunJob(provider, targetJob, variables ?? Array.Empty<VariableValue>(), async (targetStep, jobService) => await RunStep(targetStep, jobService, dryRun), dryRun);
+                        await RunJob(provider, targetJob, variables ?? Array.Empty<VariableValue>(), async (targetStep, jobService) => await RunStep(targetStep, jobService, dryRun, cancellationToken), dryRun);
                     }
 
                 }, dryRun);
@@ -269,7 +273,8 @@ public class PipelineEngine : IPipelineEngine
         }, dryRun);
     }
 
-    public async Task<PipelineResult> Run(Step step, IEnumerable<VariableValue>? variables, IEnumerable<ParameterValue>? parameters, bool dryRun,bool runDependencies)
+    public async Task<PipelineResult> Run(Step step, IEnumerable<VariableValue>? variables,
+        IEnumerable<ParameterValue>? parameters, bool dryRun, bool runDependencies, CancellationToken cancellationToken)
     {
         return await RunPipeline(step.Job.Stage.Pipeline, variables ?? Array.Empty<VariableValue>(), parameters ?? Array.Empty<ParameterValue>(), async (serviceProvider, stage) =>
         {
@@ -289,11 +294,11 @@ public class PipelineEngine : IPipelineEngine
                                 {
                                     foreach (var dependency in dependencies)
                                     {
-                                        await RunStep(dependency, jobService, dryRun);
+                                        await RunStep(dependency, jobService, dryRun, cancellationToken);
                                     }
                                 }
 
-                                await RunStep(step, jobService, dryRun);
+                                await RunStep(step, jobService, dryRun, cancellationToken);
                             }
                             else
                             {

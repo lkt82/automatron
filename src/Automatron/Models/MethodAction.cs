@@ -1,6 +1,7 @@
 ﻿#if NET6_0
 using System;
 using System.Reflection;
+using System.Threading;
 
 namespace Automatron.Models;
 
@@ -17,8 +18,14 @@ public class MethodAction : IAction
     {
     }
 
-    public object? Invoke(object service)
+    public object? Invoke(object service, CancellationToken cancellationToken)
     {
+        var parameters = Method.GetParameters();
+        if (parameters.Length == 1 && parameters[0].ParameterType == typeof(CancellationToken))
+        {
+            return Method.Invoke(service, [cancellationToken]);
+        }
+
         return Method.Invoke(service, null);
     }
 }

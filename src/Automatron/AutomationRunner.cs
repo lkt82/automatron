@@ -30,7 +30,7 @@ public class AutomationRunner : AppRunner
                 var ansiConsole = c.DependencyResolver!.Resolve<IAnsiConsole>()!;
                 c.Environment = c.DependencyResolver!.Resolve<IEnvironment>()!;
                 c.Console = c.DependencyResolver!.Resolve<IConsole>()!;
-
+                
                 c.UseParameterResolver(_ => ansiConsole);
                 c.Services.Add(ansiConsole);
             })

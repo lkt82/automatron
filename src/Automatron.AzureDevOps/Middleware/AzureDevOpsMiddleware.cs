@@ -6,10 +6,12 @@ using System.Text;
 using Automatron.AzureDevOps.Commands;
 using Automatron.AzureDevOps.Models;
 using Automatron.AzureDevOps.Tasks;
+using Automatron.Models;
 using CommandDotNet;
 using CommandDotNet.Builders;
 using CommandDotNet.Help;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Automatron.AzureDevOps.Middleware;
 
@@ -24,13 +26,18 @@ public static class AzureDevOpsMiddleware
             services.AddScoped(serviceType);
         }
 
+        services.TryAddSingleton<ITypeProvider>(typeProvider);
+
         return services
             .AddSingleton<AzureDevOpsCommand>()
             .AddSingleton<IPipelineEngine, PipelineEngine>()
             .AddSingleton<LoggingCommands>()
             .AddSingleton<PipelineVisitor>()
-            .AddSingleton(serviceProvider => serviceProvider.GetRequiredService<PipelineVisitor>()
-                .VisitTypes(typeProvider.Types).OrderBy(c => c.Name).ToArray().AsEnumerable());
+            .AddSingleton(serviceProvider =>
+            {
+                var localTypeProvider = serviceProvider.GetRequiredService<ITypeProvider>();
+                return serviceProvider.GetRequiredService<PipelineVisitor>().VisitTypes(localTypeProvider.Types).OrderBy(c => c.Name).ToArray().AsEnumerable();
+            });
     }
 
     private static string GetEnvVarName(string name)

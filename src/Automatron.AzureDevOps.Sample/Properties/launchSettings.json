@@ -2,7 +2,7 @@
   "profiles": {
     "Automatron.AzureDevOps.Sample": {
       "commandName": "Project",
-      "commandLineArgs": "azuredevops run Ci",
+      "commandLineArgs": "azuredevops run ci",
       "environmentVariables": {
         "AZURE_CLIENT_SECRET": "test"
       }

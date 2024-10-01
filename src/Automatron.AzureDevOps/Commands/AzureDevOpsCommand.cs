@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Automatron.AzureDevOps.Models;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Automatron.AzureDevOps.Commands;
 
@@ -131,7 +132,7 @@ public class AzureDevOpsCommand
 
 
     [Command( Description = "Run Azure DevOps pipeline")]
-    public async Task<int> Run(PipelineRunArgs args, PipelineRunOptions options)
+    public async Task<int> Run(PipelineRunArgs args, PipelineRunOptions options, CancellationToken cancellationToken)
     {
         var foundPipeline =_pipelines.FirstOrDefault(c => string.Equals(c.Name, args.Pipeline, StringComparison.InvariantCultureIgnoreCase));
 
@@ -226,19 +227,19 @@ public class AzureDevOpsCommand
 
             if (!string.IsNullOrEmpty(options.Step))
             {
-                result = await _pipelineEngine.Run(foundStep!, options.Variables, options.Parameters, options.DryRun, options.RunDependencies);
+                result = await _pipelineEngine.Run(foundStep!, options.Variables, options.Parameters, options.DryRun, options.RunDependencies, cancellationToken);
             }
             else if (!string.IsNullOrEmpty(options.Job))
             {
-               result = await _pipelineEngine.Run(foundJob, options.Variables, options.Parameters, options.DryRun);
+               result = await _pipelineEngine.Run(foundJob, options.Variables, options.Parameters, options.DryRun, cancellationToken);
             }
             else if (!string.IsNullOrEmpty(options.Stage))
             {
-               result = await _pipelineEngine.Run(foundStage, options.Variables, options.Parameters, options.DryRun);
+               result = await _pipelineEngine.Run(foundStage, options.Variables, options.Parameters, options.DryRun, cancellationToken);
             }
             else
             {
-               result = await _pipelineEngine.Run(foundPipeline, options.Variables, options.Parameters, options.DryRun);
+               result = await _pipelineEngine.Run(foundPipeline, options.Variables, options.Parameters, options.DryRun, cancellationToken);
             }
 
             if (!options.NoSummary)
