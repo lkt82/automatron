@@ -94,6 +94,23 @@ public static class AzureDevOpsMiddleware
                     var conv = TypeDescriptor.GetConverter(variable.Property.PropertyType);
                     variable.Value = conv.ConvertTo(defaultValue, variable.Property.PropertyType);
                 }
+
+                var parameters = new List<Parameter>();
+
+                parameters.AddRange(pipelines.SelectMany(pipeline => pipeline.Parameters));
+
+                foreach (var parameter in parameters)
+                {
+                    var envVarName = GetEnvVarName(parameter.Name);
+                    var defaultValue = environment.GetEnvironmentVariable(envVarName);
+                    if (defaultValue == null)
+                    {
+                        continue;
+                    }
+                    var conv = TypeDescriptor.GetConverter(parameter.Property.PropertyType);
+                    parameter.Value = conv.ConvertTo(defaultValue, parameter.Property.PropertyType);
+                }
+
                 c.CustomHelpProvider = new PipelineHelpProvider(c.CustomHelpProvider ?? new HelpTextProvider(c.AppSettings), pipelines, c.AppSettings);
             });
     }

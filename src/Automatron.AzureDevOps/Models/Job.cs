@@ -44,6 +44,10 @@ public class Job : IEqualityComparer<Job>
 
     public ISet<Variable> Variables { get; } = new HashSet<Variable>();
 
+    public ISet<TemplateParameter> TemplateParameters { get; } = new HashSet<TemplateParameter>();
+
+    public IDictionary<string, object> TemplateValues { get; } = new Dictionary<string, object>();
+
     public bool Equals(Job? x, Job? y)
     {
         if (ReferenceEquals(x, y)) return true;

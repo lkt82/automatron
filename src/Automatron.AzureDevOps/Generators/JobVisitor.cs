@@ -1,6 +1,7 @@
 ﻿#if NETSTANDARD2_0
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Automatron.AzureDevOps.Annotations;
@@ -103,10 +104,10 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>
         {
             job = new Job(_stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition);
         }
-
+     
         job.Pool = symbol.Accept(new PoolVisitor());
         job.Variables = symbol.Accept(new VariableVisitor());
-        job.TemplateParameters = symbol.Accept(new TemplateParameterVisitor());
+        job.TemplateValues = symbol.Accept(new TemplateValueVisitor());
         job.Steps = symbol.Accept(new StepVisitor(job));
 
         return job;
@@ -125,7 +126,7 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>
         }
 
         var match = Regex.Match(environment, "^\\$\\{\\{(?<name>.+)\\}\\}");
-        if (match.Success)
+        if (match.Success && _stage.TemplateParameters.ContainsKey(match.Groups["name"].Value))
         {
             environment = (string)_stage.TemplateParameters[match.Groups["name"].Value];
         }

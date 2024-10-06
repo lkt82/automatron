@@ -62,9 +62,16 @@ internal class StageVisitor : MemberVisitor<IEnumerable<Stage>>
     {
         var name = !string.IsNullOrEmpty(stageAttribute.Name) ? stageAttribute.Name : type.Name;
 
-        var stage = new Stage(name, _pipeline, p => new JobVisitor(p).VisitTypes(type.GetAllNestedTypes().Append(type)), type);
+        var stage = new Stage(name, _pipeline, s =>
+        {
+            s.Variables.UnionWith(type.Accept(new VariableVisitor()) ?? Enumerable.Empty<Variable>());
+            foreach (var o in type.Accept(new TemplateValueVisitor()) ?? new Dictionary<string, object>())
+            {
+                s.TemplateValues.Add(o);
+            }
 
-        stage.Variables.UnionWith(type.Accept(new VariableVisitor()) ?? Enumerable.Empty<Variable>());
+            return new JobVisitor(s).VisitTypes(type.GetAllNestedTypes().Append(type));
+        }, type);
 
         _dependsOnMap[name] = stageAttribute.DependsOn;
 

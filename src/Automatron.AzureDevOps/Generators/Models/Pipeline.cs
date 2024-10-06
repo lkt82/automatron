@@ -46,6 +46,8 @@ public sealed class Pipeline
 
     public IEnumerable<ScheduledTrigger>? Schedules { get; set; }
 
+    public Resources? Resources { get; set; }
+
     public IEnumerable<IVariable>? Variables { get; set; }
 
     public Pool? Pool { get; set; }

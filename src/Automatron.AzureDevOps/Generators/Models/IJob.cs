@@ -17,7 +17,7 @@ public interface IJob
 
     IEnumerable<IVariable>? Variables { get; set; }
 
-    IDictionary<string, object>? TemplateParameters { get; set; }
+    IDictionary<string, object>? TemplateValues { get; set; }
 
     IEnumerable<Step>? Steps { get; set; }
 

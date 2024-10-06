@@ -29,7 +29,7 @@ public sealed class DeploymentJob : IJob
 
     public IEnumerable<IVariable>? Variables { get; set; }
 
-    [YamlIgnore] public IDictionary<string, object>? TemplateParameters { get; set; }
+    [YamlIgnore] public IDictionary<string, object>? TemplateValues { get; set; }
 
     public int? TimeoutInMinutes { get; set; }
 

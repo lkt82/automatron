@@ -63,7 +63,28 @@ internal class JobVisitor : MemberVisitor<IEnumerable<Job>>
         var name = !string.IsNullOrEmpty(jobAttribute.Name) ? jobAttribute.Name : type.Name;
 
         var job = new Job(name, _stage, p => type.Accept(new StepVisitor(p)) ?? Enumerable.Empty<Step>(), type);
+
         job.Variables.UnionWith(type.Accept(new VariableVisitor()) ?? Enumerable.Empty<Variable>());
+
+        foreach (var o in type.Accept(new TemplateValueVisitor()) ?? new Dictionary<string, object>())
+        {
+            job.TemplateValues.Add(o);
+        }
+
+        job.TemplateParameters.UnionWith(type.Accept(new TemplateParameterVisitor()) ?? Enumerable.Empty<TemplateParameter>());
+
+        foreach (var jobTemplateParameter in job.TemplateParameters)
+        {
+            if (job.Stage.TemplateValues.TryGetValue(jobTemplateParameter.Name, out var stageValue))
+            {
+                jobTemplateParameter.Value = stageValue;
+            }
+            else if (job.TemplateValues.TryGetValue(jobTemplateParameter.Name, out var jobValue))
+            {
+                jobTemplateParameter.Value = jobValue;
+            } 
+  
+        }
 
         _dependsOnMap[name] = jobAttribute.DependsOn;
 

@@ -32,10 +32,35 @@ internal class PipelineHelpProvider : HelpTextProvider
                 (Resources.A.Help_Options, SectionOptions(command, false)),
                 ("Pipelines", SectionPipelines()),
                 ("Variables", SectionVariables()),
+                ("Parameters", SectionParameters()),
                 (null, ExtendedHelpText(command)));
         }
 
         return _inner.GetHelpText(command);
+    }
+
+    protected string SectionParameters()
+    {
+        var sb = new StringBuilder();
+
+        foreach (var pipeline in _pipelines)
+        {
+            foreach (var parameter in pipeline.Parameters)
+            {
+                sb.Append($"{PadFront(pipeline.Name)} -> {parameter.Name}");
+                if (parameter.Value != null)
+                {
+                    sb.Append($" ({parameter.Value})");
+                }
+                sb.AppendLine();
+                if (!string.IsNullOrEmpty(parameter.DisplayName))
+                {
+                    sb.AppendLine(PadFront(parameter.DisplayName));
+                }
+            }
+        }
+
+        return sb.ToString();
     }
 
     protected string SectionVariables()

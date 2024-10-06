@@ -16,4 +16,5 @@ public sealed class ScheduledTrigger
 
     public TriggerBranches? Branches { get; set; }
 }
+
 #endif

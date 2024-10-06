@@ -7,4 +7,5 @@ public sealed class TriggerBranches
 
     public string[]? Exclude { get; set; }
 }
+
 #endif

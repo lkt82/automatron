@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
 
-internal class TemplateParameterVisitor : SymbolVisitor<IDictionary<string, object>>
+internal class TemplateValueVisitor : SymbolVisitor<IDictionary<string, object>>
 {
     public override IDictionary<string, object> VisitNamedType(INamedTypeSymbol symbol)
     {

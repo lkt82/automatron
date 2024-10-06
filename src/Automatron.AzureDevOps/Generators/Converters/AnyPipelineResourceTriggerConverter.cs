@@ -7,11 +7,11 @@ using YamlDotNet.Serialization;
 
 namespace Automatron.AzureDevOps.Generators.Converters;
 
-internal sealed class DisabledCiTriggerConverter : IYamlTypeConverter
+internal sealed class AnyPipelineResourceTriggerConverter : IYamlTypeConverter
 {
     public bool Accepts(Type type)
     {
-        return type == typeof(DisabledCiTrigger);
+        return type == typeof(AnyPipelineResourceTrigger);
     }
 
     public object ReadYaml(IParser parser, Type type)
@@ -21,8 +21,7 @@ internal sealed class DisabledCiTriggerConverter : IYamlTypeConverter
 
     public void WriteYaml(IEmitter emitter, object? value, Type type)
     {
-        emitter.Emit(new Scalar(null, "none"));
+        emitter.Emit(new Scalar(null, "true"));
     }
 }
-
 #endif

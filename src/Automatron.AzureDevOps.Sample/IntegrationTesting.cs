@@ -10,6 +10,7 @@ namespace Automatron.AzureDevOps.Sample;
     DisplayName = "Midnight",
     IncludeBranches = new[] { "master" }
 )]
+[PipelineTrigger(nameof(ContinuousDeployment),Source = "Ci")]
 [Pool(VmImage = "ubuntu-latest")]
 [VariableGroup("Nuget")]
 [VariableGroup("Pulumi")]
@@ -27,15 +28,21 @@ public class IntegrationTesting
     [Variable(Value = "AZURE_CLIENT_ID")]
     public virtual string? AzureClientId { get; set; }
 
+
+    [Variable(Value = "AZURE_CLIENT_SECRET")]
+    public virtual Secret? AzureClientSecret { get; set; }
+
     [Stage("Integration")]
     [Variable("NUGET.PLUGIN.HANDSHAKE.TIMEOUT.IN.SECONDS", "60")]
     [Variable("NUGET.PLUGIN.REQUEST.TIMEOUT.IN.SECONDS", "60")]
     [VariableGroup("Test")]
     public class IntegrationStage
     {
+        private readonly IntegrationTesting _integrationTesting;
+
         public IntegrationStage(IntegrationTesting integrationTesting)
         {
-
+            _integrationTesting = integrationTesting;
         }
 
         [DeploymentJob("Setup", Environment = "Integration")]

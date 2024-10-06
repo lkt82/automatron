@@ -41,6 +41,8 @@ public class Stage : IEqualityComparer<Stage>
 
     public ISet<Variable> Variables { get; } = new HashSet<Variable>();
 
+    public IDictionary<string, object> TemplateValues { get; } = new Dictionary<string, object>();
+
     public bool Equals(Stage? x, Stage? y)
     {
         if (ReferenceEquals(x, y)) return true;

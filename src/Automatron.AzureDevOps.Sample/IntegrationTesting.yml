@@ -13,6 +13,11 @@ schedules:
   branches:
     include:
     - master
+resources:
+  pipelines:
+  - name: ContinuousDeployment
+    source: Ci
+    trigger: true
 variables:
 - group: Nuget
 - group: Pulumi
@@ -44,6 +49,7 @@ stages:
               RUN_TESTS: ${{ parameters.RunTests }}
               NUGET_API_KEY: $(NugetApiKey)
               AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+              AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
             name: Init
           - script: dotnet run -- azuredevops run --stage "Integration" --job "Setup" --step "Update" -n "Int"
             workingDirectory: src/Automatron.AzureDevOps.Sample
@@ -51,6 +57,7 @@ stages:
               RUN_TESTS: ${{ parameters.RunTests }}
               NUGET_API_KEY: $(NugetApiKey)
               AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+              AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
             name: Update
   - deployment: Teardown
     dependsOn:

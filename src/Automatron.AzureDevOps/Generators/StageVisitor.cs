@@ -64,7 +64,7 @@ internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>
             {
                 Pool = symbol.Accept(new PoolVisitor()),
                 Variables = symbol.Accept(new VariableVisitor()),
-                TemplateParameters = symbol.Accept(new TemplateParameterVisitor())
+                TemplateParameters = symbol.Accept(new TemplateValueVisitor())
             };
 
         return stage;

@@ -4,7 +4,7 @@ using Automatron.Models;
 
 namespace Automatron.AzureDevOps.Models;
 
-public record Parameter(string Name, string? DisplayName, PropertyInfo Property) : IPropertyValue
+public record TemplateParameter(string Name, PropertyInfo Property) : IPropertyValue
 {
     public object? Value { get; set; }
 }

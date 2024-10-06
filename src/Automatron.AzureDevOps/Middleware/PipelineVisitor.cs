@@ -46,7 +46,8 @@ namespace Automatron.AzureDevOps.Middleware
             };
 
             pipeline.Variables.UnionWith(type.Accept(new VariableVisitor()) ?? Enumerable.Empty<Variable>());
-            
+            pipeline.Parameters.UnionWith(type.Accept(new ParameterVisitor()) ?? Enumerable.Empty<Parameter>());
+
             return pipeline;
 
         }

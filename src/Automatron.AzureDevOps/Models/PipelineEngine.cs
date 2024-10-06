@@ -121,8 +121,9 @@ public class PipelineEngine : IPipelineEngine
             var stageService = scope.ServiceProvider.GetRequiredService(job.Stage.Type);
             BindProperties(stageService, job.Stage.Variables);
 
-            var jobService = serviceProvider.GetRequiredService(job.Type);
+            var jobService = scope.ServiceProvider.GetRequiredService(job.Type);
             BindProperties(jobService, job.Variables);
+            BindProperties(jobService, job.TemplateParameters);
 
             foreach (var step in job.Steps)
             {
@@ -187,9 +188,9 @@ public class PipelineEngine : IPipelineEngine
         }
     }
 
-    private static void BindProperties(object service, IEnumerable<IPropertyValue> variables)
+    private static void BindProperties(object service, IEnumerable<IPropertyValue> propertyValues)
     {
-        foreach (var variable in variables)
+        foreach (var variable in propertyValues)
         {
             if (variable.Value == null)
             {
@@ -213,17 +214,17 @@ public class PipelineEngine : IPipelineEngine
         }
     }
 
-    private static void ConvertParameters(IEnumerable<ParameterValue> input, IDictionary<string, Parameter> variables)
+    private static void ConvertParameters(IEnumerable<ParameterValue> input, IDictionary<string, Parameter> parameters)
     {
-        foreach (var variable in input)
+        foreach (var parameterValue in input)
         {
-            if (!variables.TryGetValue(variable.Name, out var foundVariable))
+            if (!parameters.TryGetValue(parameterValue.Name, out var foundVariable))
             {
                 continue;
             }
 
             var conv = TypeDescriptor.GetConverter(foundVariable.Property.PropertyType);
-            foundVariable.Value = conv.ConvertTo(variable.Value, foundVariable.Property.PropertyType);
+            foundVariable.Value = conv.ConvertTo(parameterValue.Value, foundVariable.Property.PropertyType);
         }
     }
 

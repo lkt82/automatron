@@ -64,6 +64,8 @@ internal class PipelineVisitor : SymbolVisitor
 
         pipeline.Schedules = symbol.Accept(new ScheduledTriggerVisitor());
 
+        pipeline.Resources = symbol.Accept(new ResourcesVisitor());
+
         pipeline.Parameters = symbol.Accept(new ParameterVisitor());
 
         pipeline.Variables = symbol.Accept(new VariableVisitor());

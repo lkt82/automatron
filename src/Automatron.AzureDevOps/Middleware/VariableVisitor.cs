@@ -28,11 +28,11 @@ internal class VariableVisitor : MemberVisitor<IEnumerable<Variable>>
 
         if (variableAttribute != null)
         {
-            yield return CreateVariableBinding(propertyInfo, variableAttribute);
+            yield return CreateVariable(propertyInfo, variableAttribute);
         }
     }
 
-    private static Variable CreateVariableBinding(PropertyInfo propertyInfo, VariableAttribute variableAttribute)
+    private static Variable CreateVariable(PropertyInfo propertyInfo, VariableAttribute variableAttribute)
     {
         var name = !string.IsNullOrEmpty(variableAttribute.Name) ? variableAttribute.Name : propertyInfo.Name;
 
