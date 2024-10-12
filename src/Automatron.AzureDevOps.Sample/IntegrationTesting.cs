@@ -10,7 +10,7 @@ namespace Automatron.AzureDevOps.Sample;
     DisplayName = "Midnight",
     IncludeBranches = new[] { "master" }
 )]
-[PipelineTrigger(nameof(ContinuousDeployment),Source = "Ci")]
+[PipelineTrigger("Ci", "Ci")]
 [Pool(VmImage = "ubuntu-latest")]
 [VariableGroup("Nuget")]
 [VariableGroup("Pulumi")]

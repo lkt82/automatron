@@ -5,9 +5,10 @@ namespace Automatron.AzureDevOps.Generators.Models;
 
 public sealed class PipelineResource
 {
-    public PipelineResource(string name)
+    public PipelineResource(string name,string source)
     {
         Name = name;
+        Source = source;
     }
 
     [YamlMember(Alias = "pipeline")]
@@ -15,7 +16,7 @@ public sealed class PipelineResource
 
     public string Source { get; set; }
 
-    public string Project { get; set; }
+    public string? Project { get; set; }
 
     public IPipelineResourceTrigger? Trigger { get; set; }
 }

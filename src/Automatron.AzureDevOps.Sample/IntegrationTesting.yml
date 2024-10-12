@@ -15,7 +15,7 @@ schedules:
     - master
 resources:
   pipelines:
-  - pipeline: ContinuousDeployment
+  - pipeline: Ci
     source: Ci
     trigger: true
 variables:

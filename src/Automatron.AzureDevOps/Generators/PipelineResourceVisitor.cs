@@ -21,9 +21,8 @@ internal class PipelineResourceVisitor : SymbolVisitor<IEnumerable<PipelineResou
 
     private static PipelineResource CreatePipelineResource(PipelineTriggerAttribute pipelineTriggerAttribute)
     {
-        var pipelineTrigger = new PipelineResource(pipelineTriggerAttribute.Name)
+        var pipelineTrigger = new PipelineResource(pipelineTriggerAttribute.Name, pipelineTriggerAttribute.Source)
         {
-            Source = pipelineTriggerAttribute.Source,
             Project = pipelineTriggerAttribute.Project
         };
 
