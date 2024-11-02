@@ -22,6 +22,7 @@ stages:
           - task: NuGetAuthenticate@1
           - task: Pulumi@1
             displayName: Pulumi install
+          - task: KubeloginInstaller@0
           - script: dotnet run -- azuredevops run --stage "DeployToTesting" --job "Deployment" --step "Configure" -n "Ci"
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
@@ -62,6 +63,7 @@ stages:
           - task: NuGetAuthenticate@1
           - task: Pulumi@1
             displayName: Pulumi install
+          - task: KubeloginInstaller@0
           - script: dotnet run -- azuredevops run --stage "DeployToStaging" --job "Deployment" --step "Configure" -n "Ci"
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:
@@ -102,6 +104,7 @@ stages:
           - task: NuGetAuthenticate@1
           - task: Pulumi@1
             displayName: Pulumi install
+          - task: KubeloginInstaller@0
           - script: dotnet run -- azuredevops run --stage "DeployToProduction" --job "Deployment" --step "Configure" -n "Ci"
             workingDirectory: src/Automatron.AzureDevOps.Sample
             env:

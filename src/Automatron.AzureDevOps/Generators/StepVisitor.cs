@@ -9,6 +9,7 @@ using Automatron.AzureDevOps.IO;
 using Automatron.CodeAnalysis;
 using Automatron.Collections;
 using Microsoft.CodeAnalysis;
+using static Automatron.AzureDevOps.Generators.Models.KubeLoginInstallerTask;
 using static Automatron.AzureDevOps.Generators.Models.PulumiTask;
 
 namespace Automatron.AzureDevOps.Generators;
@@ -116,12 +117,43 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>
             yield return CreatePulumiTask(symbol, pulumiAttribute.Last());
         }
 
+        var kubeLoginInstallerAttribute = symbol.GetAllCustomAttributes<KubeLoginInstallerAttribute>().ToArray();
+
+        if (kubeLoginInstallerAttribute.Any())
+        {
+            yield return CreateKubeLoginInstallerTask(symbol, kubeLoginInstallerAttribute.Last());
+        }
+
         var stepAttributes = symbol.GetAllCustomAttributes<StepAttribute>().ToArray();
 
         if (stepAttributes.Any())
         {
             yield return CreateAutomatronScript(symbol, Merge(stepAttributes));
         }
+    }
+
+    private Step CreateKubeLoginInstallerTask(IMethodSymbol member, KubeLoginInstallerAttribute kubeLoginInstallerAttribute)
+    {
+        var stepName = kubeLoginInstallerAttribute.Name;
+
+        var displayName = string.IsNullOrEmpty(kubeLoginInstallerAttribute.Emoji) ? kubeLoginInstallerAttribute.DisplayName : $"{kubeLoginInstallerAttribute.Emoji} {stepName}";
+
+        KubeLoginInstallerInputs? inputs = null;
+
+        if (kubeLoginInstallerAttribute.Version != null)
+        {
+            inputs = new KubeLoginInstallerInputs
+            {
+                KubeLoginVersion = kubeLoginInstallerAttribute.Version
+            };
+        }
+
+        return new KubeLoginInstallerTask(_job, inputs)
+        {
+            Name = stepName,
+            DisplayName = displayName,
+            Condition = kubeLoginInstallerAttribute.Condition
+        };
     }
 
     private Step CreatePulumiTask(IMethodSymbol member, PulumiAttribute pulumiAttribute)

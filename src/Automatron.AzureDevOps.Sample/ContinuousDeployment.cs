@@ -18,6 +18,7 @@ public abstract class PulumiDeploymentJob
     [Checkout(CheckoutSource.Self,FetchDepth = 0)]
     [NuGetAuthenticate]
     [Pulumi(DisplayName = "Pulumi install")]
+    [KubeLoginInstaller]
     [Step]
     public virtual void Configure()
     {
