@@ -19,6 +19,7 @@ stages:
           steps:
           - checkout: self
             fetchDepth: 0
+          - task: NuGetToolInstaller@1
           - task: NuGetAuthenticate@1
           - task: Pulumi@1
             displayName: Pulumi install
@@ -60,6 +61,7 @@ stages:
           steps:
           - checkout: self
             fetchDepth: 0
+          - task: NuGetToolInstaller@1
           - task: NuGetAuthenticate@1
           - task: Pulumi@1
             displayName: Pulumi install
@@ -101,6 +103,7 @@ stages:
           steps:
           - checkout: self
             fetchDepth: 0
+          - task: NuGetToolInstaller@1
           - task: NuGetAuthenticate@1
           - task: Pulumi@1
             displayName: Pulumi install

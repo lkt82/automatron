@@ -10,6 +10,7 @@ using Automatron.CodeAnalysis;
 using Automatron.Collections;
 using Microsoft.CodeAnalysis;
 using static Automatron.AzureDevOps.Generators.Models.KubeLoginInstallerTask;
+using static Automatron.AzureDevOps.Generators.Models.NuGetToolInstallerTask;
 using static Automatron.AzureDevOps.Generators.Models.PulumiTask;
 
 namespace Automatron.AzureDevOps.Generators;
@@ -96,35 +97,37 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>
 
     public override IEnumerable<Step> VisitMethod(IMethodSymbol symbol)
     {
-        var checkoutAttribute = symbol.GetAllCustomAttributes<CheckoutAttribute>().ToArray();
+        var nodeAttribute = symbol.GetAllCustomAttributes<NodeAttribute>().ToArray();
 
-        if (checkoutAttribute.Any())
+        foreach (var attribute in nodeAttribute)
         {
-            yield return CreateCheckoutTask(symbol, checkoutAttribute.Last());
+            if (attribute is CheckoutAttribute checkoutAttribute)
+            {
+                yield return CreateCheckoutTask(symbol, checkoutAttribute);
+            }
+
+            if (attribute is NuGetToolInstallerAttribute nuGetToolInstallerAttribute)
+            {
+                yield return CreateNuGetToolInstallerTask(symbol, nuGetToolInstallerAttribute);
+            }
+
+            if (attribute is NuGetAuthenticateAttribute nuGetAuthenticateAttribute)
+            {
+                yield return CreateNuGetAuthenticateTask(symbol, nuGetAuthenticateAttribute);
+            }
+
+            if (attribute is PulumiAttribute pulumiAttribute)
+            {
+                yield return CreatePulumiTask(symbol, pulumiAttribute);
+            }
+
+            if (attribute is KubeLoginInstallerAttribute kubeLoginInstallerAttribute)
+            {
+                yield return CreateKubeLoginInstallerTask(symbol, kubeLoginInstallerAttribute);
+            }
         }
 
-        var nuGetAuthenticateAttribute = symbol.GetAllCustomAttributes<NuGetAuthenticateAttribute>().ToArray();
-
-        if (nuGetAuthenticateAttribute.Any())
-        {
-            yield return CreateNuGetAuthenticateTask(symbol, nuGetAuthenticateAttribute.Last());
-        }
-
-        var pulumiAttribute = symbol.GetAllCustomAttributes<PulumiAttribute>().ToArray();
-
-        if (pulumiAttribute.Any())
-        {
-            yield return CreatePulumiTask(symbol, pulumiAttribute.Last());
-        }
-
-        var kubeLoginInstallerAttribute = symbol.GetAllCustomAttributes<KubeLoginInstallerAttribute>().ToArray();
-
-        if (kubeLoginInstallerAttribute.Any())
-        {
-            yield return CreateKubeLoginInstallerTask(symbol, kubeLoginInstallerAttribute.Last());
-        }
-
-        var stepAttributes = symbol.GetAllCustomAttributes<StepAttribute>().ToArray();
+        var stepAttributes = nodeAttribute.OfType<StepAttribute>().ToArray();
 
         if (stepAttributes.Any())
         {
@@ -153,6 +156,36 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>
             Name = stepName,
             DisplayName = displayName,
             Condition = kubeLoginInstallerAttribute.Condition
+        };
+    }
+
+    private Step CreateNuGetToolInstallerTask(IMethodSymbol member, NuGetToolInstallerAttribute nuGetToolInstallerAttribute)
+    {
+        var stepName = nuGetToolInstallerAttribute.Name;
+
+        var displayName = string.IsNullOrEmpty(nuGetToolInstallerAttribute.Emoji) ? nuGetToolInstallerAttribute.DisplayName : $"{nuGetToolInstallerAttribute.Emoji} {stepName}";
+
+        NuGetToolInstallerInputs? inputs = null;
+
+        if (!string.IsNullOrEmpty(nuGetToolInstallerAttribute.VersionSpec) || nuGetToolInstallerAttribute.CheckLatest)
+        {
+            inputs = new NuGetToolInstallerInputs();
+
+            if (!string.IsNullOrEmpty(nuGetToolInstallerAttribute.VersionSpec))
+            {
+                inputs.VersionSpec = nuGetToolInstallerAttribute.VersionSpec;
+            }
+            if (nuGetToolInstallerAttribute.CheckLatest)
+            {
+                inputs.CheckLatest = true;
+            }
+        }
+
+        return new NuGetToolInstallerTask(_job, inputs)
+        {
+            Name = stepName,
+            DisplayName = displayName,
+            Condition = nuGetToolInstallerAttribute.Condition
         };
     }
 

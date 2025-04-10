@@ -16,6 +16,7 @@ public abstract class PulumiDeploymentJob
     public virtual string? AzureClientId { get; set; }
 
     [Checkout(CheckoutSource.Self,FetchDepth = 0)]
+    [NuGetToolInstaller]
     [NuGetAuthenticate]
     [Pulumi(DisplayName = "Pulumi install")]
     [KubeLoginInstaller]

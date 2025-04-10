@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 
 namespace Automatron.CodeAnalysis;
 
@@ -9,11 +10,11 @@ public static class MethodSymbolExtensions
 {
     public static IEnumerable<T> GetAllCustomAttributes<T>(this IMethodSymbol symbol) where T : Attribute
     {
-        var list = new List<T>();
+        var list = new List<IEnumerable<T>>();
 
         var current = symbol;
 
-        list.AddRange(current.GetCustomAttributes<T>());
+        list.Add(current.GetCustomAttributes<T>());
 
         while (current.IsOverride)
         {
@@ -24,12 +25,13 @@ public static class MethodSymbolExtensions
                 break;
             }
 
-            list.AddRange(current.GetCustomAttributes<T>());
-            
+            list.Add(current.GetCustomAttributes<T>());
+
         }
 
         list.Reverse();
-        return list;
+
+        return list.SelectMany(c => c);
     }
 }
 #endif
