@@ -44,6 +44,9 @@ public sealed class Pipeline
     [YamlMember(Alias = "trigger")]
     public ICiTrigger? CiTrigger { get; set; }
 
+    [YamlMember(Alias = "pr")]
+    public IPrTrigger? PrTrigger { get; set; }
+
     public IEnumerable<ScheduledTrigger>? Schedules { get; set; }
 
     public Resources? Resources { get; set; }

@@ -8,6 +8,7 @@ namespace Automatron.Pipeline;
 
 [Pipeline("Ci",YmlDir = RelativeRootDir,YmlName = "azure-pipelines")]
 [CiTrigger(Batch = true, IncludeBranches = ["main"], IncludePaths = ["src"])]
+[PrTrigger(Disabled = true)]
 [Pool(VmImage = "ubuntu-latest")]
 [VariableGroup("nuget")]
 [Stage]

@@ -60,6 +60,8 @@ internal class PipelineVisitor : SymbolVisitor
 
         var pipeline = CreatePipeline(symbol, pipelineAttribute);
 
+        pipeline.PrTrigger = symbol.Accept(new PrTriggerVisitor());
+
         pipeline.CiTrigger = symbol.Accept(new CiTriggerVisitor());
 
         pipeline.Schedules = symbol.Accept(new ScheduledTriggerVisitor());

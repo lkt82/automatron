@@ -99,12 +99,14 @@ internal class PipelineYamlGenerator : ISourceGenerator
     private static ISerializer CreateYamlSerializer()
     {
         var disabledCiTriggerConverter = new DisabledCiTriggerConverter();
+        var disabledPrTriggerConverter = new DisabledPrTriggerConverter();
         var anyPipelineResourceTriggerConverter = new AnyPipelineResourceTriggerConverter();
         var serializerBuilder = new SerializerBuilder();
 
 //#pragma warning disable CS0618 // Type or member is obsolete
         var serializer = serializerBuilder
             .WithTypeConverter(disabledCiTriggerConverter)
+            .WithTypeConverter(disabledPrTriggerConverter)
             .WithTypeConverter(anyPipelineResourceTriggerConverter)
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .DisableAliases()

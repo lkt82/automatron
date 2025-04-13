@@ -4,15 +4,17 @@ using JetBrains.Annotations;
 namespace Automatron.AzureDevOps.Annotations;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
-public class CiTriggerAttribute : Attribute
+public class PrTriggerAttribute : Attribute
 {
     [UsedImplicitly]
-    public CiTriggerAttribute()
+    public PrTriggerAttribute()
     {
 
     }
 
-    public bool Batch { get; set; }
+    public bool AutoCancel { get; set; }
+
+    public bool Drafts { get; set; }
 
     public bool Disabled { get; set; }
 

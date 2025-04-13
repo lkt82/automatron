@@ -24,7 +24,7 @@ internal class CiTriggerVisitor : SymbolVisitor<ICiTrigger>
 
         var trigger = new CiTrigger
         {
-            Batch = ciTriggerAttribute.Batch
+            Batch = ciTriggerAttribute.Batch ? true : null
         };
 
         if (ciTriggerAttribute.IncludeBranches != null || ciTriggerAttribute.ExcludeBranches != null)
