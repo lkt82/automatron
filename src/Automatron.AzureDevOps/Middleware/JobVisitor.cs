@@ -1,4 +1,4 @@
-﻿#if NET6_0
+﻿#if NET8_0
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,16 +8,9 @@ using Automatron.Reflection;
 
 namespace Automatron.AzureDevOps.Middleware;
 
-internal class JobVisitor : MemberVisitor<IEnumerable<Job>>
+internal class JobVisitor(Stage stage) : MemberVisitor<IEnumerable<Job>>
 {
-    private readonly Stage _stage;
-
     private readonly Dictionary<string, string[]?> _dependsOnMap = new();
-
-    public JobVisitor(Stage stage)
-    {
-        _stage = stage;
-    }
 
     public IEnumerable<Job> VisitTypes(IEnumerable<Type> types)
     {
@@ -62,7 +55,7 @@ internal class JobVisitor : MemberVisitor<IEnumerable<Job>>
     {
         var name = !string.IsNullOrEmpty(jobAttribute.Name) ? jobAttribute.Name : type.Name;
 
-        var job = new Job(name, _stage, p => type.Accept(new StepVisitor(p)) ?? Enumerable.Empty<Step>(), type);
+        var job = new Job(name, stage, p => type.Accept(new StepVisitor(p)) ?? Enumerable.Empty<Step>(), type);
 
         job.Variables.UnionWith(type.Accept(new VariableVisitor()) ?? Enumerable.Empty<Variable>());
 

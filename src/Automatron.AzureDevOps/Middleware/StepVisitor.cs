@@ -1,4 +1,4 @@
-﻿#if NET6_0
+﻿#if NET8_0
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,16 +10,9 @@ using Automatron.Reflection;
 
 namespace Automatron.AzureDevOps.Middleware;
 
-internal class StepVisitor : MemberVisitor<IEnumerable<Step>>
+internal class StepVisitor(Job job) : MemberVisitor<IEnumerable<Step>>
 {
-    private readonly Job _job;
-
     private readonly Dictionary<string, string[]?> _dependsOnMap = new();
-
-    public StepVisitor(Job job)
-    {
-        _job = job;
-    }
 
     public override IEnumerable<Step>? VisitType(Type type)
     {
@@ -27,7 +20,7 @@ internal class StepVisitor : MemberVisitor<IEnumerable<Step>>
 
         foreach (var methodInfo in type.GetAllMethods())
         {
-            foreach (var step in methodInfo.Accept(this) ?? Enumerable.Empty<Step>())
+            foreach (var step in methodInfo.Accept(this) ?? [])
             {
                 stepMap.Add(step.Name, step);
 
@@ -66,7 +59,7 @@ internal class StepVisitor : MemberVisitor<IEnumerable<Step>>
 
         _dependsOnMap[name] = stepAttribute.DependsOn;
 
-        return new Step(name, _job, new MethodAction(methodInfo));
+        return new Step(name, job, new MethodAction(methodInfo));
     }
 
     private static StepAttribute Merge(IEnumerable<StepAttribute> stepAttributes)

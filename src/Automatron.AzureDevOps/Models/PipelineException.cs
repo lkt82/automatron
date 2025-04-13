@@ -1,22 +1,19 @@
-﻿#if NET6_0
+﻿#if NET8_0
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace Automatron.AzureDevOps.Models;
 
-public class PipelineException : AggregateException
+public class PipelineException(Pipeline pipeline, IEnumerable<StageException> stageExceptions, TimeSpan elapsed)
+    : AggregateException(stageExceptions)
 {
+    [UsedImplicitly] 
     public IEnumerable<StageException> StageExceptions => InnerExceptions.Cast<StageException>();
 
-    public Pipeline Pipeline { get; }
+    public Pipeline Pipeline { get; } = pipeline;
 
-    public TimeSpan Elapsed { get; }
-
-    public PipelineException(Pipeline pipeline,IEnumerable<StageException> stageExceptions, TimeSpan elapsed) : base(stageExceptions)
-    {
-        Pipeline = pipeline;
-        Elapsed = elapsed;
-    }
+    public TimeSpan Elapsed { get; } = elapsed;
 }
 #endif

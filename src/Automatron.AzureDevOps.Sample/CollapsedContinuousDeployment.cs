@@ -8,15 +8,8 @@ public class CollapsedContinuousDeployment
 {
     [Stage]
     [DeploymentJob(Environment = "Testing")]
-    public class DeployToTesting
+    public class DeployToTesting(LoggingCommands loggingCommands)
     {
-        private readonly LoggingCommands _loggingCommands;
-
-        public DeployToTesting(LoggingCommands loggingCommands)
-        {
-            _loggingCommands = loggingCommands;
-        }
-
         [Step(Emoji = "🔢")]
         public void Version()
         {
@@ -25,15 +18,8 @@ public class CollapsedContinuousDeployment
 
     [Stage]
     [DeploymentJob(Environment = "Production")]
-    public class DeployToProduction
+    public class DeployToProduction(LoggingCommands loggingCommands)
     {
-        private readonly LoggingCommands _loggingCommands;
-
-        public DeployToProduction(LoggingCommands loggingCommands)
-        {
-            _loggingCommands = loggingCommands;
-        }
-
         [Step(Emoji = "🔢")]
         public void Version()
         {

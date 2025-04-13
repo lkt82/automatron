@@ -1,4 +1,4 @@
-﻿#if NET6_0
+﻿#if NET8_0
 using Automatron.Models;
 using System.Reflection;
 

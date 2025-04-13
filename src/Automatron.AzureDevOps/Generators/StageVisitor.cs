@@ -9,16 +9,9 @@ using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
 
-internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>
+internal class StageVisitor(Pipeline pipeline) : SymbolVisitor<IEnumerable<Stage>>
 {
-    private readonly Pipeline _pipeline;
-
     private Dictionary<string,Stage> Stages { get; } = new();
-
-    public StageVisitor(Pipeline pipeline)
-    {
-        _pipeline = pipeline;
-    }
 
     public override IEnumerable<Stage> VisitNamedType(INamedTypeSymbol symbol)
     {
@@ -60,7 +53,7 @@ internal class StageVisitor : SymbolVisitor<IEnumerable<Stage>>
     {
         var name = !string.IsNullOrEmpty(stageAttribute.Name) ? stageAttribute.Name! : symbol.Name;
 
-        var stage = new Stage(_pipeline, name, stageAttribute.DisplayName, stageAttribute.DependsOn, stageAttribute.Condition, symbol)
+        var stage = new Stage(pipeline, name, stageAttribute.DisplayName, stageAttribute.DependsOn, stageAttribute.Condition, symbol)
             {
                 Pool = symbol.Accept(new PoolVisitor()),
                 Variables = symbol.Accept(new VariableVisitor()),

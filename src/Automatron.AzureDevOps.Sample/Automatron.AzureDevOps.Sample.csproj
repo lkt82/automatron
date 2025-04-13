@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	  <AutomatronAzureDevOpsCommand>azuredevops run</AutomatronAzureDevOpsCommand>
@@ -14,9 +14,9 @@
 
 	<ItemGroup>
     <ProjectReference Include="..\Automatron.AzureDevOps\Automatron.AzureDevOps.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" SetTargetFramework="TargetFramework=netstandard2.0" />
-    <ProjectReference Include="..\Automatron.AzureDevOps\Automatron.AzureDevOps.csproj" SetTargetFramework="TargetFramework=net6.0" />
+    <ProjectReference Include="..\Automatron.AzureDevOps\Automatron.AzureDevOps.csproj" SetTargetFramework="TargetFramework=net8.0" />
     <ProjectReference Include="..\Automatron\Automatron.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" SetTargetFramework="TargetFramework=netstandard2.0" />
-    <ProjectReference Include="..\Automatron\Automatron.csproj" SetTargetFramework="TargetFramework=net6.0" />
+    <ProjectReference Include="..\Automatron\Automatron.csproj" SetTargetFramework="TargetFramework=net8.0" />
 	</ItemGroup>
 
 </Project>

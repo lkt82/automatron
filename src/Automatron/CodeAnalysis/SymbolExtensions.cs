@@ -1,7 +1,6 @@
 ﻿#if NETSTANDARD2_0
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 
 namespace Automatron.CodeAnalysis;
@@ -20,7 +19,7 @@ public static class SymbolExtensions
             return methodSymbol.GetAllCustomAttributes<T>();
         }
 
-        return Enumerable.Empty<T>();
+        return [];
     }
 
     public static IEnumerable<T> GetCustomAttributes<T>(this ISymbol symbol) where T : Attribute

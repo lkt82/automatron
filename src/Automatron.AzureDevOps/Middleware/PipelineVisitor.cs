@@ -1,4 +1,4 @@
-﻿#if NET6_0
+﻿#if NET8_0
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +14,7 @@ namespace Automatron.AzureDevOps.Middleware
         {
             foreach (var type in types)
             {
-                foreach (var pipeline in type.Accept(this) ?? Enumerable.Empty<Pipeline>())
+                foreach (var pipeline in type.Accept(this) ?? [])
                 {
                     yield return pipeline;
                 }
@@ -45,8 +45,8 @@ namespace Automatron.AzureDevOps.Middleware
                 RootDir = pipelineAttribute.RootDir
             };
 
-            pipeline.Variables.UnionWith(type.Accept(new VariableVisitor()) ?? Enumerable.Empty<Variable>());
-            pipeline.Parameters.UnionWith(type.Accept(new ParameterVisitor()) ?? Enumerable.Empty<Parameter>());
+            pipeline.Variables.UnionWith(type.Accept(new VariableVisitor()) ?? []);
+            pipeline.Parameters.UnionWith(type.Accept(new ParameterVisitor()) ?? []);
 
             return pipeline;
 

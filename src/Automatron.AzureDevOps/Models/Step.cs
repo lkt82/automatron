@@ -1,19 +1,12 @@
-﻿#if NET6_0
+﻿#if NET8_0
 using System;
 using System.Collections.Generic;
 using Automatron.Models;
 
 namespace Automatron.AzureDevOps.Models;
 
-public class Step : IEqualityComparer<Step>
+public class Step(string name, Job job, IAction action) : IEqualityComparer<Step>
 {
-    public Step(string name,Job job, IAction action)
-    {
-        Name = name;
-        Job = job;
-        Action = action;
-    }
-
     public Step(string name, Job job, string method) : this(name, job, new MethodAction(method, job.Type))
     {
     }
@@ -22,11 +15,11 @@ public class Step : IEqualityComparer<Step>
     {
     }
 
-    public string Name { get; }
+    public string Name { get; } = name;
 
-    public Job Job { get; }
+    public Job Job { get; } = job;
 
-    public IAction Action { get; }
+    public IAction Action { get; } = action;
 
     public ISet<Step> DependsOn { get; } = new HashSet<Step>();
 

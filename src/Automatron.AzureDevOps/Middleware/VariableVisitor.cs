@@ -1,7 +1,6 @@
-﻿#if NET6_0
+﻿#if NET8_0
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Automatron.AzureDevOps.Annotations;
 using Automatron.AzureDevOps.Models;
@@ -15,7 +14,7 @@ internal class VariableVisitor : MemberVisitor<IEnumerable<Variable>>
     {
         foreach (var propertyInfo in type.GetAllProperties())
         {
-            foreach (var variableBinding in propertyInfo.Accept(this) ?? Enumerable.Empty<Variable>())
+            foreach (var variableBinding in propertyInfo.Accept(this) ?? [])
             {
                 yield return variableBinding;
             }

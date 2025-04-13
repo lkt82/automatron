@@ -3,15 +3,10 @@
 namespace Automatron.AzureDevOps.Annotations;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true)]
-public class ScheduledTriggerAttribute : Attribute
+public class ScheduledTriggerAttribute(string cron) : Attribute
 {
-    public ScheduledTriggerAttribute(string cron)
-    {
-        Cron = cron;
-    }
+    public string Cron { get; } = cron;
 
-    public string Cron { get; }
-            
     public string? DisplayName { get; set; }
 
     public bool Always { get; set; }

@@ -8,7 +8,7 @@ namespace Automatron.AzureDevOps.Sample;
 [ScheduledTrigger(
     "2 0 * * *",
     DisplayName = "Midnight",
-    IncludeBranches = new[] { "master" }
+    IncludeBranches = ["master"]
 )]
 [PipelineTrigger("Ci", "Ci")]
 [Pool(VmImage = "ubuntu-latest")]
@@ -19,7 +19,7 @@ namespace Automatron.AzureDevOps.Sample;
 [Variable("NUGET.PLUGIN.REQUEST.TIMEOUT.IN.SECONDS", "30")]
 public class IntegrationTesting
 {
-    [Parameter(DisplayName = "Run Tests", Values = new object[] { "Yes", "No" })]
+    [Parameter(DisplayName = "Run Tests", Values = ["Yes", "No"])]
     public string? RunTests { get; set; }
 
     [Variable(Description = "The nuget api key")]
@@ -36,25 +36,13 @@ public class IntegrationTesting
     [Variable("NUGET.PLUGIN.HANDSHAKE.TIMEOUT.IN.SECONDS", "60")]
     [Variable("NUGET.PLUGIN.REQUEST.TIMEOUT.IN.SECONDS", "60")]
     [VariableGroup("Test")]
-    public class IntegrationStage
+    public class IntegrationStage(IntegrationTesting integrationTesting)
     {
-        private readonly IntegrationTesting _integrationTesting;
-
-        public IntegrationStage(IntegrationTesting integrationTesting)
-        {
-            _integrationTesting = integrationTesting;
-        }
+        public IntegrationTesting Pipeline = integrationTesting;
 
         [DeploymentJob("Setup", Environment = "Integration")]
-        public class SetupJob
+        public class SetupJob(IntegrationStage stage)
         {
-            private readonly IntegrationStage _stage;
-
-            public SetupJob(IntegrationStage stage)
-            {
-                _stage = stage;
-            }
-
             [Environment]
             public virtual string? Environment { get; set; }
 
@@ -64,14 +52,14 @@ public class IntegrationTesting
 
             }
 
-            [Step(DependsOn = new[] { nameof(Init) })]
+            [Step(DependsOn = [nameof(Init)])]
             public virtual void Update()
             {
-
+                var pipeline = stage.Pipeline;
             }
         }
 
-        [DeploymentJob("Teardown", Environment = "Integration", DependsOn = new []{ "Setup" } )]
+        [DeploymentJob("Teardown", Environment = "Integration", DependsOn = ["Setup"])]
         public class TeardownJob
         {
             [Environment]
@@ -83,7 +71,7 @@ public class IntegrationTesting
 
             }
 
-            [Step(DependsOn = new []{ nameof(Init) })]
+            [Step(DependsOn = [nameof(Init)])]
             public virtual void Destroy()
             {
 

@@ -4,13 +4,8 @@ using JetBrains.Annotations;
 namespace Automatron.AzureDevOps.Annotations;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true)]
-public class VariableGroupAttribute : Attribute
+[method: UsedImplicitly]
+public class VariableGroupAttribute(string name) : Attribute
 {
-    public string Name { get; }
-
-    [UsedImplicitly]
-    public VariableGroupAttribute(string name)
-    {
-        Name = name;
-    }
+    public string Name { get; } = name;
 }

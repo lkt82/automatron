@@ -1,4 +1,4 @@
-﻿#if NET6_0
+﻿#if NET8_0
 using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;

@@ -12,16 +12,9 @@ using Microsoft.CodeAnalysis;
 
 namespace Automatron.AzureDevOps.Generators;
 
-internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>
+internal class JobVisitor(Stage stage) : SymbolVisitor<IEnumerable<IJob>>
 {
-    private readonly Stage _stage;
-
     private Dictionary<string, IJob> Jobs { get; } = new();
-
-    public JobVisitor(Stage stage)
-    {
-        _stage = stage;
-    }
 
     public override IEnumerable<IJob> VisitNamedType(INamedTypeSymbol symbol)
     {
@@ -95,14 +88,14 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>
 
         if (jobAttribute is DeploymentJobAttribute deploymentJobAttribute)
         {
-            job =  new DeploymentJob(_stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition, ParseEnvironment(deploymentJobAttribute.Environment) ?? throw new InvalidOperationException())
+            job =  new DeploymentJob(stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition, ParseEnvironment(deploymentJobAttribute.Environment) ?? throw new InvalidOperationException())
             {
                 TimeoutInMinutes = deploymentJobAttribute.Timeout == null ? null : ParseTimeoutInMinutest(deploymentJobAttribute.Timeout)
             };
         }
         else
         {
-            job = new Job(_stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition);
+            job = new Job(stage, name, jobAttribute.DisplayName, jobAttribute.DependsOn, jobAttribute.Condition);
         }
      
         job.Pool = symbol.Accept(new PoolVisitor());
@@ -120,15 +113,15 @@ internal class JobVisitor : SymbolVisitor<IEnumerable<IJob>>
 
     private string? ParseEnvironment(string? environment)
     {
-        if (string.IsNullOrEmpty(environment) || _stage.TemplateParameters == null)
+        if (string.IsNullOrEmpty(environment) || stage.TemplateParameters == null)
         {
             return environment;
         }
 
         var match = Regex.Match(environment, "^\\$\\{\\{(?<name>.+)\\}\\}");
-        if (match.Success && _stage.TemplateParameters.ContainsKey(match.Groups["name"].Value))
+        if (match.Success && stage.TemplateParameters.ContainsKey(match.Groups["name"].Value))
         {
-            environment = (string)_stage.TemplateParameters[match.Groups["name"].Value];
+            environment = (string)stage.TemplateParameters[match.Groups["name"].Value];
         }
 
         return environment;

@@ -3,7 +3,7 @@
 
 The Automatron Platform is a collection of .NET libraries to help .Net Developers create automation workloads in the in the same language as your .Net applications
 
-Platform support: [.NET 6.0 and later](https://docs.microsoft.com/en-us/dotnet/core/whats-new/dotnet-6).
+Platform support: [.NET 8.0 and later](https://docs.microsoft.com/en-us/dotnet/core/whats-new/dotnet-6).
 
 - [Tasks](#tasks)
     - [Quick start](#tasks-quick-start)
@@ -114,7 +114,7 @@ using Automatron.AzureDevOps.Tasks;
 return await new AzureDevOpsRunner().RunAsync(args);
 
 [Pipeline("Ci")]
-[CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
+[CiTrigger(Batch = true, IncludeBranches = ["main"], IncludePaths = ["src"])]
 [Pool(VmImage = "ubuntu-latest")]
 [Stage]
 [Job]
@@ -125,12 +125,12 @@ public class Pipeline
     {
     }
 
-    [Step(Emoji = "🧪", DependsOn = new[] { nameof(Build) })]
+    [Step(Emoji = "🧪", DependsOn = [nameof(Build)])]
     public async Task Test()
     {
     }
 
-    [Step(Emoji = "📦", DependsOn = new[] { nameof(Test) })]
+    [Step(Emoji = "📦", DependsOn = [nameof(Test)])]
     public async Task Pack()
     {
     }
@@ -152,7 +152,7 @@ using Automatron.AzureDevOps.Tasks;
 return await new AzureDevOpsRunner().RunAsync(args);
 
 [Pipeline("Ci")]
-[CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
+[CiTrigger(Batch = true, IncludeBranches = ["main"], IncludePaths = ["src"])]
 [Pool(VmImage = "ubuntu-latest")]
 [VariableGroup("nuget")]
 [Stage]
@@ -167,12 +167,12 @@ public class Pipeline
     {
     }
 
-    [Step(Emoji = "🧪", DependsOn = new[] { nameof(Build) })]
+    [Step(Emoji = "🧪", DependsOn = [nameof(Build)])]
     public async Task Test()
     {
     }
 
-    [Step(Emoji = "📦", DependsOn = new[] { nameof(Test) })]
+    [Step(Emoji = "📦", DependsOn = [nameof(Test)])]
     public async Task Pack()
     {
     }

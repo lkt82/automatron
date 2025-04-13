@@ -1,15 +1,10 @@
-﻿#if NET6_0
+﻿#if NET8_0
 using System;
 
 namespace Automatron.AzureDevOps.Models;
 
-public class PipelineModelStartingArgs<T> : EventArgs
+public class PipelineModelStartingArgs<T>(T model) : EventArgs
 {
-    public PipelineModelStartingArgs(T model)
-    {
-        Model = model;
-    }
-
-    public T Model { get; }
+    public T Model { get; } = model;
 }
 #endif

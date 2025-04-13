@@ -2,7 +2,7 @@
 
 namespace Automatron.AzureDevOps.Models;
 
-#if NET6_0
+#if NET8_0
 public record PipelineResult(TimeSpan Elapsed)
 {
 }

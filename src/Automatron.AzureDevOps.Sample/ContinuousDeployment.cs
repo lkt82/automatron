@@ -26,14 +26,14 @@ public abstract class PulumiDeploymentJob
         Console.WriteLine("Configure");
     }
 
-    [Step(DependsOn = new[] { nameof(Configure) })]
+    [Step(DependsOn = [nameof(Configure)])]
     public virtual void Preview()
     {
 
     }
 
     [NuGetAuthenticate]
-    [Step(DependsOn = new[] { nameof(Preview) })]
+    [Step(DependsOn = [nameof(Preview)])]
     public virtual void Update()
     {
 
@@ -45,13 +45,13 @@ public abstract class PulumiDeploymentStage
 {
     public class DeploymentJob : PulumiDeploymentJob
     {
-        [Step(DependsOn = new[] { nameof(Configure) })]
+        [Step(DependsOn = [nameof(Configure)])]
         public virtual void AfterConfigure()
         {
 
         }
 
-        [Step(DependsOn = new[] { nameof(AfterConfigure) })]
+        [Step(DependsOn = [nameof(AfterConfigure)])]
         public override void Preview()
         {
             base.Preview();
@@ -61,7 +61,7 @@ public abstract class PulumiDeploymentStage
 
 
 [Pipeline("Ci")]
-[CiTrigger(Batch = true, IncludeBranches = new[] { "main" }, IncludePaths = new[] { "src" })]
+[CiTrigger(Batch = true, IncludeBranches = ["main"], IncludePaths = ["src"])]
 [Pool(VmImage = "ubuntu-latest")]
 [VariableGroup("Nuget")]
 public abstract class PulumiContinuousDeploymentPipeline
@@ -72,13 +72,13 @@ public abstract class PulumiContinuousDeploymentPipeline
     {
     }
 
-    [Stage(DependsOn = new [] { nameof(DeployToTesting) })]
+    [Stage(DependsOn = [nameof(DeployToTesting)])]
     [Environment("Staging")]
     public class DeployToStaging : PulumiDeploymentStage
     {
     }
 
-    [Stage(DependsOn = new [] { nameof(DeployToStaging) })]
+    [Stage(DependsOn = [nameof(DeployToStaging)])]
     [Environment("Production")]
     public class DeployToProduction : PulumiDeploymentStage
     {

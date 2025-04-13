@@ -3,12 +3,7 @@
 namespace Automatron.AzureDevOps.Annotations;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class DownloadAttribute: NodeAttribute
+public class DownloadAttribute(string source) : NodeAttribute
 {
-    public string Source { get; }
-
-    public DownloadAttribute(string source)
-    {
-        Source = source;
-    }
+    public string Source { get; } = source;
 }

@@ -1,18 +1,13 @@
-﻿#if NET6_0
+﻿#if NET8_0
 using System;
 
 namespace Automatron.AzureDevOps.Models;
 
-public class StepException : Exception
+public class StepException(Step step, TimeSpan elapsed, Exception innerException)
+    : Exception("Step failed", innerException)
 {
-    public Step Step { get; }
+    public Step Step { get; } = step;
 
-    public TimeSpan Elapsed { get; }
-
-    public StepException(Step step,TimeSpan elapsed,Exception innerException) :base("Step failed",innerException)
-    {
-        Step = step;
-        Elapsed = elapsed;
-    }
+    public TimeSpan Elapsed { get; } = elapsed;
 }
 #endif

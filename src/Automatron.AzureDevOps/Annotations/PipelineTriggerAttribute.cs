@@ -3,17 +3,11 @@
 namespace Automatron.AzureDevOps.Annotations;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true)]
-public class PipelineTriggerAttribute : Attribute
+public class PipelineTriggerAttribute(string name, string source) : Attribute
 {
-    public PipelineTriggerAttribute(string name,string source)
-    {
-        Name = name;
-        Source = source;
-    }
+    public string Name { get; } = name;
 
-    public string Name { get; }
-
-    public string Source { get; set; }
+    public string Source { get; set; } = source;
 
     public string? Project { get; set; }
 

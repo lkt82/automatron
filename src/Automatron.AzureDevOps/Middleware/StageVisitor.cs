@@ -1,4 +1,4 @@
-﻿#if NET6_0
+﻿#if NET8_0
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,16 +8,9 @@ using Automatron.Reflection;
 
 namespace Automatron.AzureDevOps.Middleware;
 
-internal class StageVisitor : MemberVisitor<IEnumerable<Stage>>
+internal class StageVisitor(Pipeline pipeline) : MemberVisitor<IEnumerable<Stage>>
 {
-    private readonly Pipeline _pipeline;
-
     private readonly Dictionary<string, string[]?> _dependsOnMap = new();
-
-    public StageVisitor(Pipeline pipeline)
-    {
-        _pipeline = pipeline;
-    }
 
     public IEnumerable<Stage> VisitTypes(IEnumerable<Type> types)
     {
@@ -25,7 +18,7 @@ internal class StageVisitor : MemberVisitor<IEnumerable<Stage>>
 
         foreach (var type in types)
         {
-            foreach (var stage in type.Accept(this) ?? Enumerable.Empty<Stage>())
+            foreach (var stage in type.Accept(this) ?? [])
             {
                 stageMap.Add(stage.Name, stage);
 
@@ -62,9 +55,9 @@ internal class StageVisitor : MemberVisitor<IEnumerable<Stage>>
     {
         var name = !string.IsNullOrEmpty(stageAttribute.Name) ? stageAttribute.Name : type.Name;
 
-        var stage = new Stage(name, _pipeline, s =>
+        var stage = new Stage(name, pipeline, s =>
         {
-            s.Variables.UnionWith(type.Accept(new VariableVisitor()) ?? Enumerable.Empty<Variable>());
+            s.Variables.UnionWith(type.Accept(new VariableVisitor()) ?? []);
             foreach (var o in type.Accept(new TemplateValueVisitor()) ?? new Dictionary<string, object>())
             {
                 s.TemplateValues.Add(o);

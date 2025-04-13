@@ -15,19 +15,12 @@ using static Automatron.AzureDevOps.Generators.Models.PulumiTask;
 
 namespace Automatron.AzureDevOps.Generators;
 
-internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>
+internal class StepVisitor(IJob job) : SymbolVisitor<IEnumerable<Step>>
 {
-    private readonly IJob _job;
-
     private readonly Dictionary<string, string[]?> _dependsOnMap = new();
 
     private Dictionary<string, object>? EnvVariable { get; set; }
 
-
-    public StepVisitor(IJob job)
-    {
-        _job = job;
-    }
 
     public override IEnumerable<Step> VisitNamedType(INamedTypeSymbol symbol)
     {
@@ -151,7 +144,7 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>
             };
         }
 
-        return new KubeLoginInstallerTask(_job, inputs)
+        return new KubeLoginInstallerTask(job, inputs)
         {
             Name = stepName,
             DisplayName = displayName,
@@ -181,7 +174,7 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>
             }
         }
 
-        return new NuGetToolInstallerTask(_job, inputs)
+        return new NuGetToolInstallerTask(job, inputs)
         {
             Name = stepName,
             DisplayName = displayName,
@@ -212,7 +205,7 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>
 
         //var dependsOn = last != null ? new[] { last } : null;
 
-        return new PulumiTask(_job, inputs)
+        return new PulumiTask(job, inputs)
         {
             Name = stepName,
             DisplayName = displayName,
@@ -242,7 +235,7 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>
 
        // var dependsOn = last != null ? new[] { last } : null;
 
-        return new NuGetAuthenticateTask(_job, input)
+        return new NuGetAuthenticateTask(job, input)
         {
             Name = stepName,
             DisplayName = displayName,
@@ -260,7 +253,7 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>
         _dependsOnMap[stepName ?? throw new InvalidOperationException()] = stepAttribute.DependsOn;
 
         // ReSharper disable once RedundantSuppressNullableWarningExpression
-        return new AutomatronScript(_job, stepName!)
+        return new AutomatronScript(job, stepName!)
         {
             Name = stepName,
             Id = stepName,
@@ -281,7 +274,7 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>
 
         //var dependsOn = last != null ? new[] { last } : null;
 
-        return new CheckoutTask(_job, checkoutAttribute.Source)
+        return new CheckoutTask(job, checkoutAttribute.Source)
         {
             Name = stepName,
             DisplayName = displayName,
@@ -314,9 +307,9 @@ internal class StepVisitor : SymbolVisitor<IEnumerable<Step>>
 
     private string GetWorkingDirectory()
     {
-        var fullRoot = PathExtensions.GetUnixPath(Path.GetFullPath(_job.Stage.Pipeline.RootDir)) + "/";
+        var fullRoot = PathExtensions.GetUnixPath(Path.GetFullPath(job.Stage.Pipeline.RootDir)) + "/";
 
-        var path = PathExtensions.GetUnixPath(PathExtensions.GetRelativePath(fullRoot, _job.Stage.Pipeline.ProjectDir));
+        var path = PathExtensions.GetUnixPath(PathExtensions.GetRelativePath(fullRoot, job.Stage.Pipeline.ProjectDir));
 
         return path;
     }

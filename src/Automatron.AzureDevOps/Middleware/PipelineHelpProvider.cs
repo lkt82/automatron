@@ -1,4 +1,4 @@
-﻿#if NET6_0
+﻿#if NET8_0
 using System.Collections.Generic;
 using System.Text;
 using Automatron.AzureDevOps.Commands;
@@ -8,18 +8,10 @@ using CommandDotNet.Help;
 
 namespace Automatron.AzureDevOps.Middleware;
 
-internal class PipelineHelpProvider : HelpTextProvider
+internal class PipelineHelpProvider(IHelpProvider inner, IEnumerable<Pipeline> pipelines, AppSettings appSettings)
+    : HelpTextProvider(appSettings)
 {
     private readonly string _definitionSource = typeof(AzureDevOpsCommand).FullName + "." + nameof(AzureDevOpsCommand.Run);
-
-    private readonly IHelpProvider _inner;
-    private readonly IEnumerable<Pipeline> _pipelines;
-
-    public PipelineHelpProvider(IHelpProvider inner, IEnumerable<Pipeline> pipelines, AppSettings appSettings) : base(appSettings)
-    {
-        _inner = inner;
-        _pipelines = pipelines;
-    }
 
     public override string GetHelpText(Command command)
     {
@@ -36,14 +28,14 @@ internal class PipelineHelpProvider : HelpTextProvider
                 (null, ExtendedHelpText(command)));
         }
 
-        return _inner.GetHelpText(command);
+        return inner.GetHelpText(command);
     }
 
     protected string SectionParameters()
     {
         var sb = new StringBuilder();
 
-        foreach (var pipeline in _pipelines)
+        foreach (var pipeline in pipelines)
         {
             foreach (var parameter in pipeline.Parameters)
             {
@@ -67,7 +59,7 @@ internal class PipelineHelpProvider : HelpTextProvider
     {
         var sb = new StringBuilder();
 
-        foreach (var pipeline in _pipelines)
+        foreach (var pipeline in pipelines)
         {
             foreach (var variable in pipeline.Variables)
             {
@@ -91,7 +83,7 @@ internal class PipelineHelpProvider : HelpTextProvider
     {
         var sb = new StringBuilder();
 
-        foreach (var pipeline in _pipelines)
+        foreach (var pipeline in pipelines)
         {
             sb.AppendLine(PadFront(pipeline.Name));
         }

@@ -1,4 +1,4 @@
-﻿#if NET6_0
+﻿#if NET8_0
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -89,7 +89,7 @@ public class PipelineEngine : IPipelineEngine
         }
         catch (JobException exception)
         {
-            var stageException = new StageException(stage, new[] { exception }, stopWatch.Elapsed);
+            var stageException = new StageException(stage, [exception], stopWatch.Elapsed);
 
             OnStageFailed?.Invoke(this, new PipelineModelFailedArgs<Stage>(stage, stopWatch.Elapsed, stageException, dryRun));
 
@@ -112,7 +112,7 @@ public class PipelineEngine : IPipelineEngine
         {
             OnJobStarting?.Invoke(this, new PipelineModelStartingArgs<Job>(job));
 
-            await using var scope = _serviceProvider.CreateAsyncScope();
+            await using var scope = serviceProvider.CreateAsyncScope();
 
             var pipelineService = scope.ServiceProvider.GetRequiredService(job.Stage.Pipeline.Type);
             BindProperties(pipelineService, job.Stage.Pipeline.Variables);

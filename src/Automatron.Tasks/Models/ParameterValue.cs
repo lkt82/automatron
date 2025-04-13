@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace Automatron.Tasks.Models;
 
-#if NET6_0
+#if NET8_0
 [TypeConverter(typeof(ParameterValueConverter))]
 public record ParameterValue(string Name, string Value)
 {

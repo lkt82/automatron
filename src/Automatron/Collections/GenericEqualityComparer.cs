@@ -3,16 +3,10 @@ using System.Collections.Generic;
 
 namespace Automatron.Collections;
 
-internal class GenericEqualityComparer<TItem, TKey> : EqualityComparer<TItem> where TKey : notnull
+internal class GenericEqualityComparer<TItem, TKey>(Func<TItem, TKey> getKey) : EqualityComparer<TItem>
+    where TKey : notnull
 {
-    private readonly Func<TItem, TKey> _getKey;
-    private readonly EqualityComparer<TKey> _keyComparer;
-
-    public GenericEqualityComparer(Func<TItem, TKey> getKey)
-    {
-        _getKey = getKey;
-        _keyComparer = EqualityComparer<TKey>.Default;
-    }
+    private readonly EqualityComparer<TKey> _keyComparer = EqualityComparer<TKey>.Default;
 
     public override bool Equals(TItem? x, TItem? y)
     {
@@ -24,7 +18,7 @@ internal class GenericEqualityComparer<TItem, TKey> : EqualityComparer<TItem> wh
         {
             return false;
         }
-        return _keyComparer.Equals(_getKey(x), _getKey(y));
+        return _keyComparer.Equals(getKey(x), getKey(y));
     }
 
     public override int GetHashCode(TItem obj)
@@ -33,6 +27,6 @@ internal class GenericEqualityComparer<TItem, TKey> : EqualityComparer<TItem> wh
         {
             return 0;
         }
-        return _keyComparer.GetHashCode(_getKey(obj));
+        return _keyComparer.GetHashCode(getKey(obj));
     }
 }

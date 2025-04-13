@@ -1,4 +1,4 @@
-﻿#if NET6_0
+﻿#if NET8_0
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +15,7 @@ internal class TemplateParameterVisitor : MemberVisitor<IEnumerable<TemplatePara
     {
         foreach (var propertyInfo in type.GetAllProperties())
         {
-            foreach (var templateParameter in propertyInfo.Accept(this) ?? Enumerable.Empty<TemplateParameter>())
+            foreach (var templateParameter in propertyInfo.Accept(this) ?? [])
             {
                 yield return templateParameter;
             }
