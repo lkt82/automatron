@@ -1,0 +1,75 @@
+parameters:
+- name: RunTests
+  displayName: Run Tests
+  type: string
+  values:
+  - Yes
+  - No
+trigger: none
+schedules:
+- cron: 2 0 * * *
+  displayName: Midnight
+  always: false
+  branches:
+    include:
+    - master
+resources:
+  pipelines:
+  - pipeline: Ci
+    source: Ci
+    trigger: true
+variables:
+- group: Nuget
+- group: Pulumi
+- group: Azure
+- name: NUGET.PLUGIN.HANDSHAKE.TIMEOUT.IN.SECONDS
+  value: 30
+- name: NUGET.PLUGIN.REQUEST.TIMEOUT.IN.SECONDS
+  value: 30
+pool:
+  vmImage: ubuntu-latest
+stages:
+- stage: Integration
+  variables:
+  - group: Test
+  - name: NUGET.PLUGIN.HANDSHAKE.TIMEOUT.IN.SECONDS
+    value: 60
+  - name: NUGET.PLUGIN.REQUEST.TIMEOUT.IN.SECONDS
+    value: 60
+  jobs:
+  - deployment: Setup
+    environment: Integration
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: dotnet run -- azuredevops run --stage "Integration" --job "Setup" --step "Init" -n "Int"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            env:
+              RUN_TESTS: ${{ parameters.RunTests }}
+              NUGET_API_KEY: $(NugetApiKey)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+              AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+            name: Init
+          - script: dotnet run -- azuredevops run --stage "Integration" --job "Setup" --step "Update" -n "Int"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            env:
+              RUN_TESTS: ${{ parameters.RunTests }}
+              NUGET_API_KEY: $(NugetApiKey)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+              AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+            name: Update
+  - deployment: Teardown
+    dependsOn:
+    - Setup
+    environment: Integration
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: dotnet run -- azuredevops run --stage "Integration" --job "Teardown" --step "Init" -n "Int"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            name: Init
+          - script: dotnet run -- azuredevops run --stage "Integration" --job "Teardown" --step "Destroy" -n "Int"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            name: Destroy

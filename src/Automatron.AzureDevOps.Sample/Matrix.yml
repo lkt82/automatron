@@ -1,0 +1,12 @@
+stages:
+- stage: Integration2
+  jobs:
+  - deployment: Setup
+    environment: test
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: dotnet run -- azuredevops run --stage "Integration2" --job "Setup" --step "Update" -n "Matrix"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            name: Update

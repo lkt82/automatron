@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<PropertyGroup>
+		<AutomatronAzureDevOpsProjectDirectory>$(MSBuildProjectDirectory)</AutomatronAzureDevOpsProjectDirectory>
+		<AutomatronAzureDevOpsSkip Condition="$(TF_BUILD) == 'True'">True</AutomatronAzureDevOpsSkip>
+		<AutomatronAzureDevOpsSkip Condition="$(TF_BUILD) == ''">False</AutomatronAzureDevOpsSkip>
+		<AutomatronAzureDevOpsDebug>False</AutomatronAzureDevOpsDebug>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<CompilerVisibleProperty Include="AutomatronAzureDevOpsProjectDirectory" />
+		<CompilerVisibleProperty Include="AutomatronAzureDevOpsSkip" />
+		<CompilerVisibleProperty Include="AutomatronAzureDevOpsCommand" />
+		<CompilerVisibleProperty Include="AutomatronAzureDevOpsDebug" />
+	</ItemGroup>
+
+</Project>

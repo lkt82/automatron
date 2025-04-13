@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+	    <Nullable>enable</Nullable>
+	    <Description>The Automatron.Tasks .NET library is a task automation system that enables you to write task based workflows as .Net methods</Description>
+		<PackageTags>Build;Pipeline</PackageTags>
+	    <PackageReadmeFile>README.md</PackageReadmeFile>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
+
+	<Import Project="..\..\build.props" />
+
+
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="MinVer" Version="6.0.0" PrivateAssets="All" />
+    <PackageReference Include="CommandDotNet" Version="8.1.1" />
+    <PackageReference Include="CommandDotNet.IoC.MicrosoftDependencyInjection" Version="7.1.0" />
+    <PackageReference Include="CommandDotNet.NameCasing" Version="5.1.0" />
+    <PackageReference Include="CommandDotNet.Spectre" Version="4.1.0" />
+  </ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Automatron\Automatron.csproj" />
+	</ItemGroup>
+
+</Project>

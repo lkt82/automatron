@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Automatron.AzureDevOps.Sample": {
+      "commandName": "Project",
+      "commandLineArgs": "azuredevops run int -p RunTests:Yes",
+      "environmentVariables": {
+        "AZURE_CLIENT_SECRET": "test"
+      }
+    }
+  }
+}

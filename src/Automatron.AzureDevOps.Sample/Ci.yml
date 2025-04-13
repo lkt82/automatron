@@ -1,0 +1,135 @@
+trigger:
+  batch: true
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - src
+pool:
+  vmImage: ubuntu-latest
+stages:
+- stage: DeployToTesting
+  jobs:
+  - deployment: Deployment
+    environment: Testing
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+            fetchDepth: 0
+          - task: NuGetToolInstaller@1
+          - task: NuGetAuthenticate@1
+          - task: Pulumi@1
+            displayName: Pulumi install
+          - task: KubeloginInstaller@0
+          - script: dotnet run -- azuredevops run --stage "DeployToTesting" --job "Deployment" --step "Configure" -n "Ci"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            env:
+              PULUMI_API_KEY: $(PulumiApiKey)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+            name: Configure
+          - script: dotnet run -- azuredevops run --stage "DeployToTesting" --job "Deployment" --step "AfterConfigure" -n "Ci"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            env:
+              PULUMI_API_KEY: $(PulumiApiKey)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+            name: AfterConfigure
+          - script: dotnet run -- azuredevops run --stage "DeployToTesting" --job "Deployment" --step "Preview" -n "Ci"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            env:
+              PULUMI_API_KEY: $(PulumiApiKey)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+            name: Preview
+          - task: NuGetAuthenticate@1
+          - script: dotnet run -- azuredevops run --stage "DeployToTesting" --job "Deployment" --step "Update" -n "Ci"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            env:
+              PULUMI_API_KEY: $(PulumiApiKey)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+            name: Update
+- stage: DeployToStaging
+  dependsOn:
+  - DeployToTesting
+  jobs:
+  - deployment: Deployment
+    environment: Staging
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+            fetchDepth: 0
+          - task: NuGetToolInstaller@1
+          - task: NuGetAuthenticate@1
+          - task: Pulumi@1
+            displayName: Pulumi install
+          - task: KubeloginInstaller@0
+          - script: dotnet run -- azuredevops run --stage "DeployToStaging" --job "Deployment" --step "Configure" -n "Ci"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            env:
+              PULUMI_API_KEY: $(PulumiApiKey)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+            name: Configure
+          - script: dotnet run -- azuredevops run --stage "DeployToStaging" --job "Deployment" --step "AfterConfigure" -n "Ci"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            env:
+              PULUMI_API_KEY: $(PulumiApiKey)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+            name: AfterConfigure
+          - script: dotnet run -- azuredevops run --stage "DeployToStaging" --job "Deployment" --step "Preview" -n "Ci"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            env:
+              PULUMI_API_KEY: $(PulumiApiKey)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+            name: Preview
+          - task: NuGetAuthenticate@1
+          - script: dotnet run -- azuredevops run --stage "DeployToStaging" --job "Deployment" --step "Update" -n "Ci"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            env:
+              PULUMI_API_KEY: $(PulumiApiKey)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+            name: Update
+- stage: DeployToProduction
+  dependsOn:
+  - DeployToStaging
+  jobs:
+  - deployment: Deployment
+    environment: Production
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+            fetchDepth: 0
+          - task: NuGetToolInstaller@1
+          - task: NuGetAuthenticate@1
+          - task: Pulumi@1
+            displayName: Pulumi install
+          - task: KubeloginInstaller@0
+          - script: dotnet run -- azuredevops run --stage "DeployToProduction" --job "Deployment" --step "Configure" -n "Ci"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            env:
+              PULUMI_API_KEY: $(PulumiApiKey)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+            name: Configure
+          - script: dotnet run -- azuredevops run --stage "DeployToProduction" --job "Deployment" --step "AfterConfigure" -n "Ci"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            env:
+              PULUMI_API_KEY: $(PulumiApiKey)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+            name: AfterConfigure
+          - script: dotnet run -- azuredevops run --stage "DeployToProduction" --job "Deployment" --step "Preview" -n "Ci"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            env:
+              PULUMI_API_KEY: $(PulumiApiKey)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+            name: Preview
+          - task: NuGetAuthenticate@1
+          - script: dotnet run -- azuredevops run --stage "DeployToProduction" --job "Deployment" --step "Update" -n "Ci"
+            workingDirectory: src/Automatron.AzureDevOps.Sample
+            env:
+              PULUMI_API_KEY: $(PulumiApiKey)
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+            name: Update
