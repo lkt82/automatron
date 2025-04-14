@@ -3,7 +3,7 @@
 
 The Automatron Platform is a collection of .NET libraries to help .Net Developers create automation workloads in the in the same language as your .Net applications
 
-Platform support: [.NET 8.0 and later](https://docs.microsoft.com/en-us/dotnet/core/whats-new/dotnet-6).
+Platform support: [.NET 8.0 and later](https://docs.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8).
 
 - [Tasks](#tasks)
     - [Quick start](#tasks-quick-start)

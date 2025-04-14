@@ -19,8 +19,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Automatron.AzureDevOps", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Automatron.AzureDevOps.Sample", "src\Automatron.AzureDevOps.Sample\Automatron.AzureDevOps.Sample.csproj", "{0BB05FE6-AFC2-4A9A-A724-6297685017D4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Automatron.Pipeline", "src\Automatron.Pipeline\Automatron.Pipeline.csproj", "{D5B3CD41-C152-4073-BBB8-AB8B46459239}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Automatron.Tests", "src\Automatron.Tests\Automatron.Tests.csproj", "{DE46E0A7-92AA-4BE8-972E-88076840211F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Automatron.AzureDevOps.Tests", "src\Automatron.AzureDevOps.Tests\Automatron.AzureDevOps.Tests.csproj", "{2A77395C-8546-46F9-A640-618227D24B08}"
@@ -28,6 +26,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Automatron.Tasks", "src\Automatron.Tasks\Automatron.Tasks.csproj", "{298B9CB8-92E5-4DE5-910F-DEE713592F15}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Automatron.Tasks.Sample", "src\Automatron.Tasks.Sample\Automatron.Tasks.Sample.csproj", "{35CD6E59-AA18-4EAB-9DAC-5160DA411C75}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Automatron.Pipelines", "src\Automatron.Pipelines\Automatron.Pipelines.csproj", "{D78392C0-E748-C2BE-8819-4CFD70273616}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,10 +47,6 @@ Global
 		{0BB05FE6-AFC2-4A9A-A724-6297685017D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BB05FE6-AFC2-4A9A-A724-6297685017D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BB05FE6-AFC2-4A9A-A724-6297685017D4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D5B3CD41-C152-4073-BBB8-AB8B46459239}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D5B3CD41-C152-4073-BBB8-AB8B46459239}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D5B3CD41-C152-4073-BBB8-AB8B46459239}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D5B3CD41-C152-4073-BBB8-AB8B46459239}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DE46E0A7-92AA-4BE8-972E-88076840211F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DE46E0A7-92AA-4BE8-972E-88076840211F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE46E0A7-92AA-4BE8-972E-88076840211F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -67,6 +63,10 @@ Global
 		{35CD6E59-AA18-4EAB-9DAC-5160DA411C75}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35CD6E59-AA18-4EAB-9DAC-5160DA411C75}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35CD6E59-AA18-4EAB-9DAC-5160DA411C75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D78392C0-E748-C2BE-8819-4CFD70273616}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D78392C0-E748-C2BE-8819-4CFD70273616}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D78392C0-E748-C2BE-8819-4CFD70273616}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D78392C0-E748-C2BE-8819-4CFD70273616}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

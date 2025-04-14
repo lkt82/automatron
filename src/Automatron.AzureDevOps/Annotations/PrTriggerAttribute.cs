@@ -12,9 +12,9 @@ public class PrTriggerAttribute : Attribute
 
     }
 
-    public bool AutoCancel { get; set; }
+    public bool AutoCancel { get; set; } = true;
 
-    public bool Drafts { get; set; }
+    public bool Drafts { get; set; } = true;
 
     public bool Disabled { get; set; }
 
