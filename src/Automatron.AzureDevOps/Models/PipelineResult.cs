@@ -1,9 +1,7 @@
-﻿using System;
+﻿#if NET8_0
+using System;
 
 namespace Automatron.AzureDevOps.Models;
 
-#if NET8_0
-public record PipelineResult(TimeSpan Elapsed)
-{
-}
+public record PipelineResult(TimeSpan Elapsed);
 #endif

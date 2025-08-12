@@ -12,8 +12,6 @@ public class AzureDevOpsRunner<T> : AutomationRunner<T> where T : AzureDevOpsCom
     }
 }
 
-public class AzureDevOpsRunner : AzureDevOpsRunner<AzureDevOpsCommand>
-{
-}
+public class AzureDevOpsRunner : AzureDevOpsRunner<AzureDevOpsCommand>;
 
 #endif

@@ -4,7 +4,7 @@
 		<TargetFramework>net8.0</TargetFramework>
 	    <Nullable>enable</Nullable>
 	    <Description>The Automatron.Tasks .NET library is a task automation system that enables you to write task based workflows as .Net methods</Description>
-		<PackageTags>Build;Pipeline</PackageTags>
+		<PackageTags>Build;Task;CI/CD</PackageTags>
 	    <PackageReadmeFile>README.md</PackageReadmeFile>
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>

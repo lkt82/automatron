@@ -1,7 +1,6 @@
 ﻿#if NET8_0
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Automatron.AzureDevOps.Annotations;
 using Automatron.AzureDevOps.Models;
@@ -15,7 +14,7 @@ internal class ParameterVisitor : MemberVisitor<IEnumerable<Parameter>>
     {
         foreach (var propertyInfo in type.GetAllProperties())
         {
-            foreach (var parameter in propertyInfo.Accept(this) ?? Enumerable.Empty<Parameter>())
+            foreach (var parameter in propertyInfo.Accept(this) ?? [])
             {
                 yield return parameter;
             }

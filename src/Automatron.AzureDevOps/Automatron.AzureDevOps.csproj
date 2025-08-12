@@ -3,8 +3,8 @@
     <PropertyGroup>
 	    <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
 	    <Nullable>enable</Nullable>
-	    <Description>The Automatron.AzureDevOps .NET library enables you to write AzureDevOps workflows as .Net methods</Description>
-	    <PackageTags>Build;Pipeline;AzureDevOps</PackageTags>
+	    <Description>The Automatron.AzureDevOps .NET library enables you to write AzureDevOps Pipelines as .Net code</Description>
+	    <PackageTags>Build;Pipeline;AzureDevOps;CI/CD</PackageTags>
 	    <LangVersion>latest</LangVersion>
 	    <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
@@ -23,7 +23,6 @@
         <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" PrivateAssets="All" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
         <PackageReference Include="MinVer" Version="6.0.0" PrivateAssets="All" />
-        <!--<PackageReference Include="YamlDotNet" Version="16.3.0" GeneratePathProperty="true" PrivateAssets="All" />-->
     </ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">

@@ -2,7 +2,7 @@
 [![NuGet version (Automatron.AzureDevOps)](https://img.shields.io/nuget/v/Automatron.AzureDevOps.svg?style=flat-square)](https://www.nuget.org/packages/Automatron.AzureDevOps/)
 [![Build status](https://dev.azure.com/lkt82/Public/_apis/build/status/Automatron%20CI?branchName=main)](https://dev.azure.com/lkt82/Public/_build/latest?definitionId=1)
 
-The Automatron.AzureDevOps [.NET library](https://www.nuget.org/packages/Automatron.AzureDevOps) enables you to write AzureDevOps workflows as .Net methods
+The Automatron.AzureDevOps [.NET library](https://www.nuget.org/packages/Automatron.AzureDevOps) enables you to write AzureDevOps workflows as .Net code
 
 Automatron.AzureDevOps also generates the AzureDevOps pipeline yaml every time the project is compiled.
 

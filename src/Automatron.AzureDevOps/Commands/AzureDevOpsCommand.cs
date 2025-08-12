@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace Automatron.AzureDevOps.Commands;
 
-[Command("AzureDevOps", Description = "AzureDevOps commands")]
+[Command("AzureDevOps", Description = "AzureDevOps pipeline commands")]
 public class AzureDevOpsCommand
 {
     private readonly IAnsiConsole _console;
